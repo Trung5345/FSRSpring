@@ -3,163 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Từ Vựng - VocabSmart</title>
+    <title>Vocabulary</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: { DEFAULT: '#6366f1', dark: '#4f46e5', light: '#a5b4fc' }
-                    }
-                }
-            }
-        }
-    </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-
-    <!-- Navbar -->
-    <nav class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-2">
-                    <span class="text-2xl">🧠</span>
-                    <a href="/" class="text-xl font-bold text-indigo-700">VocabSmart</a>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="/" class="text-gray-600 hover:text-indigo-700 transition-colors">Dashboard</a>
-                    <a href="/vocabulary" class="text-indigo-700 font-semibold border-b-2 border-indigo-700 pb-1">Từ Vựng</a>
-                    <a href="/learn" class="text-gray-600 hover:text-indigo-700 transition-colors">Học Bài</a>
-                    <a href="/quiz" class="text-gray-600 hover:text-indigo-700 transition-colors">Kiểm Tra</a>
-                    <a href="/progress" class="text-gray-600 hover:text-indigo-700 transition-colors">Tiến Độ</a>
-                </div>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+    <nav class="border-b border-slate-200 bg-white">
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+            <a href="/" class="font-display text-xl">VocabSmart FSRS</a>
+            <div class="hidden gap-5 text-sm font-medium md:flex">
+                <a href="/vocabulary" class="text-indigo-700">Vocabulary</a>
+                <a href="/learn">Study</a>
+                <a href="/quiz">Quiz</a>
+                <a href="/progress">Progress</a>
+                <a href="/content">Content Hub</a>
+                <a href="/flashcards">Flashcards</a>
             </div>
         </div>
     </nav>
 
-    <!-- Header -->
-    <div class="bg-white border-b">
-        <div class="max-w-7xl mx-auto px-4 py-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h1 class="text-3xl font-bold text-gray-800">📚 Từ Vựng Của Tôi</h1>
-                    <p class="text-gray-500 mt-1">Quản lý danh sách từ vựng tiếng Anh của bạn</p>
-                </div>
-                <button onclick="openAddModal()"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-md hover:shadow-lg">
-                    <i class="fas fa-plus"></i> Thêm Từ Mới
-                </button>
+    <header class="border-b border-slate-200 bg-white">
+        <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-6">
+            <div>
+                <h1 class="font-display text-3xl">Vocabulary Library</h1>
+                <p class="mt-1 text-slate-500">Manage learning words and feed FSRS scheduler.</p>
             </div>
+            <button onclick="openAddModal()" class="rounded-xl bg-indigo-700 px-5 py-2.5 font-semibold text-white">Add word</button>
         </div>
-    </div>
+    </header>
 
-    <!-- Filters -->
-    <div class="max-w-7xl mx-auto px-4 py-4">
-        <div class="bg-white rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row gap-3">
-            <div class="flex-1 relative">
-                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                <input type="text" id="searchInput" placeholder="Tìm từ vựng..."
-                    class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                    oninput="filterWords()">
+    <main class="mx-auto max-w-7xl px-4 py-6">
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
+                <input id="searchInput" oninput="filterWords()" placeholder="Search word" class="input md:col-span-2">
+                <select id="categoryFilter" onchange="filterWords()" class="input"><option value="">All categories</option></select>
+                <select id="difficultyFilter" onchange="filterWords()" class="input"><option value="">All levels</option><option value="BEGINNER">Beginner</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select>
             </div>
-            <select id="categoryFilter" class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" onchange="filterWords()">
-                <option value="">Tất Cả Danh Mục</option>
-            </select>
-            <select id="difficultyFilter" class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" onchange="filterWords()">
-                <option value="">Tất Cả Cấp Độ</option>
-                <option value="BEGINNER">Sơ Cấp</option>
-                <option value="INTERMEDIATE">Trung Cấp</option>
-                <option value="ADVANCED">Nâng Cao</option>
-            </select>
-            <span id="wordCount" class="text-gray-500 text-sm self-center whitespace-nowrap"></span>
+            <p id="wordCount" class="mt-2 text-sm text-slate-500"></p>
         </div>
-    </div>
 
-    <!-- Word Grid -->
-    <div class="max-w-7xl mx-auto px-4 pb-10">
-        <div id="wordGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        </div>
-        <div id="emptyState" class="hidden text-center py-20">
-            <i class="fas fa-book-open text-gray-300 text-6xl mb-4"></i>
-            <p class="text-gray-400 text-xl">Chưa có từ vựng nào</p>
-            <button onclick="openAddModal()" class="mt-4 text-indigo-600 hover:underline">Thêm từ đầu tiên →</button>
-        </div>
-    </div>
+        <div id="wordGrid" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></div>
+        <div id="emptyState" class="hidden py-16 text-center text-slate-500">No vocabulary data yet.</div>
+    </main>
 
-    <!-- Add/Edit Word Modal -->
-    <div id="wordModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-screen overflow-y-auto">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h2 id="modalTitle" class="text-xl font-bold text-gray-800">Thêm Từ Mới</h2>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <form id="wordForm" class="p-6 space-y-4" onsubmit="saveWord(event)">
+    <div id="wordModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/45 p-4">
+        <div class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <div class="border-b border-slate-200 p-5"><h2 id="modalTitle" class="font-display text-2xl">Add Word</h2></div>
+            <form id="wordForm" class="space-y-4 p-5" onsubmit="saveWord(event)">
                 <input type="hidden" id="wordId">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Từ Tiếng Anh *</label>
-                        <input type="text" id="wordInput" required placeholder="e.g. serendipity"
-                            class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                    </div>
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nghĩa Tiếng Việt *</label>
-                        <input type="text" id="translationInput" required placeholder="e.g. sự tình cờ may mắn"
-                            class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Phiên Âm</label>
-                        <input type="text" id="pronunciationInput" placeholder="/ˌsɛrənˈdɪpɪti/"
-                            class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Danh Mục</label>
-                        <input type="text" id="categoryInput" placeholder="e.g. Emotions" list="categoryList"
-                            class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                        <datalist id="categoryList"></datalist>
-                    </div>
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Cấp Độ</label>
-                        <select id="difficultyInput" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                            <option value="BEGINNER">🟢 Sơ Cấp</option>
-                            <option value="INTERMEDIATE">🟡 Trung Cấp</option>
-                            <option value="ADVANCED">🔴 Nâng Cao</option>
-                        </select>
-                    </div>
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Ví Dụ</label>
-                        <textarea id="exampleInput" rows="2" placeholder="e.g. She found her dream job by serendipity."
-                            class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"></textarea>
-                    </div>
-                </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="closeModal()"
-                        class="flex-1 border border-gray-300 text-gray-700 font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition">
-                        Hủy
-                    </button>
-                    <button type="submit"
-                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl transition">
-                        Lưu
-                    </button>
-                </div>
+                <div><label class="mb-1 block text-sm">Word</label><input id="wordInput" required class="input"></div>
+                <div><label class="mb-1 block text-sm">Translation</label><input id="translationInput" required class="input"></div>
+                <div><label class="mb-1 block text-sm">Pronunciation</label><input id="pronunciationInput" class="input"></div>
+                <div><label class="mb-1 block text-sm">Category</label><input id="categoryInput" list="categoryList" class="input"><datalist id="categoryList"></datalist></div>
+                <div><label class="mb-1 block text-sm">Difficulty</label><select id="difficultyInput" class="input"><option value="BEGINNER">Beginner</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select></div>
+                <div><label class="mb-1 block text-sm">Example</label><textarea id="exampleInput" rows="2" class="input"></textarea></div>
+                <div class="flex gap-3"><button type="button" onclick="closeModal()" class="flex-1 rounded-xl border border-slate-300 py-2">Cancel</button><button type="submit" class="flex-1 rounded-xl bg-indigo-700 py-2 font-semibold text-white">Save</button></div>
             </form>
         </div>
     </div>
 
-    <!-- Delete Confirm Modal -->
-    <div id="deleteModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
-            <div class="text-red-500 text-4xl mb-4"><i class="fas fa-trash-can"></i></div>
-            <h3 class="text-xl font-bold text-gray-800 mb-2">Xóa Từ Này?</h3>
-            <p class="text-gray-500 mb-6">Hành động này không thể hoàn tác.</p>
-            <div class="flex gap-3">
-                <button onclick="closeDeleteModal()" class="flex-1 border border-gray-300 text-gray-700 py-2 rounded-xl hover:bg-gray-50 transition">Hủy</button>
-                <button id="confirmDeleteBtn" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl transition">Xóa</button>
-            </div>
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/45 p-4">
+        <div class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-2xl">
+            <h3 class="font-display text-2xl">Delete this word?</h3>
+            <p class="mt-2 text-slate-500">This action cannot be undone.</p>
+            <div class="mt-4 flex gap-3"><button onclick="closeDeleteModal()" class="flex-1 rounded-xl border border-slate-300 py-2">Cancel</button><button id="confirmDeleteBtn" class="flex-1 rounded-xl bg-rose-600 py-2 font-semibold text-white">Delete</button></div>
         </div>
     </div>
 

@@ -90,7 +90,7 @@ function renderMasteryBars(progressList, totalWords) {
                     <span class="text-gray-500">${count} từ (${pct}%)</span>
                 </div>
                 <div class="bg-gray-100 rounded-full h-3">
-                    <div class="${colors[key]} h-3 rounded-full transition-all duration-700" style="width: ${pct}%"></div>
+                    <div class="${colors[key]} h-3 rounded-full transition-[width] duration-700" style="width: ${pct}%"></div>
                 </div>
             </div>
         `;
@@ -102,7 +102,6 @@ function renderSessions(sessions) {
     if (!sessions || sessions.length === 0) {
         container.innerHTML = `
             <div class="text-center py-8 text-gray-400">
-                <i class="fas fa-clipboard text-3xl mb-2"></i>
                 <p>Chưa có bài kiểm tra nào. <a href="/quiz" class="text-indigo-500 hover:underline">Làm bài ngay!</a></p>
             </div>`;
         return;
@@ -119,9 +118,6 @@ function renderSessions(sessions) {
         return `
             <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                 <div class="flex items-center gap-3">
-                    <div class="bg-indigo-100 rounded-full p-2">
-                        <i class="fas fa-clipboard-check text-indigo-600"></i>
-                    </div>
                     <div>
                         <p class="font-medium text-gray-700">
                             ${s.correctAnswers}/${s.totalQuestions} câu đúng

@@ -1,5 +1,54 @@
 /* VocabSmart - Custom Styles */
 
+:root {
+    --font-display: "Sora", "Segoe UI", sans-serif;
+    --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+body {
+    font-family: var(--font-body);
+}
+
+.font-display {
+    font-family: var(--font-display);
+}
+
+.input {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.75rem;
+    padding: 0.6rem 0.8rem;
+    outline: none;
+    background: #fff;
+}
+
+.input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.metric-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    background: #fff;
+    padding: 1rem;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+}
+
+.metric-card p {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.metric-card strong {
+    display: block;
+    margin-top: 0.45rem;
+    font-size: 1.7rem;
+    line-height: 1;
+}
+
 /* Flashcard flip animation */
 .flashcard-container {
     perspective: 1000px;
@@ -34,7 +83,7 @@
 
 /* Quiz option buttons */
 .quiz-option {
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
     cursor: pointer;
     border: 2px solid #e5e7eb;
     border-radius: 0.75rem;
@@ -71,7 +120,7 @@
 
 /* Word card hover effect */
 .word-card {
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .word-card:hover {
@@ -149,15 +198,6 @@
     box-sizing: border-box;
 }
 
-/* Loading spinner */
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.fa-spin {
-    animation: spin 1s linear infinite;
-}
-
 /* Toast notification */
 .toast {
     position: fixed;
@@ -171,7 +211,7 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     transform: translateY(2rem);
     opacity: 0;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .toast.show {

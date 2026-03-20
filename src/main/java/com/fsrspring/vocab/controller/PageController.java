@@ -30,4 +30,14 @@ public class PageController {
     public String progress() {
         return "forward:/progress.html";
     }
+
+    @GetMapping("/content")
+    public String content() {
+        return "forward:/content.html";
+    }
+
+    @GetMapping("/flashcards")
+    public String flashcards() {
+        return "forward:/flashcards.html";
+    }
 }

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trusted Flashcards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+    <nav class="border-b border-slate-200 bg-white">
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+            <a href="/" class="font-display text-xl">VocabSmart FSRS</a>
+            <div class="hidden gap-5 text-sm font-medium md:flex">
+                <a href="/vocabulary">Vocabulary</a>
+                <a href="/learn">Study</a>
+                <a href="/quiz">Quiz</a>
+                <a href="/progress">Progress</a>
+                <a href="/content">Content Hub</a>
+                <a href="/flashcards" class="text-indigo-700">Flashcards</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="mx-auto max-w-7xl px-4 py-8">
+        <h1 class="font-display text-3xl">Trusted Flashcard Sources</h1>
+        <p class="mt-1 text-slate-500">Import curated flashcards and push selected items into your vocabulary base.</p>
+
+        <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
+            <select id="sourceSelect" class="input md:col-span-2">
+                <option value="BBC Learning English">BBC Learning English</option>
+                <option value="VOA Learning English">VOA Learning English</option>
+                <option value="Cambridge Dictionary Blog">Cambridge Dictionary Blog</option>
+            </select>
+            <input id="topicInput" class="input" value="general" placeholder="Topic">
+            <button id="importBtn" onclick="importFlashcards()" class="rounded-xl bg-indigo-700 px-5 py-2.5 font-semibold text-white">Import set</button>
+        </div>
+
+        <div class="mt-4"><input id="searchInput" oninput="loadFlashcards()" class="input w-full md:w-80" placeholder="Search flashcards"></div>
+
+        <section id="flashcardList" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"></section>
+    </main>
+
+    <script src="/js/flashcards.js"></script>
+</body>
+</html>

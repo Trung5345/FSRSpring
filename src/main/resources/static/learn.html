@@ -3,184 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Học Bài - VocabSmart</title>
+    <title>FSRS Study</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: { DEFAULT: '#6366f1', dark: '#4f46e5' }
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="/webjars/lucide/dist/umd/lucide.min.js"></script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-
-    <!-- Navbar -->
-    <nav class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-2">
-                    <span class="text-2xl">🧠</span>
-                    <a href="/" class="text-xl font-bold text-indigo-700">VocabSmart</a>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="/" class="text-gray-600 hover:text-indigo-700 transition-colors">Dashboard</a>
-                    <a href="/vocabulary" class="text-gray-600 hover:text-indigo-700 transition-colors">Từ Vựng</a>
-                    <a href="/learn" class="text-indigo-700 font-semibold border-b-2 border-indigo-700 pb-1">Học Bài</a>
-                    <a href="/quiz" class="text-gray-600 hover:text-indigo-700 transition-colors">Kiểm Tra</a>
-                    <a href="/progress" class="text-gray-600 hover:text-indigo-700 transition-colors">Tiến Độ</a>
-                </div>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+    <nav class="border-b border-slate-200 bg-white">
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+            <a href="/" class="font-display text-xl">VocabSmart FSRS</a>
+            <div class="hidden gap-5 text-sm font-medium md:flex">
+                <a href="/vocabulary">Vocabulary</a>
+                <a href="/learn" class="text-indigo-700">Study</a>
+                <a href="/quiz">Quiz</a>
+                <a href="/progress">Progress</a>
+                <a href="/content">Content Hub</a>
+                <a href="/flashcards">Flashcards</a>
             </div>
         </div>
     </nav>
 
-    <!-- Setup screen -->
-    <div id="setupScreen" class="max-w-2xl mx-auto px-4 py-12">
-        <div class="bg-white rounded-2xl shadow-sm p-8 text-center">
-            <div class="text-6xl mb-4">🃏</div>
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Học Bằng Flashcard</h1>
-            <p class="text-gray-500 mb-8">Lật thẻ để xem nghĩa, đánh dấu mức độ ghi nhớ của bạn</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-left">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Danh Mục</label>
-                    <select id="lcategory" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                        <option value="">Tất Cả</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Cấp Độ</label>
-                    <select id="ldifficulty" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                        <option value="">Tất Cả</option>
-                        <option value="BEGINNER">🟢 Sơ Cấp</option>
-                        <option value="INTERMEDIATE">🟡 Trung Cấp</option>
-                        <option value="ADVANCED">🔴 Nâng Cao</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Số Thẻ</label>
-                    <select id="lcardCount" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                        <option value="10">10 thẻ</option>
-                        <option value="20">20 thẻ</option>
-                        <option value="30">30 thẻ</option>
-                        <option value="50">50 thẻ</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Chế Độ</label>
-                    <select id="lmode" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                        <option value="en-vi">Anh → Việt</option>
-                        <option value="vi-en">Việt → Anh</option>
-                    </select>
-                </div>
+    <div id="setupScreen" class="mx-auto max-w-3xl px-4 py-10">
+        <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+            <h1 class="font-display text-3xl">FSRS Flashcard Session</h1>
+            <p class="mt-2 text-slate-500">Review cards and update scheduler state after each decision.</p>
+            <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div><label class="mb-1 block text-sm">Category</label><select id="lcategory" class="input"><option value="">All</option></select></div>
+                <div><label class="mb-1 block text-sm">Difficulty</label><select id="ldifficulty" class="input"><option value="">All</option><option value="BEGINNER">Beginner</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select></div>
+                <div><label class="mb-1 block text-sm">Card count</label><select id="lcardCount" class="input"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50">50</option></select></div>
+                <div><label class="mb-1 block text-sm">Direction</label><select id="lmode" class="input"><option value="en-vi">EN to VI</option><option value="vi-en">VI to EN</option></select></div>
             </div>
-            <button onclick="startLearn()"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-full text-lg transition-all shadow-md hover:shadow-lg">
-                <i class="fas fa-play mr-2"></i>Bắt Đầu
-            </button>
+            <button onclick="startLearn()" class="mt-6 rounded-xl bg-indigo-700 px-6 py-3 font-semibold text-white">Start Session</button>
         </div>
     </div>
 
-    <!-- Learn screen -->
-    <div id="learnScreen" class="hidden max-w-2xl mx-auto px-4 py-8">
-        <!-- Progress bar -->
-        <div class="mb-6">
-            <div class="flex justify-between text-sm text-gray-500 mb-2">
-                <span id="cardProgress">0 / 0</span>
-                <span id="learnStats" class="flex gap-4">
-                    <span class="text-green-600"><i class="fas fa-check mr-1"></i><span id="correctCount">0</span></span>
-                    <span class="text-red-500"><i class="fas fa-times mr-1"></i><span id="incorrectCount">0</span></span>
-                </span>
-            </div>
-            <div class="bg-gray-200 rounded-full h-2">
-                <div id="progressBar" class="bg-indigo-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-        </div>
+    <div id="learnScreen" class="mx-auto hidden max-w-3xl px-4 py-8">
+        <div class="mb-4 flex justify-between text-sm text-slate-600"><span id="cardProgress">0 / 0</span><span>Known: <span id="correctCount">0</span> | Retry: <span id="incorrectCount">0</span></span></div>
+        <div class="h-2 rounded-full bg-slate-200"><div id="progressBar" class="h-2 rounded-full bg-indigo-600" style="width:0%"></div></div>
 
-        <!-- Flashcard -->
-        <div class="flashcard-container mb-6" onclick="flipCard()">
-            <div id="flashcard" class="flashcard bg-white rounded-3xl shadow-lg cursor-pointer select-none">
-                <!-- Front -->
-                <div class="flashcard-front flex flex-col items-center justify-center p-8 text-center min-h-72">
+        <div class="flashcard-container mt-6" onclick="flipCard()">
+            <div id="flashcard" class="flashcard rounded-3xl border border-slate-200 bg-white shadow-lg">
+                <div class="flashcard-front min-h-72 p-8 text-center">
                     <div id="difficultyBadge" class="mb-4"></div>
-                    <p class="text-xs text-gray-400 mb-2" id="cardHint">Nhấn để xem nghĩa</p>
-                    <h2 id="cardFront" class="text-5xl font-bold text-gray-800 mb-3"></h2>
-                    <p id="cardPronunciation" class="text-indigo-400 text-lg"></p>
-                    <p id="cardCategory" class="text-gray-400 text-sm mt-2"></p>
+                    <p id="cardHint" class="text-xs text-slate-400">Tap to reveal meaning</p>
+                    <h2 id="cardFront" class="mt-2 text-5xl font-semibold"></h2>
+                    <p id="cardPronunciation" class="mt-2 text-indigo-500"></p>
+                    <p id="cardCategory" class="mt-2 text-xs text-slate-500"></p>
                 </div>
-                <!-- Back -->
-                <div class="flashcard-back flex flex-col items-center justify-center p-8 text-center min-h-72">
-                    <p class="text-xs text-gray-400 mb-2">Nghĩa</p>
-                    <h2 id="cardBack" class="text-4xl font-bold text-gray-700 mb-4"></h2>
-                    <p id="cardExample" class="text-gray-500 italic text-base max-w-xs"></p>
+                <div class="flashcard-back min-h-72 p-8 text-center">
+                    <p class="text-xs text-slate-400">Meaning</p>
+                    <h2 id="cardBack" class="mt-2 text-4xl font-semibold"></h2>
+                    <p id="cardExample" class="mt-3 text-sm text-slate-500"></p>
                 </div>
             </div>
         </div>
 
-        <!-- Hint -->
-        <p id="flipHint" class="text-center text-gray-400 text-sm mb-4"><i class="fas fa-hand-pointer mr-1"></i>Nhấn vào thẻ để lật</p>
-        <p id="rateHint" class="hidden text-center text-gray-400 text-sm mb-4">Đánh giá mức độ ghi nhớ của bạn:</p>
+        <p id="flipHint" class="mt-4 text-center text-xs text-slate-500">Flip the card to continue.</p>
+        <p id="rateHint" class="mt-4 hidden text-center text-xs text-slate-500">Rate your recall for this card.</p>
 
-        <!-- Buttons -->
-        <div id="flipButtons" class="flex justify-center gap-4">
-            <button onclick="flipCard()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-8 py-3 rounded-full font-semibold transition">
-                <i class="fas fa-rotate mr-2"></i>Lật Thẻ
-            </button>
-        </div>
-        <div id="rateButtons" class="hidden flex justify-center gap-3">
-            <button onclick="rateCard(false)"
-                class="bg-red-100 hover:bg-red-200 text-red-700 font-semibold px-6 py-3 rounded-full transition flex items-center gap-2">
-                <i class="fas fa-times-circle"></i> Chưa Nhớ
-            </button>
-            <button onclick="rateCard(true)"
-                class="bg-green-100 hover:bg-green-200 text-green-700 font-semibold px-6 py-3 rounded-full transition flex items-center gap-2">
-                <i class="fas fa-check-circle"></i> Đã Nhớ
-            </button>
+        <div id="flipButtons" class="mt-4 flex justify-center"><button onclick="flipCard()" class="rounded-xl bg-slate-900 px-6 py-2 font-semibold text-white">Flip card</button></div>
+        <div id="rateButtons" class="mt-4 hidden justify-center gap-3">
+            <button onclick="rateCard(false)" class="rounded-xl bg-rose-100 px-5 py-2 font-semibold text-rose-700">Again</button>
+            <button onclick="rateCard(true)" class="rounded-xl bg-emerald-100 px-5 py-2 font-semibold text-emerald-700">Good</button>
         </div>
 
-        <div class="mt-6 flex justify-center">
-            <button onclick="endSession()" class="text-gray-400 hover:text-gray-600 text-sm">
-                <i class="fas fa-stop-circle mr-1"></i>Kết Thúc
-            </button>
+        <div class="mt-6 text-center"><button onclick="endSession()" class="text-sm text-slate-500">End session</button></div>
+    </div>
+
+    <div id="resultScreen" class="mx-auto hidden max-w-xl px-4 py-10">
+        <div class="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+            <h2 class="font-display text-3xl">Session Complete</h2>
+            <p id="resultMessage" class="mt-3 text-slate-600"></p>
+            <div class="mt-6 grid grid-cols-3 gap-3">
+                <div class="rounded-xl bg-slate-100 p-3"><p id="rTotal" class="text-2xl font-semibold">0</p><p class="text-xs text-slate-500">Cards</p></div>
+                <div class="rounded-xl bg-emerald-100 p-3"><p id="rCorrect" class="text-2xl font-semibold text-emerald-700">0</p><p class="text-xs text-emerald-700">Known</p></div>
+                <div class="rounded-xl bg-rose-100 p-3"><p id="rIncorrect" class="text-2xl font-semibold text-rose-700">0</p><p class="text-xs text-rose-700">Retry</p></div>
+            </div>
+            <div class="mt-6 flex gap-3"><button onclick="resetLearn()" class="flex-1 rounded-xl border border-slate-300 py-2 font-semibold">Restart</button><a href="/quiz" class="flex-1 rounded-xl bg-indigo-700 py-2 font-semibold text-white">Go to quiz</a></div>
         </div>
     </div>
 
-    <!-- Result screen -->
-    <div id="resultScreen" class="hidden max-w-lg mx-auto px-4 py-12">
-        <div class="bg-white rounded-2xl shadow-sm p-8 text-center">
-            <div id="resultEmoji" class="text-6xl mb-4">🎉</div>
-            <h2 class="text-3xl font-bold text-gray-800 mb-2">Hoàn Thành!</h2>
-            <p id="resultMessage" class="text-gray-500 mb-6"></p>
-            <div class="grid grid-cols-3 gap-4 mb-8">
-                <div class="bg-indigo-50 rounded-xl p-4">
-                    <p class="text-2xl font-bold text-indigo-600" id="rTotal">0</p>
-                    <p class="text-xs text-gray-500 mt-1">Tổng thẻ</p>
-                </div>
-                <div class="bg-green-50 rounded-xl p-4">
-                    <p class="text-2xl font-bold text-green-600" id="rCorrect">0</p>
-                    <p class="text-xs text-gray-500 mt-1">Đã nhớ</p>
-                </div>
-                <div class="bg-red-50 rounded-xl p-4">
-                    <p class="text-2xl font-bold text-red-500" id="rIncorrect">0</p>
-                    <p class="text-xs text-gray-500 mt-1">Chưa nhớ</p>
-                </div>
-            </div>
-            <div class="flex gap-3">
-                <button onclick="resetLearn()" class="flex-1 border border-indigo-300 text-indigo-600 font-semibold py-2.5 rounded-xl hover:bg-indigo-50 transition">
-                    <i class="fas fa-redo mr-1"></i>Học Lại
-                </button>
-                <a href="/quiz" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl transition text-center">
-                    <i class="fas fa-brain mr-1"></i>Kiểm Tra
-                </a>
-            </div>
-        </div>
-    </div>
-
+    <script>if (window.lucide) { window.lucide.createIcons(); }</script>
     <script src="/js/learn.js"></script>
 </body>
 </html>

@@ -163,11 +163,11 @@ function selectOption(btn, index) {
     feedback.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'text-green-700', 'text-red-700');
     if (isCorrect) {
         feedback.classList.add('bg-green-50', 'text-green-700');
-        document.getElementById('feedbackText').textContent = '✅ Chính xác!';
+        document.getElementById('feedbackText').textContent = 'Chính xác';
         document.getElementById('feedbackSubtext').textContent = q.word.example ? `"${q.word.example}"` : '';
     } else {
         feedback.classList.add('bg-red-50', 'text-red-700');
-        document.getElementById('feedbackText').textContent = '❌ Chưa đúng!';
+        document.getElementById('feedbackText').textContent = 'Chưa đúng';
         document.getElementById('feedbackSubtext').textContent =
             `Đáp án đúng: ${q.correct}`;
     }
@@ -177,14 +177,16 @@ function selectOption(btn, index) {
         fetch(`/api/quiz/session/${sessionId}/answer?wordId=${q.word.id}&correct=${isCorrect}`, { method: 'POST' })
             .catch(e => console.error(e));
     }
+    fetch(`/api/fsrs/review?wordId=${q.word.id}&rating=${isCorrect ? 3 : 1}&responseMs=0`, { method: 'POST' })
+        .catch(e => console.error(e));
 
     // Show next button (or finish)
     const nextBtn = document.getElementById('nextBtn');
     nextBtn.classList.remove('hidden');
     if (currentQ + 1 >= questions.length) {
-        nextBtn.textContent = 'Xem Kết Quả 🏆';
+        nextBtn.textContent = 'Xem Ket Qua';
     } else {
-        nextBtn.innerHTML = 'Câu Tiếp Theo <i class="fas fa-arrow-right ml-2"></i>';
+        nextBtn.textContent = 'Cau Tiep Theo';
     }
 }
 
@@ -214,18 +216,17 @@ async function finishQuiz() {
     // Score circle color
     const circle = document.getElementById('scoreCircle');
     circle.classList.remove('border-green-400', 'border-yellow-400', 'border-red-400', 'text-green-600', 'text-yellow-600', 'text-red-600');
-    let emoji, msg;
+    let msg;
     if (pct >= 80) {
         circle.classList.add('border-green-400', 'text-green-600');
-        emoji = '🏆'; msg = 'Xuất sắc! Bạn nắm vững từ vựng rất tốt!';
+        msg = 'Xuất sắc. Bạn nắm vững từ vựng rất tốt.';
     } else if (pct >= 60) {
         circle.classList.add('border-yellow-400', 'text-yellow-600');
-        emoji = '🎯'; msg = 'Khá tốt! Tiếp tục ôn luyện nhé.';
+        msg = 'Khá tốt. Tiếp tục ôn luyện nhé.';
     } else {
         circle.classList.add('border-red-400', 'text-red-600');
-        emoji = '📖'; msg = 'Cần ôn tập thêm. Hãy xem lại flashcard!';
+        msg = 'Cần ôn tập thêm. Hãy xem lại flashcard.';
     }
-    document.getElementById('resultEmoji').textContent = emoji;
     document.getElementById('resultMessage').textContent = msg;
 }
 

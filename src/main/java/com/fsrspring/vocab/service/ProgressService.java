@@ -16,53 +16,15 @@ import java.util.List;
 public class ProgressService {
 
     private final UserProgressRepository progressRepository;
+    private final FsrsService fsrsService;
 
     public UserProgress getOrCreateProgress(Word word) {
-        return progressRepository.findByWord(word)
-                .orElseGet(() -> {
-                    UserProgress newProgress = UserProgress.builder()
-                            .word(word)
-                            .build();
-                    return progressRepository.save(newProgress);
-                });
+        return fsrsService.getOrCreateProgress(word);
     }
 
     public UserProgress recordAnswer(Word word, boolean correct) {
-        UserProgress progress = getOrCreateProgress(word);
-        if (correct) {
-            progress.setCorrectCount(progress.getCorrectCount() + 1);
-        } else {
-            progress.setIncorrectCount(progress.getIncorrectCount() + 1);
-        }
-        progress.setLastStudied(LocalDateTime.now());
-        progress.setNextReview(calculateNextReview(progress, correct));
-        progress.setMastery(calculateMastery(progress));
-        return progressRepository.save(progress);
-    }
-
-    private LocalDateTime calculateNextReview(UserProgress progress, boolean correct) {
-        LocalDateTime now = LocalDateTime.now();
-        int correctCount = progress.getCorrectCount();
-        if (!correct) {
-            return now.plusHours(1);
-        }
-        // Simple spaced repetition intervals
-        return switch (correctCount) {
-            case 0, 1 -> now.plusHours(4);
-            case 2, 3 -> now.plusDays(1);
-            case 4, 5 -> now.plusDays(3);
-            case 6, 7 -> now.plusDays(7);
-            default -> now.plusDays(14);
-        };
-    }
-
-    private UserProgress.MasteryLevel calculateMastery(UserProgress progress) {
-        int correct = progress.getCorrectCount();
-        double accuracy = progress.getAccuracy();
-        if (correct == 0) return UserProgress.MasteryLevel.NEW;
-        if (correct < 3 || accuracy < 60) return UserProgress.MasteryLevel.LEARNING;
-        if (correct < 8 || accuracy < 80) return UserProgress.MasteryLevel.REVIEWING;
-        return UserProgress.MasteryLevel.MASTERED;
+        int rating = correct ? 3 : 1;
+        return fsrsService.reviewWord(word, rating, 0L);
     }
 
     public List<UserProgress> getWordsForReview() {

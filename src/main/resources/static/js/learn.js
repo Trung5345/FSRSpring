@@ -99,9 +99,9 @@ function showCard(index) {
     document.getElementById('cardExample').textContent = card.example ? `"${card.example}"` : '';
 
     const diffMap = {
-        BEGINNER: '<span class="badge-beginner">🟢 Sơ Cấp</span>',
-        INTERMEDIATE: '<span class="badge-intermediate">🟡 Trung Cấp</span>',
-        ADVANCED: '<span class="badge-advanced">🔴 Nâng Cao</span>',
+        BEGINNER: '<span class="badge-beginner">Sơ cấp</span>',
+        INTERMEDIATE: '<span class="badge-intermediate">Trung cấp</span>',
+        ADVANCED: '<span class="badge-advanced">Nâng cao</span>',
     };
     document.getElementById('difficultyBadge').innerHTML = diffMap[card.difficulty] || '';
 
@@ -146,8 +146,9 @@ function showRateButtons() {
 
 async function rateCard(known) {
     const card = cards[currentIndex];
+    const rating = known ? 3 : 1;
     try {
-        await fetch(`/api/progress/word/${card.id}/answer?correct=${known}`, { method: 'POST' });
+        await fetch(`/api/fsrs/review?wordId=${card.id}&rating=${rating}&responseMs=0`, { method: 'POST' });
     } catch (e) { /* non-critical */ }
 
     if (known) {
@@ -178,13 +179,12 @@ function showResult() {
     document.getElementById('rCorrect').textContent = correctCount;
     document.getElementById('rIncorrect').textContent = incorrectCount;
 
-    let emoji, msg;
-    if (pct >= 90) { emoji = '🏆'; msg = 'Xuất sắc! Bạn đã ghi nhớ rất tốt!'; }
-    else if (pct >= 70) { emoji = '🎉'; msg = 'Tốt lắm! Tiếp tục cố gắng nhé!'; }
-    else if (pct >= 50) { emoji = '💪'; msg = 'Ổn! Hãy ôn tập thêm những từ chưa nhớ.'; }
-    else { emoji = '📚'; msg = 'Cần ôn tập thêm. Đừng nản lòng!'; }
+    let msg;
+    if (pct >= 90) { msg = 'Xuất sắc. Bạn đã ghi nhớ rất tốt.'; }
+    else if (pct >= 70) { msg = 'Tốt lắm. Tiếp tục cố gắng nhé.'; }
+    else if (pct >= 50) { msg = 'Ổn. Hãy ôn tập thêm những từ chưa nhớ.'; }
+    else { msg = 'Cần ôn tập thêm. Đừng nản lòng.'; }
 
-    document.getElementById('resultEmoji').textContent = emoji;
     document.getElementById('resultMessage').textContent = `${msg} (${pct}%)`;
 }
 

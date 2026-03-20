@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_progress")
+@Table(name = "user_progress", indexes = {
+    @Index(name = "idx_user_progress_next_review", columnList = "nextReview"),
+    @Index(name = "idx_user_progress_mastery", columnList = "mastery")
+})
 @Data
 @Builder
 @NoArgsConstructor
@@ -46,6 +49,52 @@ public class UserProgress {
     @Column(nullable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    // FSRS core state
+    @Column(nullable = false)
+    @Builder.Default
+    private Double fsrsStability = 0.2;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Double fsrsDifficulty = 5.0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer fsrsRepetition = 0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer fsrsLapseCount = 0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Double fsrsRetrievability = 0.0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Double lastIntervalHours = 0.0;
+
+    // RNN-like sequential behavior representation
+    @Column(nullable = false)
+    @Builder.Default
+    private Double sequenceAccuracyEMA = 0.0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Double sequenceResponseMsEMA = 0.0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Double sequenceConsistency = 0.0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Double sequenceDifficultyTrend = 0.0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer sequenceStep = 0;
 
     public enum MasteryLevel {
         NEW, LEARNING, REVIEWING, MASTERED

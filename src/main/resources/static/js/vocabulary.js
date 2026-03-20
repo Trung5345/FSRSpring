@@ -16,9 +16,9 @@ function escapeHtml(text) {
 
 function difficultyBadge(d) {
     const map = {
-        BEGINNER: '<span class="badge-beginner">🟢 Sơ Cấp</span>',
-        INTERMEDIATE: '<span class="badge-intermediate">🟡 Trung Cấp</span>',
-        ADVANCED: '<span class="badge-advanced">🔴 Nâng Cao</span>',
+        BEGINNER: '<span class="badge-beginner">Sơ cấp</span>',
+        INTERMEDIATE: '<span class="badge-intermediate">Trung cấp</span>',
+        ADVANCED: '<span class="badge-advanced">Nâng cao</span>',
     };
     return map[d] || d;
 }
@@ -105,11 +105,11 @@ function renderWords(words) {
             <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100">
                 <button onclick="openEditModal(${w.id})"
                     class="flex-1 text-sm text-indigo-600 hover:bg-indigo-50 py-1.5 rounded-lg transition flex items-center justify-center gap-1">
-                    <i class="fas fa-pen-to-square"></i> Sửa
+                    Sửa
                 </button>
                 <button onclick="openDeleteModal(${w.id})"
                     class="flex-1 text-sm text-red-500 hover:bg-red-50 py-1.5 rounded-lg transition flex items-center justify-center gap-1">
-                    <i class="fas fa-trash"></i> Xóa
+                    Xóa
                 </button>
             </div>
         </div>

@@ -1,12 +1,12 @@
 // app.js - Dashboard / Home page logic
 
 const CATEGORY_ICONS = {
-    'Animals': '🐾',
-    'Food': '🍎',
-    'Technology': '💻',
-    'Nature': '🌿',
-    'Emotions': '😊',
-    'Travel': '✈️',
+    'Animals': 'paw-print',
+    'Food': 'apple',
+    'Technology': 'cpu',
+    'Nature': 'leaf',
+    'Emotions': 'heart',
+    'Travel': 'plane',
 };
 
 const CATEGORY_COLORS = [
@@ -26,7 +26,51 @@ async function loadDashboard() {
         loadWordOfDay(),
         loadReviewWords(),
         loadCategories(),
+        loadFsrsStats(),
+        loadNotifications(),
     ]);
+}
+
+async function loadFsrsStats() {
+    try {
+        const fsrs = await fetch('/api/fsrs/stats').then(r => r.json());
+        const dueEl = document.getElementById('dueNow');
+        const retentionEl = document.getElementById('retentionEstimate');
+        if (dueEl) dueEl.textContent = fsrs.dueNow ?? 0;
+        if (retentionEl) retentionEl.textContent = (fsrs.retentionEstimate ?? 0).toFixed(1) + '%';
+    } catch (e) {
+        console.error('Failed to load fsrs stats', e);
+    }
+}
+
+async function loadNotifications() {
+    try {
+        const [count, list] = await Promise.all([
+            fetch('/api/notifications/unread-count').then(r => r.json()),
+            fetch('/api/notifications').then(r => r.json())
+        ]);
+        const unreadEl = document.getElementById('unreadCount');
+        if (unreadEl) unreadEl.textContent = count.unread ?? 0;
+
+        const stream = document.getElementById('notificationStream');
+        if (!stream) return;
+
+        if (!list || list.length === 0) {
+            stream.innerHTML = '<p class="text-sm text-slate-500">No notification yet.</p>';
+            return;
+        }
+
+        stream.innerHTML = list.slice(0, 4).map(n => `
+            <a href="${escapeHtml(n.deepLink || '/learn?mode=fsrs')}" class="block border-3 border-black bg-white shadow-[2px_2px_0px_#141414] rounded-lg bg-white p-3 hover:bg-slate-50 transition">
+                <p class="text-sm font-semibold text-slate-800">${escapeHtml(n.title)}</p>
+                <p class="text-xs text-slate-500 mt-1">${escapeHtml(n.message)}</p>
+            </a>
+        `).join('');
+
+        initLucide();
+    } catch (e) {
+        console.error('Failed to load notifications', e);
+    }
 }
 
 async function loadStats() {
@@ -98,17 +142,24 @@ async function loadCategories() {
         const grid = document.getElementById('categoriesGrid');
         if (!categories || categories.length === 0) return;
         grid.innerHTML = categories.map((cat, i) => {
-            const icon = CATEGORY_ICONS[cat] || '📝';
+            const icon = CATEGORY_ICONS[cat] || 'notebook-pen';
             const color = CATEGORY_COLORS[i % CATEGORY_COLORS.length];
             return `
                 <a href="/vocabulary?category=${encodeURIComponent(cat)}"
-                   class="bg-white rounded-xl shadow-sm p-4 text-center hover:shadow-md transition-all group">
-                    <div class="text-3xl mb-2">${icon}</div>
+                         class="bg-white rounded-xl shadow-sm p-4 text-center hover:shadow-md transition-shadow duration-200 group">
+                    <div class="text-3xl mb-2 flex justify-center"><i data-lucide="${icon}" class="h-8 w-8"></i></div>
                     <p class="font-semibold text-gray-700 text-sm group-hover:text-indigo-600 transition-colors">${escapeHtml(cat)}</p>
                 </a>`;
         }).join('');
+        initLucide();
     } catch (e) {
         console.error('Failed to load categories', e);
+    }
+}
+
+function initLucide() {
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
     }
 }
 

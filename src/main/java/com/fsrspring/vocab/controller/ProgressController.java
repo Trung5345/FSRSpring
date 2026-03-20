@@ -2,6 +2,7 @@ package com.fsrspring.vocab.controller;
 
 import com.fsrspring.vocab.model.UserProgress;
 import com.fsrspring.vocab.model.Word;
+import com.fsrspring.vocab.service.FsrsService;
 import com.fsrspring.vocab.service.ProgressService;
 import com.fsrspring.vocab.service.WordService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public class ProgressController {
 
     private final ProgressService progressService;
     private final WordService wordService;
+    private final FsrsService fsrsService;
 
     @GetMapping
     public ResponseEntity<List<UserProgress>> getAllProgress() {
@@ -61,6 +63,7 @@ public class ProgressController {
                 "learning", learning,
                 "totalCorrect", totalCorrect,
                 "totalIncorrect", totalIncorrect,
+            "dueNow", fsrsService.getFsrsStats().get("dueNow"),
                 "accuracy", Math.round(accuracy * 10.0) / 10.0
         ));
     }

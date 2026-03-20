@@ -22,6 +22,12 @@ public interface UserProgressRepository extends JpaRepository<UserProgress, Long
     @Query("SELECT up FROM UserProgress up WHERE up.nextReview <= :now OR up.nextReview IS NULL ORDER BY up.nextReview ASC NULLS FIRST")
     List<UserProgress> findWordsForReview(LocalDateTime now);
 
+    @Query("SELECT up FROM UserProgress up WHERE up.nextReview <= :now ORDER BY up.nextReview ASC")
+    List<UserProgress> findDueWords(LocalDateTime now);
+
+    @Query("SELECT COUNT(up) FROM UserProgress up WHERE up.nextReview <= :now")
+    long countDueWords(LocalDateTime now);
+
     @Query("SELECT COUNT(up) FROM UserProgress up WHERE up.mastery = 'MASTERED'")
     long countMastered();
 
