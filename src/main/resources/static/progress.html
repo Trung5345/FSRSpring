@@ -3,11 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Progress</title>
+    <title>Progress — VocabSmart</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="/" class="nav-brand">
+            <span class="nav-brand-icon">🧠</span>
+            <span>VocabSmart</span>
+        </a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Dashboard</a>
+            <a href="/vocabulary" class="nav-link">Vocabulary</a>
+            <a href="/learn" class="nav-link">Study</a>
+            <a href="/quiz" class="nav-link">Quiz</a>
+            <a href="/progress" class="nav-link active">Progress</a>
+            <a href="/content" class="nav-link">Content Hub</a>
+            <a href="/flashcards" class="nav-link">Flashcards</a>
+        </div>
+    </div>
+</nav>
+
+<header class="page-header">
+    <div class="page-header-inner">
+        <h1>Learning Progress</h1>
+        <p>Track your mastery curve, quiz performance, and long-term retention metrics.</p>
+    </div>
+</header>
+
+<main style="max-width:1280px;margin:0 auto;padding:2rem 1.5rem;">
+
+    <!-- Summary Metrics -->
+    <section style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.75rem;" class="sm:grid-cols-4">
+        <article class="metric-card">
+            <p>📚 Total Words</p>
+            <strong id="pTotalWords">0</strong>
+        </article>
+        <article class="metric-card">
+            <p>🏆 Mastered</p>
+            <strong id="pMastered">0</strong>
+        </article>
+        <article class="metric-card">
+            <p>📖 Learning</p>
+            <strong id="pLearning">0</strong>
+        </article>
+        <article class="metric-card">
+            <p>🎯 Accuracy</p>
+            <strong id="pAccuracy">0%</strong>
+        </article>
+    </section>
+
+    <!-- Mastery Distribution + Quiz Performance -->
+    <section style="display:grid;gap:1.5rem;margin-bottom:1.5rem;" class="lg:grid-cols-2">
+
+        <!-- Mastery Bars -->
+        <article class="card-glass" style="padding:1.5rem;">
+            <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:1rem;">📊 Mastery Distribution</h2>
+            <div id="masteryBars" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
+        </article>
+
+        <!-- Quiz Performance -->
+        <article class="card-glass" style="padding:1.5rem;">
+            <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:1rem;">🧩 Quiz Performance</h2>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                <div class="stat-box">
+                    <p id="qCompleted" class="font-display" style="font-size:1.75rem;font-weight:800;color:var(--text);">0</p>
+                    <p style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:0.25rem;font-weight:600;">Quizzes Done</p>
+                </div>
+                <div class="stat-box">
+                    <p id="qAvgScore" class="font-display" style="font-size:1.75rem;font-weight:800;color:var(--primary);">0%</p>
+                    <p style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:0.25rem;font-weight:600;">Avg Score</p>
+                </div>
+                <div class="stat-box" style="border-color:rgba(74,222,128,0.2);">
+                    <p id="pCorrect" class="font-display" style="font-size:1.75rem;font-weight:800;color:var(--success);">0</p>
+                    <p style="font-size:0.7rem;color:var(--success);text-transform:uppercase;letter-spacing:0.06em;margin-top:0.25rem;font-weight:600;">Correct</p>
+                </div>
+                <div class="stat-box" style="border-color:rgba(251,113,133,0.2);">
+                    <p id="pIncorrect" class="font-display" style="font-size:1.75rem;font-weight:800;color:var(--danger);">0</p>
+                    <p style="font-size:0.7rem;color:var(--danger);text-transform:uppercase;letter-spacing:0.06em;margin-top:0.25rem;font-weight:600;">Wrong</p>
+                </div>
+            </div>
+        </article>
+
+    </section>
+
+    <!-- Recent Sessions -->
+    <section style="margin-bottom:1.5rem;">
+        <article class="card-glass" style="padding:1.5rem;">
+            <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:1rem;">🕐 Recent Study Sessions</h2>
+            <div id="recentSessions" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+        </article>
+    </section>
+
+    <!-- Word Progress Table -->
+    <section>
+        <article class="card-glass" style="padding:1.5rem;overflow:hidden;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+                <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);">📋 Word Progress Table</h2>
+                <select id="progressFilter" class="input" style="width:auto;background:var(--bg-elevated);padding:0.4rem 0.75rem;font-size:0.8rem;" onchange="filterProgress()">
+                    <option value="">All Words</option>
+                    <option value="MASTERED">Mastered</option>
+                    <option value="REVIEWING">Reviewing</option>
+                    <option value="LEARNING">Learning</option>
+                    <option value="NEW">New</option>
+                </select>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="dark-table">
+                    <thead>
+                        <tr>
+                            <th>Word</th>
+                            <th>Translation</th>
+                            <th>Status</th>
+                            <th>Next Review</th>
+                            <th>Reviews</th>
+                        </tr>
+                    </thead>
+                    <tbody id="progressTable"></tbody>
+                </table>
+            </div>
+            <div id="noProgressData" class="hidden" style="text-align:center;padding:2.5rem;color:var(--text-muted);font-size:0.875rem;">No word progress data yet. Start studying!</div>
+        </article>
+    </section>
+
+</main>
+
+<script src="/js/progress.js"></script>
+</body>
+</html>
+
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen">

@@ -3,90 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FSRS Study</title>
+    <title>FSRS Study — VocabSmart</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <script src="/webjars/lucide/dist/umd/lucide.min.js"></script>
 </head>
-<body class="bg-slate-100 text-slate-900 min-h-screen">
-    <nav class="border-b border-slate-200 bg-white">
-        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-            <a href="/" class="font-display text-xl">VocabSmart FSRS</a>
-            <div class="hidden gap-5 text-sm font-medium md:flex">
-                <a href="/vocabulary">Vocabulary</a>
-                <a href="/learn" class="text-indigo-700">Study</a>
-                <a href="/quiz">Quiz</a>
-                <a href="/progress">Progress</a>
-                <a href="/content">Content Hub</a>
-                <a href="/flashcards">Flashcards</a>
+<body>
+
+<!-- ── Navigation ── -->
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="/" class="nav-brand">
+            <span class="nav-brand-icon">🧠</span>
+            <span>VocabSmart</span>
+        </a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Dashboard</a>
+            <a href="/vocabulary" class="nav-link">Vocabulary</a>
+            <a href="/learn" class="nav-link active">Study</a>
+            <a href="/quiz" class="nav-link">Quiz</a>
+            <a href="/progress" class="nav-link">Progress</a>
+            <a href="/content" class="nav-link">Content Hub</a>
+            <a href="/flashcards" class="nav-link">Flashcards</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ── Setup Screen ── -->
+<div id="setupScreen" style="max-width:680px;margin:0 auto;padding:2.5rem 1.5rem;">
+    <div class="card-glass" style="padding:2.25rem;">
+        <div style="margin-bottom:1.75rem;">
+            <h1 class="font-display" style="font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text) 0%,var(--primary) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">FSRS Flashcard Session</h1>
+            <p style="margin-top:0.4rem;color:var(--text-muted);font-size:0.9rem;">Review cards and update your FSRS scheduler state after each decision.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+            <div>
+                <label style="display:block;margin-bottom:0.4rem;">Category</label>
+                <select id="lcategory" class="input"><option value="">All Categories</option></select>
+            </div>
+            <div>
+                <label style="display:block;margin-bottom:0.4rem;">Difficulty</label>
+                <select id="ldifficulty" class="input">
+                    <option value="">All Levels</option>
+                    <option value="BEGINNER">Beginner</option>
+                    <option value="INTERMEDIATE">Intermediate</option>
+                    <option value="ADVANCED">Advanced</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block;margin-bottom:0.4rem;">Card Count</label>
+                <select id="lcardCount" class="input">
+                    <option value="10">10 cards</option>
+                    <option value="20">20 cards</option>
+                    <option value="30">30 cards</option>
+                    <option value="50">50 cards</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block;margin-bottom:0.4rem;">Direction</label>
+                <select id="lmode" class="input">
+                    <option value="en-vi">EN → VI</option>
+                    <option value="vi-en">VI → EN</option>
+                </select>
             </div>
         </div>
-    </nav>
+        <button onclick="startLearn()" class="btn btn-primary" style="width:100%;padding:0.85rem;font-size:1rem;border-radius:0.875rem;">▶ Start Session</button>
+    </div>
+</div>
 
-    <div id="setupScreen" class="mx-auto max-w-3xl px-4 py-10">
-        <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-            <h1 class="font-display text-3xl">FSRS Flashcard Session</h1>
-            <p class="mt-2 text-slate-500">Review cards and update scheduler state after each decision.</p>
-            <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div><label class="mb-1 block text-sm">Category</label><select id="lcategory" class="input"><option value="">All</option></select></div>
-                <div><label class="mb-1 block text-sm">Difficulty</label><select id="ldifficulty" class="input"><option value="">All</option><option value="BEGINNER">Beginner</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select></div>
-                <div><label class="mb-1 block text-sm">Card count</label><select id="lcardCount" class="input"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50">50</option></select></div>
-                <div><label class="mb-1 block text-sm">Direction</label><select id="lmode" class="input"><option value="en-vi">EN to VI</option><option value="vi-en">VI to EN</option></select></div>
-            </div>
-            <button onclick="startLearn()" class="mt-6 rounded-xl bg-indigo-700 px-6 py-3 font-semibold text-white">Start Session</button>
+<!-- ── Learn Screen ── -->
+<div id="learnScreen" class="hidden" style="max-width:680px;margin:0 auto;padding:1.5rem;">
+
+    <!-- Progress Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+        <span id="cardProgress" style="font-size:0.875rem;font-weight:700;color:var(--text-muted);">0 / 0</span>
+        <div style="display:flex;gap:0.75rem;font-size:0.8rem;font-weight:700;">
+            <span style="color:var(--success);">✓ Known: <span id="correctCount">0</span></span>
+            <span style="color:var(--danger);">↺ Retry: <span id="incorrectCount">0</span></span>
         </div>
     </div>
 
-    <div id="learnScreen" class="mx-auto hidden max-w-3xl px-4 py-8">
-        <div class="mb-4 flex justify-between text-sm text-slate-600"><span id="cardProgress">0 / 0</span><span>Known: <span id="correctCount">0</span> | Retry: <span id="incorrectCount">0</span></span></div>
-        <div class="h-2 rounded-full bg-slate-200"><div id="progressBar" class="h-2 rounded-full bg-indigo-600" style="width:0%"></div></div>
-
-        <div class="flashcard-container mt-6" onclick="flipCard()">
-            <div id="flashcard" class="flashcard rounded-3xl border border-slate-200 bg-white shadow-lg">
-                <div class="flashcard-front min-h-72 p-8 text-center">
-                    <div id="difficultyBadge" class="mb-4"></div>
-                    <p id="cardHint" class="text-xs text-slate-400">Tap to reveal meaning</p>
-                    <h2 id="cardFront" class="mt-2 text-5xl font-semibold"></h2>
-                    <p id="cardPronunciation" class="mt-2 text-indigo-500"></p>
-                    <p id="cardCategory" class="mt-2 text-xs text-slate-500"></p>
-                </div>
-                <div class="flashcard-back min-h-72 p-8 text-center">
-                    <p class="text-xs text-slate-400">Meaning</p>
-                    <h2 id="cardBack" class="mt-2 text-4xl font-semibold"></h2>
-                    <p id="cardExample" class="mt-3 text-sm text-slate-500"></p>
-                </div>
-            </div>
-        </div>
-
-        <p id="flipHint" class="mt-4 text-center text-xs text-slate-500">Flip the card to continue.</p>
-        <p id="rateHint" class="mt-4 hidden text-center text-xs text-slate-500">Rate your recall for this card.</p>
-
-        <div id="flipButtons" class="mt-4 flex justify-center"><button onclick="flipCard()" class="rounded-xl bg-slate-900 px-6 py-2 font-semibold text-white">Flip card</button></div>
-        <div id="rateButtons" class="mt-4 hidden justify-center gap-3">
-            <button onclick="rateCard(false)" class="rounded-xl bg-rose-100 px-5 py-2 font-semibold text-rose-700">Again</button>
-            <button onclick="rateCard(true)" class="rounded-xl bg-emerald-100 px-5 py-2 font-semibold text-emerald-700">Good</button>
-        </div>
-
-        <div class="mt-6 text-center"><button onclick="endSession()" class="text-sm text-slate-500">End session</button></div>
+    <!-- Progress Bar -->
+    <div style="height:4px;background:var(--bg-elevated);border-radius:9999px;margin-bottom:1.5rem;overflow:hidden;">
+        <div id="progressBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--primary),#0891b2);border-radius:9999px;transition:width 0.5s ease;"></div>
     </div>
 
-    <div id="resultScreen" class="mx-auto hidden max-w-xl px-4 py-10">
-        <div class="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <h2 class="font-display text-3xl">Session Complete</h2>
-            <p id="resultMessage" class="mt-3 text-slate-600"></p>
-            <div class="mt-6 grid grid-cols-3 gap-3">
-                <div class="rounded-xl bg-slate-100 p-3"><p id="rTotal" class="text-2xl font-semibold">0</p><p class="text-xs text-slate-500">Cards</p></div>
-                <div class="rounded-xl bg-emerald-100 p-3"><p id="rCorrect" class="text-2xl font-semibold text-emerald-700">0</p><p class="text-xs text-emerald-700">Known</p></div>
-                <div class="rounded-xl bg-rose-100 p-3"><p id="rIncorrect" class="text-2xl font-semibold text-rose-700">0</p><p class="text-xs text-rose-700">Retry</p></div>
+    <!-- Flashcard -->
+    <div class="flashcard-container" onclick="flipCard()">
+        <div id="flashcard" class="flashcard">
+
+            <!-- Front -->
+            <div class="flashcard-front">
+                <div id="difficultyBadge" style="margin-bottom:0.75rem;"></div>
+                <p id="cardHint" style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.5rem;">Tap to reveal meaning</p>
+                <h2 id="cardFront" class="font-display" style="font-size:3rem;font-weight:800;letter-spacing:-0.03em;color:var(--text);line-height:1.1;"></h2>
+                <p id="cardPronunciation" style="margin-top:0.5rem;font-size:1rem;color:var(--primary);font-weight:600;"></p>
+                <p id="cardCategory" style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-muted);background:var(--bg-elevated);display:inline-block;padding:0.2rem 0.7rem;border-radius:9999px;border:1px solid var(--border);"></p>
             </div>
-            <div class="mt-6 flex gap-3"><button onclick="resetLearn()" class="flex-1 rounded-xl border border-slate-300 py-2 font-semibold">Restart</button><a href="/quiz" class="flex-1 rounded-xl bg-indigo-700 py-2 font-semibold text-white">Go to quiz</a></div>
+
+            <!-- Back -->
+            <div class="flashcard-back">
+                <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;color:rgba(45,212,191,0.7);margin-bottom:0.5rem;font-weight:700;">Meaning</p>
+                <h2 id="cardBack" class="font-display" style="font-size:2.5rem;font-weight:800;color:var(--text);letter-spacing:-0.02em;"></h2>
+                <p id="cardExample" style="margin-top:1rem;font-size:0.875rem;color:rgba(226,232,240,0.7);font-style:italic;max-width:380px;"></p>
+            </div>
+
         </div>
     </div>
 
-    <script>if (window.lucide) { window.lucide.createIcons(); }</script>
-    <script src="/js/learn.js"></script>
+    <!-- Hints -->
+    <p id="flipHint" style="text-align:center;margin-top:1rem;font-size:0.8rem;color:var(--text-muted);">Click the card or press Flip to reveal</p>
+    <p id="rateHint" class="hidden" style="text-align:center;margin-top:1rem;font-size:0.8rem;color:var(--text-muted);">How well did you remember this word?</p>
+
+    <!-- Flip Button -->
+    <div id="flipButtons" style="margin-top:1.25rem;display:flex;justify-content:center;">
+        <button onclick="flipCard()" class="btn btn-primary" style="padding:0.8rem 2.5rem;font-size:0.95rem;">Flip Card</button>
+    </div>
+
+    <!-- Rate Buttons -->
+    <div id="rateButtons" class="hidden" style="margin-top:1.25rem;display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap;">
+        <button onclick="rateCard(false)" class="btn-again">↺ Again</button>
+        <button onclick="rateCard(true)" class="btn-good">✓ Good</button>
+    </div>
+
+    <!-- End Session -->
+    <div style="text-align:center;margin-top:1.5rem;">
+        <button onclick="endSession()" style="background:none;border:none;font-size:0.8rem;color:var(--text-muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">End session early</button>
+    </div>
+</div>
+
+<!-- ── Result Screen ── -->
+<div id="resultScreen" class="hidden" style="max-width:520px;margin:0 auto;padding:2.5rem 1.5rem;">
+    <div class="card-glass" style="padding:2.25rem;text-align:center;">
+        <div style="font-size:3rem;margin-bottom:0.75rem;">🎉</div>
+        <h2 class="font-display" style="font-size:1.75rem;font-weight:800;background:linear-gradient(135deg,var(--text) 0%,var(--primary) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Session Complete!</h2>
+        <p id="resultMessage" style="margin-top:0.5rem;color:var(--text-muted);font-size:0.9rem;"></p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-top:1.75rem;">
+            <div class="stat-box">
+                <p id="rTotal" style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--text);">0</p>
+                <p style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:0.25rem;font-weight:600;">Total</p>
+            </div>
+            <div class="stat-box" style="border-color:rgba(74,222,128,0.2);">
+                <p id="rCorrect" style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--success);">0</p>
+                <p style="font-size:0.7rem;color:var(--success);text-transform:uppercase;letter-spacing:0.06em;margin-top:0.25rem;font-weight:600;">Known</p>
+            </div>
+            <div class="stat-box" style="border-color:rgba(251,113,133,0.2);">
+                <p id="rIncorrect" style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--danger);">0</p>
+                <p style="font-size:0.7rem;color:var(--danger);text-transform:uppercase;letter-spacing:0.06em;margin-top:0.25rem;font-weight:600;">Retry</p>
+            </div>
+        </div>
+        <div style="display:flex;gap:0.75rem;margin-top:1.75rem;">
+            <button onclick="resetLearn()" class="btn btn-secondary" style="flex:1;padding:0.75rem;">Restart</button>
+            <a href="/quiz" class="btn btn-primary" style="flex:1;padding:0.75rem;text-align:center;">Go to Quiz →</a>
+        </div>
+    </div>
+</div>
+
+<script>if (window.lucide) { window.lucide.createIcons(); }</script>
+<script src="/js/learn.js"></script>
 </body>
 </html>

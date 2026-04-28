@@ -3,11 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Content Hub</title>
+    <title>Content Hub — VocabSmart</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="/" class="nav-brand">
+            <span class="nav-brand-icon">🧠</span>
+            <span>VocabSmart</span>
+        </a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Dashboard</a>
+            <a href="/vocabulary" class="nav-link">Vocabulary</a>
+            <a href="/learn" class="nav-link">Study</a>
+            <a href="/quiz" class="nav-link">Quiz</a>
+            <a href="/progress" class="nav-link">Progress</a>
+            <a href="/content" class="nav-link active">Content Hub</a>
+            <a href="/flashcards" class="nav-link">Flashcards</a>
+        </div>
+    </div>
+</nav>
+
+<header class="page-header">
+    <div class="page-header-inner">
+        <h1>English Content Hub</h1>
+        <p>Discover YouTube videos and news articles tailored to your vocabulary topics.</p>
+    </div>
+</header>
+
+<main style="max-width:1280px;margin:0 auto;padding:2rem 1.5rem;">
+
+    <!-- Topic Search -->
+    <div class="card-glass" style="padding:1.25rem 1.5rem;margin-bottom:2rem;display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="topicInput" class="input" placeholder="Enter a topic to discover content… (e.g. technology, science)" style="flex:1;min-width:240px;background:var(--bg-elevated);">
+        <button onclick="loadContent()" class="btn btn-primary" style="padding:0.65rem 1.5rem;white-space:nowrap;">🔍 Find Content</button>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div style="display:grid;gap:1.5rem;" class="lg:grid-cols-2">
+
+        <!-- YouTube Videos -->
+        <section>
+            <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+                <span style="font-size:1.25rem;">▶️</span> YouTube Videos
+            </h2>
+            <div id="youtubeList" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
+        </section>
+
+        <!-- News Articles -->
+        <section>
+            <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+                <span style="font-size:1.25rem;">📰</span> News Articles
+            </h2>
+            <div id="newsList" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
+        </section>
+
+    </div>
+
+</main>
+
+<script src="/js/content.js"></script>
+</body>
+</html>
+
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen">

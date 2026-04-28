@@ -3,77 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz</title>
+    <title>Adaptive Quiz — VocabSmart</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-slate-100 text-slate-900 min-h-screen">
-    <nav class="border-b border-slate-200 bg-white">
-        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-            <a href="/" class="font-display text-xl">VocabSmart FSRS</a>
-            <div class="hidden gap-5 text-sm font-medium md:flex">
-                <a href="/vocabulary">Vocabulary</a>
-                <a href="/learn">Study</a>
-                <a href="/quiz" class="text-indigo-700">Quiz</a>
-                <a href="/progress">Progress</a>
-                <a href="/content">Content Hub</a>
-                <a href="/flashcards">Flashcards</a>
+<body>
+
+<!-- ── Navigation ── -->
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="/" class="nav-brand">
+            <span class="nav-brand-icon">🧠</span>
+            <span>VocabSmart</span>
+        </a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Dashboard</a>
+            <a href="/vocabulary" class="nav-link">Vocabulary</a>
+            <a href="/learn" class="nav-link">Study</a>
+            <a href="/quiz" class="nav-link active">Quiz</a>
+            <a href="/progress" class="nav-link">Progress</a>
+            <a href="/content" class="nav-link">Content Hub</a>
+            <a href="/flashcards" class="nav-link">Flashcards</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ── Setup Screen ── -->
+<div id="setupScreen" style="max-width:680px;margin:0 auto;padding:2.5rem 1.5rem;">
+    <div class="card-glass" style="padding:2.25rem;">
+        <div style="margin-bottom:1.75rem;">
+            <h1 class="font-display" style="font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text) 0%,var(--primary) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Adaptive Quiz</h1>
+            <p style="margin-top:0.4rem;color:var(--text-muted);font-size:0.9rem;">Each answer is also fed back into the FSRS scheduler core.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+            <div>
+                <label style="display:block;margin-bottom:0.4rem;">Category</label>
+                <select id="qcategory" class="input"><option value="">All Categories</option></select>
+            </div>
+            <div>
+                <label style="display:block;margin-bottom:0.4rem;">Difficulty</label>
+                <select id="qdifficulty" class="input">
+                    <option value="">All Levels</option>
+                    <option value="BEGINNER">Beginner</option>
+                    <option value="INTERMEDIATE">Intermediate</option>
+                    <option value="ADVANCED">Advanced</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block;margin-bottom:0.4rem;">Question Count</label>
+                <select id="qcount" class="input">
+                    <option value="5">5 questions</option>
+                    <option value="10">10 questions</option>
+                    <option value="15">15 questions</option>
+                    <option value="20">20 questions</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block;margin-bottom:0.4rem;">Question Type</label>
+                <select id="qtype" class="input">
+                    <option value="en-vi">Choose Vietnamese meaning</option>
+                    <option value="vi-en">Choose English word</option>
+                </select>
             </div>
         </div>
-    </nav>
+        <button onclick="startQuiz()" class="btn btn-primary" style="width:100%;padding:0.85rem;font-size:1rem;border-radius:0.875rem;">▶ Start Quiz</button>
+    </div>
+</div>
 
-    <div id="setupScreen" class="mx-auto max-w-3xl px-4 py-10">
-        <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-            <h1 class="font-display text-3xl">Adaptive Quiz</h1>
-            <p class="mt-2 text-slate-500">Each answer is also sent to the FSRS core.</p>
-            <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div><label class="mb-1 block text-sm">Category</label><select id="qcategory" class="input"><option value="">All</option></select></div>
-                <div><label class="mb-1 block text-sm">Difficulty</label><select id="qdifficulty" class="input"><option value="">All</option><option value="BEGINNER">Beginner</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select></div>
-                <div><label class="mb-1 block text-sm">Question count</label><select id="qcount" class="input"><option value="5">5</option><option value="10">10</option><option value="15">15</option><option value="20">20</option></select></div>
-                <div><label class="mb-1 block text-sm">Question type</label><select id="qtype" class="input"><option value="en-vi">Choose Vietnamese meaning</option><option value="vi-en">Choose English word</option></select></div>
-            </div>
-            <button onclick="startQuiz()" class="mt-6 rounded-xl bg-indigo-700 px-6 py-3 font-semibold text-white">Start quiz</button>
+<!-- ── Quiz Screen ── -->
+<div id="quizScreen" class="hidden" style="max-width:680px;margin:0 auto;padding:1.5rem;">
+
+    <!-- Progress Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+        <span id="quizProgress" style="font-size:0.875rem;font-weight:700;color:var(--text-muted);">0 / 0</span>
+        <div style="display:flex;gap:0.75rem;font-size:0.8rem;font-weight:700;">
+            <span style="color:var(--success);">✓ <span id="qCorrect">0</span></span>
+            <span style="color:var(--danger);">✗ <span id="qIncorrect">0</span></span>
         </div>
     </div>
 
-    <div id="quizScreen" class="mx-auto hidden max-w-3xl px-4 py-8">
-        <div class="mb-4 flex justify-between text-sm text-slate-600"><span id="quizProgress">0 / 0</span><span>Correct: <span id="qCorrect">0</span> | Wrong: <span id="qIncorrect">0</span></span></div>
-        <div class="h-2 rounded-full bg-slate-200"><div id="quizProgressBar" class="h-2 rounded-full bg-indigo-600" style="width:0%"></div></div>
-
-        <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-            <p id="quizInstruction" class="text-sm text-slate-500"></p>
-            <h2 id="questionWord" class="mt-2 text-center text-4xl font-semibold"></h2>
-            <p id="questionPronunciation" class="mt-2 text-center text-sm text-indigo-600"></p>
-            <p id="questionCategory" class="mt-1 text-center text-xs text-slate-500"></p>
-        </div>
-
-        <div id="optionsGrid" class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2"></div>
-        <div id="feedback" class="mt-4 hidden rounded-xl p-4 text-center">
-            <p id="feedbackText" class="font-semibold"></p>
-            <p id="feedbackSubtext" class="mt-1 text-sm"></p>
-        </div>
-        <div class="mt-4 text-center"><button id="nextBtn" onclick="nextQuestion()" class="hidden rounded-xl bg-slate-900 px-6 py-2 font-semibold text-white">Next</button></div>
+    <!-- Progress Bar -->
+    <div style="height:4px;background:var(--bg-elevated);border-radius:9999px;margin-bottom:1.5rem;overflow:hidden;">
+        <div id="quizProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--primary),#0891b2);border-radius:9999px;transition:width 0.5s ease;"></div>
     </div>
 
-    <div id="resultScreen" class="mx-auto hidden max-w-xl px-4 py-10">
-        <div class="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <h2 class="font-display text-3xl">Quiz Result</h2>
-            <div id="scoreCircle" class="mx-auto my-6 flex h-32 w-32 items-center justify-center rounded-full border-8">
-                <div><p id="scorePercent" class="text-3xl font-semibold"></p><p class="text-xs text-slate-500">Score</p></div>
-            </div>
-            <div class="grid grid-cols-3 gap-3">
-                <div class="rounded-xl bg-slate-100 p-3"><p id="rTotal" class="text-2xl font-semibold">0</p><p class="text-xs text-slate-500">Total</p></div>
-                <div class="rounded-xl bg-emerald-100 p-3"><p id="rCorrect" class="text-2xl font-semibold text-emerald-700">0</p><p class="text-xs text-emerald-700">Correct</p></div>
-                <div class="rounded-xl bg-rose-100 p-3"><p id="rIncorrect" class="text-2xl font-semibold text-rose-700">0</p><p class="text-xs text-rose-700">Wrong</p></div>
-            </div>
-            <p id="resultMessage" class="mt-4 text-slate-600"></p>
-            <div class="mt-6 flex gap-3"><button onclick="resetQuiz()" class="flex-1 rounded-xl border border-slate-300 py-2 font-semibold">Try again</button><a href="/learn" class="flex-1 rounded-xl bg-indigo-700 py-2 font-semibold text-white">Back to study</a></div>
-        </div>
+    <!-- Question Card -->
+    <div class="card-glass" style="padding:2rem;text-align:center;margin-bottom:1.25rem;">
+        <p id="quizInstruction" style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:0.75rem;"></p>
+        <h2 id="questionWord" class="font-display" style="font-size:2.5rem;font-weight:800;letter-spacing:-0.03em;color:var(--text);"></h2>
+        <p id="questionPronunciation" style="margin-top:0.4rem;font-size:0.95rem;color:var(--primary);font-weight:600;"></p>
+        <p id="questionCategory" style="margin-top:0.4rem;font-size:0.75rem;color:var(--text-muted);background:var(--bg-elevated);display:inline-block;padding:0.2rem 0.7rem;border-radius:9999px;border:1px solid var(--border);"></p>
     </div>
 
-    <script src="/js/quiz.js"></script>
+    <!-- Options Grid -->
+    <div id="optionsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;"></div>
+
+    <!-- Feedback -->
+    <div id="feedback" class="hidden" style="margin-bottom:1rem;border-radius:0.875rem;padding:1rem;text-align:center;">
+        <p id="feedbackText" style="font-weight:700;font-size:1rem;"></p>
+        <p id="feedbackSubtext" style="margin-top:0.25rem;font-size:0.875rem;opacity:0.8;"></p>
+    </div>
+
+    <!-- Next Button -->
+    <div style="text-align:center;">
+        <button id="nextBtn" onclick="nextQuestion()" class="hidden btn btn-primary" style="padding:0.75rem 2.5rem;">Next →</button>
+    </div>
+</div>
+
+<!-- ── Result Screen ── -->
+<div id="resultScreen" class="hidden" style="max-width:520px;margin:0 auto;padding:2.5rem 1.5rem;">
+    <div class="card-glass" style="padding:2.25rem;text-align:center;">
+        <h2 class="font-display" style="font-size:1.75rem;font-weight:800;margin-bottom:1.5rem;background:linear-gradient(135deg,var(--text) 0%,var(--primary) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Quiz Result</h2>
+
+        <!-- Score Circle -->
+        <div id="scoreCircle" class="score-circle" style="margin:0 auto 1.5rem;">
+            <p id="scorePercent" class="font-display" style="font-size:2rem;font-weight:800;color:var(--primary);"></p>
+            <p style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">Score</p>
+        </div>
+
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;">
+            <div class="stat-box">
+                <p id="rTotal" class="font-display" style="font-size:1.75rem;font-weight:800;color:var(--text);">0</p>
+                <p style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:0.25rem;font-weight:600;">Total</p>
+            </div>
+            <div class="stat-box" style="border-color:rgba(74,222,128,0.2);">
+                <p id="rCorrect" class="font-display" style="font-size:1.75rem;font-weight:800;color:var(--success);">0</p>
+                <p style="font-size:0.7rem;color:var(--success);text-transform:uppercase;letter-spacing:0.05em;margin-top:0.25rem;font-weight:600;">Correct</p>
+            </div>
+            <div class="stat-box" style="border-color:rgba(251,113,133,0.2);">
+                <p id="rIncorrect" class="font-display" style="font-size:1.75rem;font-weight:800;color:var(--danger);">0</p>
+                <p style="font-size:0.7rem;color:var(--danger);text-transform:uppercase;letter-spacing:0.05em;margin-top:0.25rem;font-weight:600;">Wrong</p>
+            </div>
+        </div>
+
+        <p id="resultMessage" style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.5rem;"></p>
+
+        <div style="display:flex;gap:0.75rem;">
+            <button onclick="resetQuiz()" class="btn btn-secondary" style="flex:1;padding:0.75rem;">Try Again</button>
+            <a href="/learn" class="btn btn-primary" style="flex:1;padding:0.75rem;text-align:center;">Back to Study</a>
+        </div>
+    </div>
+</div>
+
+<script src="/js/quiz.js"></script>
 </body>
 </html>

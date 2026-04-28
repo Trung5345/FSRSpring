@@ -3,11 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trusted Flashcards</title>
+    <title>Flashcards — VocabSmart</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="/" class="nav-brand">
+            <span class="nav-brand-icon">🧠</span>
+            <span>VocabSmart</span>
+        </a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Dashboard</a>
+            <a href="/vocabulary" class="nav-link">Vocabulary</a>
+            <a href="/learn" class="nav-link">Study</a>
+            <a href="/quiz" class="nav-link">Quiz</a>
+            <a href="/progress" class="nav-link">Progress</a>
+            <a href="/content" class="nav-link">Content Hub</a>
+            <a href="/flashcards" class="nav-link active">Flashcards</a>
+        </div>
+    </div>
+</nav>
+
+<header class="page-header">
+    <div class="page-header-inner">
+        <h1>Trusted Flashcard Sources</h1>
+        <p>Import curated word sets from verified external sources into your FSRS vocabulary pool.</p>
+    </div>
+</header>
+
+<main style="max-width:1280px;margin:0 auto;padding:2rem 1.5rem;">
+
+    <!-- Import Controls -->
+    <div class="card-glass" style="padding:1.5rem;margin-bottom:1.5rem;">
+        <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:1rem;">📥 Import from Source</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:flex-end;">
+            <div style="flex:1;min-width:180px;">
+                <label style="display:block;margin-bottom:0.4rem;">Source</label>
+                <select id="sourceSelect" class="input" style="background:var(--bg-elevated);">
+                    <option value="">Select source…</option>
+                    <option value="oxford">Oxford 3000</option>
+                    <option value="cambridge">Cambridge B2</option>
+                    <option value="ielts">IELTS Academic</option>
+                    <option value="toefl">TOEFL Essential</option>
+                </select>
+            </div>
+            <div style="flex:2;min-width:220px;">
+                <label style="display:block;margin-bottom:0.4rem;">Topic / Keyword</label>
+                <input type="text" id="topicInput" class="input" placeholder="e.g. business, technology, travel…" style="background:var(--bg-elevated);">
+            </div>
+            <button id="importBtn" onclick="importFlashcards()" class="btn btn-primary" style="padding:0.65rem 1.5rem;white-space:nowrap;">Import Cards</button>
+        </div>
+    </div>
+
+    <!-- Search & Browse -->
+    <div style="margin-bottom:1.25rem;display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="searchInput" class="input" placeholder="🔍 Search imported flashcards…" oninput="loadFlashcards()" style="flex:1;min-width:240px;background:var(--bg-elevated);">
+    </div>
+
+    <!-- Flashcard List -->
+    <section id="flashcardList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;"></section>
+
+</main>
+
+<script src="/js/flashcards.js"></script>
+</body>
+</html>
+
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen">
