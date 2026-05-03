@@ -1,7 +1,7 @@
-# Compiled class file
+# Compiled class files
 *.class
 
-# Log file
+# Log files
 *.log
 
 # BlueJ files
@@ -10,7 +10,7 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files #
+# Package files
 *.jar
 *.war
 *.nar
@@ -19,22 +19,57 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# JVM crash logs
 hs_err_pid*
 replay_pid*
 
 # Maven build output
 target/
 
-# IDE files
+# IDEs and editors
 .idea/
 *.iml
 .vscode/
 .eclipse/
 *.classpath
 *.project
-*.settings/
+.settings/
+
+# IntelliJ output
+out/
+
+# Gradle
+.gradle/
+build/
+
+# Generated sources
+generated-sources/
+generated-test-sources/
+
+# Test reports
+surefire-reports/
+coverage/
+jacoco.exec
+
+# Node / frontend
+node_modules/
 
 # OS files
 .DS_Store
 Thumbs.db
+
+# Editor temp files
+*~
+*.swp
+*.swo
+
+# Environment / local config
+.env
+.env.local
+*.local
+
+# Docker
+docker-compose.override.yml
+
+# Misc
+replay_pid*
