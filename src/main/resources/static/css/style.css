@@ -737,3 +737,21 @@ label {
     .page-header { padding: 2.5rem 1rem; }
     .container   { padding: 0 1rem; }
 }
+
+/* ---------- Accessibility: Focus Visible ---------- */
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* ---------- Motion: Reduced Motion Support ---------- */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
