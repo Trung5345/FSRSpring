@@ -44,7 +44,7 @@
 
 <main style="max-width:1280px;margin:0 auto;padding:1.75rem 1.5rem;">
     <div class="card-glass" style="padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
-        <input type="text" id="searchInput" placeholder=" Search words…" class="input" oninput="filterWords()" style="flex:1;min-width:200px;background:var(--bg-elevated);">
+        <input type="text" id="searchInput" placeholder="Search words…" class="input" oninput="filterWords()" style="flex:1;min-width:200px;background:var(--bg-elevated);">
         <select id="categoryFilter" class="input" style="flex:1;min-width:160px;background:var(--bg-elevated);" onchange="filterWords()">
             <option value="">All Categories</option>
         </select>
@@ -66,7 +66,7 @@
 
     <div id="wordGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;"></div>
     <div id="emptyState" class="hidden" style="text-align:center;padding:4rem 1rem;">
-        <div style="font-size:3rem;margin-bottom:0.75rem;"></div>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-dim);margin:0 auto 0.75rem;display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
         <p style="font-size:1.1rem;font-weight:700;color:var(--text);">No words found</p>
         <p style="margin-top:0.3rem;color:var(--text-muted);font-size:0.875rem;">Try different filters or add a new word.</p>
     </div>
@@ -122,7 +122,7 @@
 <div id="deleteModal" class="hidden" style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;">
     <div style="position:absolute;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);" onclick="closeDeleteModal()"></div>
     <div class="card-glass animate-fade-up" style="position:relative;z-index:1;width:100%;max-width:400px;padding:2rem;text-align:center;">
-        <div style="font-size:2.5rem;margin-bottom:0.75rem;"></div>
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--danger);margin:0 auto 0.75rem;display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
         <h3 class="font-display" style="font-size:1.25rem;font-weight:800;color:var(--text);">Delete this word?</h3>
         <p style="color:var(--text-muted);font-size:0.875rem;margin-top:0.4rem;margin-bottom:1.5rem;">This action cannot be undone.</p>
         <div style="display:flex;gap:0.75rem;justify-content:center;">
