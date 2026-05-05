@@ -40,4 +40,14 @@ public class PageController {
     public String flashcards() {
         return "forward:/flashcards.html";
     }
+
+    @GetMapping("/flashcard-study")
+    public String flashcardStudy() {
+        return "forward:/flashcard-study.html";
+    }
+
+    @GetMapping("/sets")
+    public String sets() {
+        return "forward:/sets.html";
+    }
 }

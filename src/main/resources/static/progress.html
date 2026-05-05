@@ -15,7 +15,7 @@
 <nav class="nav">
     <div class="nav-inner">
         <a href="/" class="nav-brand">
-            <span class="nav-brand-icon">🧠</span>
+            <span class="nav-brand-icon"></span>
             <span>VocabSmart</span>
         </a>
         <div class="nav-links">
@@ -42,19 +42,19 @@
     <!-- Summary Metrics -->
     <section style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.75rem;" class="sm:grid-cols-4">
         <article class="metric-card">
-            <p>📚 Total Words</p>
+            <p> Total Words</p>
             <strong id="pTotalWords">0</strong>
         </article>
         <article class="metric-card">
-            <p>🏆 Mastered</p>
+            <p> Mastered</p>
             <strong id="pMastered">0</strong>
         </article>
         <article class="metric-card">
-            <p>📖 Learning</p>
+            <p> Learning</p>
             <strong id="pLearning">0</strong>
         </article>
         <article class="metric-card">
-            <p>🎯 Accuracy</p>
+            <p> Accuracy</p>
             <strong id="pAccuracy">0%</strong>
         </article>
     </section>
@@ -64,13 +64,13 @@
 
         <!-- Mastery Bars -->
         <article class="card-glass" style="padding:1.5rem;">
-            <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:1rem;">📊 Mastery Distribution</h2>
+            <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:1rem;"> Mastery Distribution</h2>
             <div id="masteryBars" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
         </article>
 
         <!-- Quiz Performance -->
         <article class="card-glass" style="padding:1.5rem;">
-            <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:1rem;">🧩 Quiz Performance</h2>
+            <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:1rem;"> Quiz Performance</h2>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
                 <div class="stat-box">
                     <p id="qCompleted" class="font-display" style="font-size:1.75rem;font-weight:800;color:var(--text);">0</p>
@@ -96,7 +96,7 @@
     <!-- Recent Sessions -->
     <section style="margin-bottom:1.5rem;">
         <article class="card-glass" style="padding:1.5rem;">
-            <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:1rem;">🕐 Recent Study Sessions</h2>
+            <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:1rem;"> Recent Study Sessions</h2>
             <div id="recentSessions" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
         </article>
     </section>
@@ -105,7 +105,7 @@
     <section>
         <article class="card-glass" style="padding:1.5rem;overflow:hidden;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
-                <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);">📋 Word Progress Table</h2>
+                <h2 class="font-display" style="font-size:1.1rem;font-weight:700;color:var(--text);"> Word Progress Table</h2>
                 <select id="progressFilter" class="input" style="width:auto;background:var(--bg-elevated);padding:0.4rem 0.75rem;font-size:0.8rem;" onchange="filterProgress()">
                     <option value="">All Words</option>
                     <option value="MASTERED">Mastered</option>

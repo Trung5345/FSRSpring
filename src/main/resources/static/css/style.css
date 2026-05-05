@@ -188,6 +188,21 @@ body {
     box-shadow: var(--shadow-card), var(--shadow-glow);
 }
 
+/* ---------- Streak Fire SVG ---------- */
+#streak-fire .flame-path { fill: url(#sg-cool); }
+#streak-fire[data-level="warm"] .flame-path { fill: url(#sg-warm); }
+#streak-fire[data-level="hot"]  .flame-path { fill: url(#sg-hot); filter: drop-shadow(0 0 6px rgba(251,191,36,.6)); }
+
+@media (prefers-reduced-motion: no-preference) {
+    #streak-fire[data-level="hot"] svg {
+        animation: flame-pulse 1.5s ease-in-out infinite alternate;
+    }
+    @keyframes flame-pulse {
+        from { filter: drop-shadow(0 0 4px rgba(239,68,68,.4)); }
+        to   { filter: drop-shadow(0 0 12px rgba(251,191,36,.8)); }
+    }
+}
+
 /* ---------- Metric Cards ---------- */
 .metric-card {
     background: var(--bg-card);

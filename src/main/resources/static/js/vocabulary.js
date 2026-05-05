@@ -2,6 +2,7 @@
 
 let allWords = [];
 let categories = [];
+let topicsMap = {};
 let deleteWordId = null;
 
 function escapeHtml(text) {
@@ -37,24 +38,37 @@ function showToast(message, type = 'success') {
 
 async function loadWords() {
     try {
-        allWords = await fetch('/api/words').then(r => r.json());
-        categories = await fetch('/api/words/categories').then(r => r.json());
+        [allWords, categories] = await Promise.all([
+            fetch('/api/words').then(r => r.json()),
+            fetch('/api/words/categories').then(r => r.json()),
+        ]);
+
+        // Load topics for filter dropdown
+        try {
+            const topics = await fetch('/api/topics').then(r => r.json());
+            const topicSel = document.getElementById('topicFilter');
+            if (topicSel) {
+                topicSel.innerHTML = '<option value="">All Topics</option>';
+                topics.forEach(t => {
+                    topicsMap[t.id] = t;
+                    topicSel.innerHTML += `<option value="${t.id}">${escapeHtml((t.iconEmoji||'') + ' ' + t.name)}</option>`;
+                });
+            }
+        } catch(e) {}
 
         // Populate category filter
         const catFilter = document.getElementById('categoryFilter');
         const catList = document.getElementById('categoryList');
-        catFilter.innerHTML = '<option value="">Tất Cả Danh Mục</option>';
-        catList.innerHTML = '';
+        if (catFilter) catFilter.innerHTML = '<option value="">Tất Cả Danh Mục</option>';
+        if (catList) catList.innerHTML = '';
         categories.forEach(cat => {
-            catFilter.innerHTML += `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`;
-            catList.innerHTML += `<option value="${escapeHtml(cat)}">`;
+            if (catFilter) catFilter.innerHTML += `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`;
+            if (catList)   catList.innerHTML += `<option value="${escapeHtml(cat)}">`;
         });
 
-        // Apply URL params (e.g. ?category=Animals)
+        // Apply URL params
         const params = new URLSearchParams(window.location.search);
-        if (params.get('category')) {
-            document.getElementById('categoryFilter').value = params.get('category');
-        }
+        if (params.get('category') && catFilter) catFilter.value = params.get('category');
 
         renderWords(allWords);
     } catch (e) {
@@ -63,17 +77,21 @@ async function loadWords() {
 }
 
 function filterWords() {
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    const category = document.getElementById('categoryFilter').value;
-    const difficulty = document.getElementById('difficultyFilter').value;
+    const search = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+    const category = document.getElementById('categoryFilter')?.value || '';
+    const difficulty = document.getElementById('difficultyFilter')?.value || '';
+    const topicId = document.getElementById('topicFilter')?.value || '';
+    const cefr = document.getElementById('cefrFilter')?.value || '';
 
     const filtered = allWords.filter(w => {
         const matchSearch = !search ||
             w.word.toLowerCase().includes(search) ||
-            w.translation.toLowerCase().includes(search);
-        const matchCat = !category || w.category === category;
-        const matchDiff = !difficulty || w.difficulty === difficulty;
-        return matchSearch && matchCat && matchDiff;
+            (w.translation||'').toLowerCase().includes(search);
+        const matchCat   = !category  || w.category === category;
+        const matchDiff  = !difficulty || w.difficulty === difficulty;
+        const matchTopic = !topicId   || (w.topic && String(w.topic.id) === topicId);
+        const matchCefr  = !cefr      || w.cefrLevel === cefr;
+        return matchSearch && matchCat && matchDiff && matchTopic && matchCefr;
     });
     renderWords(filtered);
 }
@@ -101,7 +119,12 @@ function renderWords(words) {
             </div>
             <p class="text-gray-600 font-medium mb-2">${escapeHtml(w.translation)}</p>
             ${w.example ? `<p class="text-gray-400 text-sm italic mb-3 line-clamp-2">"${escapeHtml(w.example)}"</p>` : '<div class="mb-3"></div>'}
-            ${w.category ? `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">${escapeHtml(w.category)}</span>` : ''}
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;">
+              ${w.category  ? `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">${escapeHtml(w.category)}</span>` : ''}
+              ${w.topic     ? `<span style="font-size:.7rem;background:rgba(45,212,191,.1);color:#2dd4bf;padding:2px 8px;border-radius:99px;font-weight:600;">${escapeHtml((w.topic.iconEmoji||'')+' '+w.topic.name)}</span>` : ''}
+              ${w.cefrLevel ? `<span style="font-size:.7rem;background:rgba(251,191,36,.1);color:#fbbf24;padding:2px 8px;border-radius:99px;font-weight:600;">${escapeHtml(w.cefrLevel)}</span>` : ''}
+              ${w.partOfSpeech ? `<span style="font-size:.7rem;background:rgba(148,163,184,.1);color:#94a3b8;padding:2px 8px;border-radius:99px;">${escapeHtml(w.partOfSpeech)}</span>` : ''}
+            </div>
             <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100">
                 <button onclick="openEditModal(${w.id})"
                     class="flex-1 text-sm text-indigo-600 hover:bg-indigo-50 py-1.5 rounded-lg transition flex items-center justify-center gap-1">
@@ -180,7 +203,8 @@ async function saveWord(event) {
     }
 }
 
-document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', async () => {
     if (!deleteWordId) return;
     try {
         const res = await fetch(`/api/words/${deleteWordId}`, { method: 'DELETE' });
@@ -194,11 +218,13 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', async () =
 });
 
 // Close modals on backdrop click
-document.getElementById('wordModal').addEventListener('click', e => {
-    if (e.target === document.getElementById('wordModal')) closeModal();
+const wordModalEl = document.getElementById('wordModal');
+if (wordModalEl) wordModalEl.addEventListener('click', e => {
+    if (e.target === wordModalEl) closeModal();
 });
-document.getElementById('deleteModal').addEventListener('click', e => {
-    if (e.target === document.getElementById('deleteModal')) closeDeleteModal();
+const deleteModalEl = document.getElementById('deleteModal');
+if (deleteModalEl) deleteModalEl.addEventListener('click', e => {
+    if (e.target === deleteModalEl) closeDeleteModal();
 });
 
 // Initialize

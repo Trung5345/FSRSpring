@@ -15,17 +15,18 @@
 <nav class="nav">
     <div class="nav-inner">
         <a href="/" class="nav-brand">
-            <span class="nav-brand-icon">🧠</span>
+            <span class="nav-brand-icon"></span>
             <span>VocabSmart</span>
         </a>
         <div class="nav-links">
             <a href="/" class="nav-link">Dashboard</a>
             <a href="/vocabulary" class="nav-link active">Vocabulary</a>
             <a href="/learn" class="nav-link">Study</a>
+            <a href="/flashcard-study" class="nav-link">Cards</a>
+            <a href="/sets" class="nav-link">Sets</a>
             <a href="/quiz" class="nav-link">Quiz</a>
             <a href="/progress" class="nav-link">Progress</a>
             <a href="/content" class="nav-link">Content Hub</a>
-            <a href="/flashcards" class="nav-link">Flashcards</a>
         </div>
     </div>
 </nav>
@@ -43,9 +44,17 @@
 
 <main style="max-width:1280px;margin:0 auto;padding:1.75rem 1.5rem;">
     <div class="card-glass" style="padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
-        <input type="text" id="searchInput" placeholder="🔍 Search words…" class="input" oninput="filterWords()" style="flex:1;min-width:200px;background:var(--bg-elevated);">
+        <input type="text" id="searchInput" placeholder=" Search words…" class="input" oninput="filterWords()" style="flex:1;min-width:200px;background:var(--bg-elevated);">
         <select id="categoryFilter" class="input" style="flex:1;min-width:160px;background:var(--bg-elevated);" onchange="filterWords()">
             <option value="">All Categories</option>
+        </select>
+        <select id="topicFilter" class="input" style="flex:1;min-width:160px;background:var(--bg-elevated);" onchange="filterWords()">
+            <option value="">All Topics</option>
+        </select>
+        <select id="cefrFilter" class="input" style="flex:1;min-width:140px;background:var(--bg-elevated);" onchange="filterWords()">
+            <option value="">All CEFR</option>
+            <option>A1</option><option>A2</option><option>B1</option>
+            <option>B2</option><option>C1</option><option>C2</option>
         </select>
         <select id="difficultyFilter" class="input" style="flex:1;min-width:160px;background:var(--bg-elevated);" onchange="filterWords()">
             <option value="">All Difficulties</option>
@@ -57,7 +66,7 @@
 
     <div id="wordGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;"></div>
     <div id="emptyState" class="hidden" style="text-align:center;padding:4rem 1rem;">
-        <div style="font-size:3rem;margin-bottom:0.75rem;">📚</div>
+        <div style="font-size:3rem;margin-bottom:0.75rem;"></div>
         <p style="font-size:1.1rem;font-weight:700;color:var(--text);">No words found</p>
         <p style="margin-top:0.3rem;color:var(--text-muted);font-size:0.875rem;">Try different filters or add a new word.</p>
     </div>
@@ -67,7 +76,7 @@
     <div style="position:absolute;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);" onclick="closeModal()"></div>
     <div class="card-glass animate-fade-up" style="position:relative;z-index:1;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;padding:2rem;">
         <h2 id="modalTitle" class="font-display" style="font-size:1.4rem;font-weight:800;color:var(--text);margin-bottom:1.5rem;"></h2>
-        <form onsubmit="saveWord(event)" novalidate>
+        <form id="wordForm" onsubmit="saveWord(event)" novalidate>
             <input type="hidden" id="wordId">
             <div style="display:grid;gap:1rem;">
                 <div>
@@ -113,7 +122,7 @@
 <div id="deleteModal" class="hidden" style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;">
     <div style="position:absolute;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);" onclick="closeDeleteModal()"></div>
     <div class="card-glass animate-fade-up" style="position:relative;z-index:1;width:100%;max-width:400px;padding:2rem;text-align:center;">
-        <div style="font-size:2.5rem;margin-bottom:0.75rem;">🗑</div>
+        <div style="font-size:2.5rem;margin-bottom:0.75rem;"></div>
         <h3 class="font-display" style="font-size:1.25rem;font-weight:800;color:var(--text);">Delete this word?</h3>
         <p style="color:var(--text-muted);font-size:0.875rem;margin-top:0.4rem;margin-bottom:1.5rem;">This action cannot be undone.</p>
         <div style="display:flex;gap:0.75rem;justify-content:center;">
@@ -124,71 +133,5 @@
 </div>
 
 <script src="/js/vocabulary.js"></script>
-</body>
-</html>
-
-    <nav class="border-b border-slate-200 bg-white">
-        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-            <a href="/" class="font-display text-xl">VocabSmart FSRS</a>
-            <div class="hidden gap-5 text-sm font-medium md:flex">
-                <a href="/vocabulary" class="text-indigo-700">Vocabulary</a>
-                <a href="/learn">Study</a>
-                <a href="/quiz">Quiz</a>
-                <a href="/progress">Progress</a>
-                <a href="/content">Content Hub</a>
-                <a href="/flashcards">Flashcards</a>
-            </div>
-        </div>
-    </nav>
-
-    <header class="border-b border-slate-200 bg-white">
-        <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-6">
-            <div>
-                <h1 class="font-display text-3xl">Vocabulary Library</h1>
-                <p class="mt-1 text-slate-500">Manage learning words and feed FSRS scheduler.</p>
-            </div>
-            <button onclick="openAddModal()" class="rounded-xl bg-indigo-700 px-5 py-2.5 font-semibold text-white">Add word</button>
-        </div>
-    </header>
-
-    <main class="mx-auto max-w-7xl px-4 py-6">
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
-                <input id="searchInput" oninput="filterWords()" placeholder="Search word" class="input md:col-span-2">
-                <select id="categoryFilter" onchange="filterWords()" class="input"><option value="">All categories</option></select>
-                <select id="difficultyFilter" onchange="filterWords()" class="input"><option value="">All levels</option><option value="BEGINNER">Beginner</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select>
-            </div>
-            <p id="wordCount" class="mt-2 text-sm text-slate-500"></p>
-        </div>
-
-        <div id="wordGrid" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></div>
-        <div id="emptyState" class="hidden py-16 text-center text-slate-500">No vocabulary data yet.</div>
-    </main>
-
-    <div id="wordModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/45 p-4">
-        <div class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-2xl">
-            <div class="border-b border-slate-200 p-5"><h2 id="modalTitle" class="font-display text-2xl">Add Word</h2></div>
-            <form id="wordForm" class="space-y-4 p-5" onsubmit="saveWord(event)">
-                <input type="hidden" id="wordId">
-                <div><label class="mb-1 block text-sm">Word</label><input id="wordInput" required class="input"></div>
-                <div><label class="mb-1 block text-sm">Translation</label><input id="translationInput" required class="input"></div>
-                <div><label class="mb-1 block text-sm">Pronunciation</label><input id="pronunciationInput" class="input"></div>
-                <div><label class="mb-1 block text-sm">Category</label><input id="categoryInput" list="categoryList" class="input"><datalist id="categoryList"></datalist></div>
-                <div><label class="mb-1 block text-sm">Difficulty</label><select id="difficultyInput" class="input"><option value="BEGINNER">Beginner</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option></select></div>
-                <div><label class="mb-1 block text-sm">Example</label><textarea id="exampleInput" rows="2" class="input"></textarea></div>
-                <div class="flex gap-3"><button type="button" onclick="closeModal()" class="flex-1 rounded-xl border border-slate-300 py-2">Cancel</button><button type="submit" class="flex-1 rounded-xl bg-indigo-700 py-2 font-semibold text-white">Save</button></div>
-            </form>
-        </div>
-    </div>
-
-    <div id="deleteModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/45 p-4">
-        <div class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-2xl">
-            <h3 class="font-display text-2xl">Delete this word?</h3>
-            <p class="mt-2 text-slate-500">This action cannot be undone.</p>
-            <div class="mt-4 flex gap-3"><button onclick="closeDeleteModal()" class="flex-1 rounded-xl border border-slate-300 py-2">Cancel</button><button id="confirmDeleteBtn" class="flex-1 rounded-xl bg-rose-600 py-2 font-semibold text-white">Delete</button></div>
-        </div>
-    </div>
-
-    <script src="/js/vocabulary.js"></script>
 </body>
 </html>

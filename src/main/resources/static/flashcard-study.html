@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcard Study – FSRSpring Vocab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:     #080d17;
+      --bg-surface:  #0e1524;
+      --bg-elevated: #162035;
+      --bg-card:     #1a2640;
+      --primary:     #2dd4bf;
+      --accent:      #fbbf24;
+      --success:     #4ade80;
+      --danger:      #fb7185;
+      --warning:     #fb923c;
+      --text-main:   #e2e8f0;
+      --text-sub:    #94a3b8;
+      --text-dim:    #475569;
+      --radius:      16px;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Nav ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-brand { font-size: 1.1rem; font-weight: 700; color: var(--primary); text-decoration: none; }
+    .nav-links { display: flex; gap: 6px; }
+    .nav-links a {
+      padding: 6px 14px; border-radius: 8px;
+      color: var(--text-sub); text-decoration: none; font-size: .875rem; font-weight: 500;
+      transition: all .2s;
+    }
+    .nav-links a:hover, .nav-links a.active { background: var(--bg-card); color: var(--text-main); }
+
+    /* ── Layout ── */
+    .page { flex: 1; max-width: 700px; margin: 0 auto; width: 100%; padding: 32px 16px; }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 32px;
+    }
+    .progress-bar-outer {
+      flex: 1; height: 6px; background: var(--bg-card); border-radius: 99px; overflow: hidden;
+    }
+    .progress-bar-inner {
+      height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 99px; transition: width .4s ease;
+    }
+    .progress-label { font-size: .8rem; color: var(--text-sub); white-space: nowrap; }
+
+    /* ── 3D Flip Card ── */
+    .card-scene {
+      width: 100%; aspect-ratio: 3/2;
+      perspective: 1200px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .card-3d {
+      width: 100%; height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform .6s cubic-bezier(.4,0,.2,1);
+    }
+    .card-3d.is-flipped { transform: rotateY(180deg); }
+
+    .card-face {
+      position: absolute; inset: 0;
+      border-radius: var(--radius);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .card-front {
+      background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
+      border: 1px solid rgba(45,212,191,.15);
+      box-shadow: 0 20px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.04);
+      align-items: center; justify-content: center;
+      text-align: center; padding: 40px 32px;
+    }
+    .card-back {
+      background: linear-gradient(135deg, #0f2040 0%, #162035 100%);
+      border: 1px solid rgba(251,191,36,.15);
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+      transform: rotateY(180deg);
+      padding: 28px 32px; overflow-y: auto;
+    }
+
+    /* Front content */
+    .card-badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+    .badge {
+      padding: 3px 10px; border-radius: 99px; font-size: .7rem; font-weight: 600; letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+    .badge-topic { background: rgba(45,212,191,.15); color: var(--primary); }
+    .badge-cefr  { background: rgba(251,191,36,.15); color: var(--accent); }
+    .badge-pos   { background: rgba(148,163,184,.1); color: var(--text-sub); }
+
+    .word-main {
+      font-size: clamp(2rem, 7vw, 3.5rem); font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      line-height: 1.1; margin-bottom: 12px;
+    }
+    .word-ipa {
+      font-size: 1.1rem; color: var(--text-sub); margin-bottom: 20px; font-family: 'Nunito', sans-serif;
+    }
+    .audio-btn {
+      background: rgba(45,212,191,.12); border: 1px solid rgba(45,212,191,.3);
+      color: var(--primary); padding: 8px 20px; border-radius: 99px;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+      font-size: .85rem; font-weight: 600; transition: all .2s;
+    }
+    .audio-btn:hover { background: rgba(45,212,191,.25); }
+    .flip-hint { position: absolute; bottom: 16px; color: var(--text-dim); font-size: .75rem; }
+
+    /* Back content */
+    .back-translation {
+      font-size: 1.8rem; font-weight: 700; color: var(--accent); margin-bottom: 6px;
+    }
+    .back-pos { font-size: .8rem; color: var(--text-sub); margin-bottom: 16px; }
+    .section-label {
+      font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      color: var(--text-dim); margin-bottom: 6px; margin-top: 14px;
+    }
+    .back-definition { color: var(--text-main); line-height: 1.6; font-size: .95rem; }
+    .back-example {
+      color: var(--text-sub); font-style: italic; line-height: 1.6; font-size: .9rem;
+      border-left: 3px solid var(--primary); padding-left: 10px;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      padding: 3px 10px; border-radius: 99px; font-size: .78rem; font-weight: 500;
+    }
+    .chip-syn { background: rgba(74,222,128,.1); color: var(--success); }
+    .chip-ant { background: rgba(251,113,117,.1); color: var(--danger); }
+
+    /* ── Rating buttons ── */
+    .rating-wrap { margin-top: 28px; }
+    .rating-label {
+      text-align: center; color: var(--text-sub); font-size: .8rem; margin-bottom: 14px;
+      letter-spacing: .5px; text-transform: uppercase;
+    }
+    .rating-buttons {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    }
+    .rate-btn {
+      padding: 12px 8px; border-radius: 12px; border: none; cursor: pointer;
+      font-family: 'Outfit', sans-serif; font-size: .875rem; font-weight: 600;
+      transition: all .2s; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    }
+    .rate-btn .key-hint { font-size: .65rem; opacity: .6; }
+    .rate-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+    .rate-again { background: rgba(251,113,117,.15); color: var(--danger); border: 1px solid rgba(251,113,117,.3); }
+    .rate-hard  { background: rgba(251,146,60,.15);  color: var(--warning); border: 1px solid rgba(251,146,60,.3); }
+    .rate-good  { background: rgba(74,222,128,.15);  color: var(--success); border: 1px solid rgba(74,222,128,.3); }
+    .rate-easy  { background: rgba(45,212,191,.15);  color: var(--primary); border: 1px solid rgba(45,212,191,.3); }
+
+    /* ── Empty / Done states ── */
+    .state-panel {
+      text-align: center; padding: 60px 20px;
+    }
+    .state-icon { font-size: 3.5rem; margin-bottom: 16px; }
+    .state-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+    .state-sub { color: var(--text-sub); font-size: .95rem; max-width: 320px; margin: 0 auto 24px; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #0ea5e9);
+      color: #000; font-weight: 700; padding: 12px 28px; border-radius: 12px;
+      border: none; cursor: pointer; font-family: 'Outfit', sans-serif;
+      font-size: .95rem; text-decoration: none; display: inline-block;
+    }
+
+    /* ── Config panel ── */
+    .config-bar {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 24px;
+    }
+    .config-select {
+      background: var(--bg-card); border: 1px solid rgba(255,255,255,.08);
+      color: var(--text-main); padding: 7px 12px; border-radius: 10px;
+      font-family: 'Outfit', sans-serif; font-size: .85rem; cursor: pointer;
+      flex: 1; min-width: 130px;
+    }
+    .config-select:focus { outline: 2px solid var(--primary); }
+    .btn-start {
+      background: linear-gradient(135deg, var(--primary), #0ea5e9);
+      color: #000; font-weight: 700; padding: 8px 22px; border-radius: 10px;
+      border: none; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: .875rem;
+    }
+
+    hidden { display: none !important; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="nav-brand" href="/">FSRSpring Vocab</a>
+  <div class="nav-links">
+    <a href="/">Dashboard</a>
+    <a href="/vocabulary">Vocabulary</a>
+    <a href="/flashcard-study" class="active">Study</a>
+    <a href="/sets">Sets</a>
+    <a href="/progress">Progress</a>
+    <a href="/quiz">Quiz</a>
+  </div>
+</nav>
+
+<main class="page">
+
+  <!-- Config panel -->
+  <div id="config-panel">
+    <h1 style="font-size:1.6rem;font-weight:700;margin-bottom:6px;">Flashcard Study</h1>
+    <p style="color:var(--text-sub);margin-bottom:20px;">Choose a filter then start your session</p>
+    <div class="config-bar">
+      <select id="sel-topic" class="config-select">
+        <option value="">All Topics</option>
+      </select>
+      <select id="sel-cefr" class="config-select">
+        <option value="">All CEFR Levels</option>
+        <option>A1</option><option>A2</option><option>B1</option>
+        <option>B2</option><option>C1</option><option>C2</option>
+      </select>
+      <select id="sel-limit" class="config-select" style="max-width:130px;">
+        <option value="10">10 cards</option>
+        <option value="20" selected>20 cards</option>
+        <option value="50">50 cards</option>
+        <option value="0">All cards</option>
+      </select>
+      <button class="btn-start" onclick="startSession()">Start Study</button>
+    </div>
+  </div>
+
+  <!-- Study area (hidden until session starts) -->
+  <div id="study-area" class="hidden">
+    <!-- Progress -->
+    <div class="progress-wrap">
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="prog-bar" style="width:0%"></div>
+      </div>
+      <span class="progress-label" id="prog-label">0 / 0</span>
+    </div>
+
+    <!-- Card -->
+    <div class="card-scene" id="card-scene" onclick="flipCard()">
+      <div class="card-3d" id="card-3d">
+
+        <!-- FRONT -->
+        <div class="card-face card-front">
+          <div class="card-badges" id="front-badges"></div>
+          <div class="word-main" id="front-word">—</div>
+          <div class="word-ipa" id="front-ipa"></div>
+          <button class="audio-btn" id="audio-btn" onclick="playAudio(event)">
+            <i data-lucide="volume-2" style="width:14px;height:14px;"></i> Play Audio
+          </button>
+          <span class="flip-hint">Click card or press Space to reveal</span>
+        </div>
+
+        <!-- BACK -->
+        <div class="card-face card-back">
+          <div class="back-translation" id="back-trans">—</div>
+          <div class="back-pos" id="back-pos"></div>
+
+          <div class="section-label">Definition</div>
+          <div class="back-definition" id="back-def">—</div>
+
+          <div class="section-label" id="lbl-example">Example</div>
+          <div class="back-example" id="back-example" style="display:none"></div>
+
+          <div class="section-label" id="lbl-syn" style="display:none">Synonyms</div>
+          <div class="chips" id="back-syn"></div>
+
+          <div class="section-label" id="lbl-ant" style="display:none">Antonyms</div>
+          <div class="chips" id="back-ant"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Rating buttons -->
+    <div class="rating-wrap" id="rating-wrap" style="visibility:hidden">
+      <p class="rating-label">How well did you know it?</p>
+      <div class="rating-buttons">
+        <button class="rate-btn rate-again" onclick="rate(1)">Again<span class="key-hint">[1]</span></button>
+        <button class="rate-btn rate-hard"  onclick="rate(2)">Hard<span class="key-hint">[2]</span></button>
+        <button class="rate-btn rate-good"  onclick="rate(3)">Good<span class="key-hint">[3]</span></button>
+        <button class="rate-btn rate-easy"  onclick="rate(4)">Easy<span class="key-hint">[4]</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done state -->
+  <div id="done-panel" class="hidden state-panel">
+    <div class="state-icon"></div>
+    <div class="state-title">Session Complete!</div>
+    <div class="state-sub" id="done-msg">You reviewed all cards. Keep it up!</div>
+    <button class="btn-primary" onclick="resetSession()">Study Again</button>
+  </div>
+
+</main>
+
+<audio id="audio-player" style="display:none"></audio>
+
+<script>
+  lucide.createIcons();
+
+  let words = [];
+  let index = 0;
+  let flipped = false;
+  let currentAudioUrl = null;
+
+  // Load topics into dropdown
+  async function loadTopics() {
+    try {
+      const res = await fetch('/api/topics');
+      const topics = await res.json();
+      const sel = document.getElementById('sel-topic');
+      topics.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = `${t.iconEmoji || ''} ${t.name}`;
+        sel.appendChild(opt);
+      });
+    } catch (e) { console.warn('topics load failed', e); }
+  }
+
+  async function startSession() {
+    const topicId = document.getElementById('sel-topic').value;
+    const cefr    = document.getElementById('sel-cefr').value;
+    const limit   = parseInt(document.getElementById('sel-limit').value) || 0;
+
+    let url = '/api/words?';
+    if (topicId) url += `topicId=${topicId}&`;
+    if (cefr)    url += `cefrLevel=${cefr}&`;
+
+    try {
+      const res = await fetch(url);
+      let data = await res.json();
+      if (limit > 0) data = data.slice(0, limit);
+      // shuffle
+      for (let i = data.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [data[i], data[j]] = [data[j], data[i]];
+      }
+      words = data;
+    } catch(e) {
+      alert('Failed to load words. Please try again.'); return;
+    }
+
+    if (!words.length) { alert('No words found for this filter.'); return; }
+
+    document.getElementById('config-panel').classList.add('hidden');
+    document.getElementById('study-area').classList.remove('hidden');
+    index = 0;
+    showCard();
+  }
+
+  function showCard() {
+    if (index >= words.length) { finishSession(); return; }
+
+    const w = words[index];
+    flipped = false;
+    document.getElementById('card-3d').classList.remove('is-flipped');
+    document.getElementById('rating-wrap').style.visibility = 'hidden';
+
+    // Badges
+    const badges = document.getElementById('front-badges');
+    badges.innerHTML = '';
+    if (w.topic?.name)  badges.innerHTML += `<span class="badge badge-topic">${w.topic.iconEmoji || ''}${w.topic.name}</span>`;
+    if (w.cefrLevel)    badges.innerHTML += `<span class="badge badge-cefr">${w.cefrLevel}</span>`;
+    if (w.partOfSpeech) badges.innerHTML += `<span class="badge badge-pos">${w.partOfSpeech}</span>`;
+
+    document.getElementById('front-word').textContent = w.word;
+    document.getElementById('front-ipa').textContent  = w.pronunciation || '';
+
+    // Audio button
+    currentAudioUrl = w.audioUrl || null;
+    document.getElementById('audio-btn').style.display = currentAudioUrl ? 'inline-flex' : 'none';
+
+    // Back
+    document.getElementById('back-trans').textContent = w.translation || '—';
+    document.getElementById('back-pos').textContent   = w.partOfSpeech ? `(${w.partOfSpeech})` : '';
+
+    // Definition from example as fallback
+    document.getElementById('back-def').textContent = w.example || '—';
+    const exEl = document.getElementById('back-example');
+    const lblEx = document.getElementById('lbl-example');
+    // no separate definition field, show example in italic
+    exEl.style.display = 'none';
+    lblEx.style.display = 'none';
+
+    // Synonyms
+    const synWrap = document.getElementById('back-syn');
+    const antWrap = document.getElementById('back-ant');
+    const lblSyn = document.getElementById('lbl-syn');
+    const lblAnt = document.getElementById('lbl-ant');
+    synWrap.innerHTML = ''; antWrap.innerHTML = '';
+
+    if (w.synonyms) {
+      lblSyn.style.display = '';
+      w.synonyms.split(',').map(s => s.trim()).filter(Boolean).forEach(s => {
+        synWrap.innerHTML += `<span class="chip chip-syn">${s}</span>`;
+      });
+    } else { lblSyn.style.display = 'none'; }
+
+    if (w.antonyms) {
+      lblAnt.style.display = '';
+      w.antonyms.split(',').map(a => a.trim()).filter(Boolean).forEach(a => {
+        antWrap.innerHTML += `<span class="chip chip-ant">${a}</span>`;
+      });
+    } else { lblAnt.style.display = 'none'; }
+
+    updateProgress();
+    lucide.createIcons();
+  }
+
+  function updateProgress() {
+    const pct = words.length ? (index / words.length) * 100 : 0;
+    document.getElementById('prog-bar').style.width = pct + '%';
+    document.getElementById('prog-label').textContent = `${index} / ${words.length}`;
+  }
+
+  function flipCard() {
+    if (!words.length) return;
+    flipped = !flipped;
+    document.getElementById('card-3d').classList.toggle('is-flipped', flipped);
+    if (flipped) {
+      document.getElementById('rating-wrap').style.visibility = 'visible';
+    }
+  }
+
+  async function rate(rating) {
+    if (!flipped) return; // must flip first
+    const w = words[index];
+    // Submit to FSRS
+    try {
+      await fetch(`/api/fsrs/review/${w.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating })
+      });
+    } catch(e) { /* non-blocking */ }
+    // Check-in streak
+    try { await fetch('/api/streak/check-in', { method: 'POST' }); } catch(e) {}
+
+    index++;
+    showCard();
+  }
+
+  function playAudio(e) {
+    e.stopPropagation();
+    if (currentAudioUrl) {
+      const audio = document.getElementById('audio-player');
+      audio.src = currentAudioUrl;
+      audio.play().catch(() => speechFallback());
+    } else {
+      speechFallback();
+    }
+  }
+
+  function speechFallback() {
+    if (!window.speechSynthesis) return;
+    const w = words[index];
+    const utt = new SpeechSynthesisUtterance(w.word);
+    utt.lang = 'en-US';
+    window.speechSynthesis.speak(utt);
+  }
+
+  function finishSession() {
+    document.getElementById('study-area').classList.add('hidden');
+    document.getElementById('done-panel').classList.remove('hidden');
+    document.getElementById('done-msg').textContent =
+      `You reviewed ${words.length} cards. Great work!`;
+  }
+
+  function resetSession() {
+    document.getElementById('done-panel').classList.add('hidden');
+    document.getElementById('config-panel').classList.remove('hidden');
+  }
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space' && !['INPUT','SELECT','BUTTON'].includes(e.target.tagName)) {
+      e.preventDefault(); flipCard();
+    }
+    if (flipped) {
+      if (e.key === '1') rate(1);
+      if (e.key === '2') rate(2);
+      if (e.key === '3') rate(3);
+      if (e.key === '4') rate(4);
+    }
+  });
+
+  // Touch swipe to flip
+  let touchStartX = 0;
+  document.getElementById('card-scene') && document.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+  });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 60) flipCard();
+  });
+
+  loadTopics();
+</script>
+</body>
+</html>

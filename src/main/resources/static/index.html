@@ -17,17 +17,18 @@
 <nav class="nav">
     <div class="nav-inner">
         <a href="/" class="nav-brand">
-            <span class="nav-brand-icon">🧠</span>
+            <span class="nav-brand-icon"></span>
             <span>VocabSmart</span>
         </a>
         <div class="nav-links">
             <a href="/" class="nav-link active">Dashboard</a>
             <a href="/vocabulary" class="nav-link">Vocabulary</a>
             <a href="/learn" class="nav-link">Study</a>
+            <a href="/flashcard-study" class="nav-link">Cards</a>
+            <a href="/sets" class="nav-link">Sets</a>
             <a href="/quiz" class="nav-link">Quiz</a>
             <a href="/progress" class="nav-link">Progress</a>
             <a href="/content" class="nav-link">Content Hub</a>
-            <a href="/flashcards" class="nav-link">Flashcards</a>
         </div>
     </div>
 </nav>
@@ -35,11 +36,11 @@
 <!-- ── Hero Banner ── -->
 <header class="page-header">
     <div class="page-header-inner">
-        <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.25em;color:var(--primary);font-weight:700;margin-bottom:0.75rem;">⚡ FSRS Intelligence</p>
+        <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.25em;color:var(--primary);font-weight:700;margin-bottom:0.75rem;"> FSRS Intelligence</p>
         <h1>Master English with<br>Smart Repetition</h1>
         <p>FSRS-powered scheduling adapts to your memory curve — study less, retain more. Track your progress and jump into review sessions instantly.</p>
         <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1.75rem;">
-            <a href="/learn" class="btn btn-primary" style="font-size:0.95rem;padding:0.75rem 1.75rem;">▶ Start FSRS Review</a>
+            <a href="/learn" class="btn btn-primary" style="font-size:0.95rem;padding:0.75rem 1.75rem;"> Start FSRS Review</a>
             <a href="/content" class="btn btn-secondary" style="font-size:0.95rem;padding:0.75rem 1.75rem;">Open Content Hub</a>
         </div>
     </div>
@@ -51,37 +52,73 @@
     <!-- Stats Grid -->
     <section style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:2rem;" class="md:grid-cols-4 xl:grid-cols-8">
         <article class="metric-card">
-            <p>📚 Total Words</p>
+            <p> Total Words</p>
             <strong id="totalWords">0</strong>
         </article>
         <article class="metric-card">
-            <p>🏆 Mastered</p>
+            <p> Mastered</p>
             <strong id="masteredWords">0</strong>
         </article>
         <article class="metric-card">
-            <p>📖 Learning</p>
+            <p> Learning</p>
             <strong id="learningWords">0</strong>
         </article>
         <article class="metric-card">
-            <p>🎯 Accuracy</p>
+            <p> Accuracy</p>
             <strong id="accuracy">0%</strong>
         </article>
         <article class="metric-card">
-            <p>⏰ Due Now</p>
+            <p> Due Now</p>
             <strong id="dueNow">0</strong>
         </article>
         <article class="metric-card">
-            <p>🧠 Retention</p>
+            <p> Retention</p>
             <strong id="retentionEstimate">0%</strong>
         </article>
         <article class="metric-card">
-            <p>🔔 Unread</p>
+            <p> Unread</p>
             <strong id="unreadCount">0</strong>
         </article>
         <article class="metric-card">
-            <p>⚡ Engine</p>
+            <p> Engine</p>
             <strong style="font-size:1.2rem;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">FSRS</strong>
         </article>
+    </section>
+
+    <!-- Streak + WotD quick row -->
+    <section style="display:grid;grid-template-columns:auto 1fr;gap:1rem;margin-bottom:1.5rem;align-items:stretch;" id="streak-wotd-row">
+      <article class="card-glass" style="padding:1.25rem 1.75rem;display:flex;align-items:center;gap:1.25rem;">
+        <span id="streak-fire" aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;">
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" xmlns="http://www.w3.org/2000/svg" style="transition:filter .3s ease">
+            <defs>
+              <linearGradient id="sg-cool" x1="8" y1="3" x2="16" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient>
+              <linearGradient id="sg-warm" x1="8" y1="3" x2="16" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f97316"/></linearGradient>
+              <linearGradient id="sg-hot"  x1="8" y1="3" x2="16" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#ef4444"/></linearGradient>
+            </defs>
+            <path class="flame-path" d="M12 2C12 2 7 8.5 7 13.5a5 5 0 0010 0C17 8.5 12 2 12 2z"/>
+          </svg>
+        </span>
+        <div>
+          <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:2px;">Daily Streak</div>
+          <div style="font-size:2rem;font-weight:800;background:linear-gradient(135deg,#fbbf24,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;" id="streak-count">–</div>
+          <div style="font-size:.75rem;color:var(--text-muted);" id="streak-label">days in a row</div>
+        </div>
+        <div style="border-left:1px solid rgba(255,255,255,.07);padding-left:1.25rem;">
+          <div style="font-size:.75rem;font-weight:700;color:var(--text-muted);margin-bottom:2px;">Best</div>
+          <div style="font-size:1.25rem;font-weight:700;color:var(--accent);" id="streak-best">–</div>
+          <div style="font-size:.75rem;color:var(--text-muted);">Total</div>
+          <div style="font-size:1.1rem;font-weight:700;color:var(--text);" id="streak-total">–</div>
+        </div>
+      </article>
+      <article class="card-glass" style="padding:1.25rem 1.75rem;display:flex;align-items:center;gap:1rem;">
+        <div style="flex:1;">
+          <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px;"> Word of the Day</div>
+          <span id="wod-badge-word" style="font-size:1.35rem;font-weight:800;background:linear-gradient(135deg,#fff,var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">…</span>
+          <span id="wod-badge-ipa" style="font-size:.8rem;color:var(--primary);margin-left:8px;"></span>
+          <div id="wod-badge-trans" style="font-size:.9rem;color:var(--text);margin-top:2px;"></div>
+        </div>
+        <a href="/flashcard-study" style="background:linear-gradient(135deg,var(--primary),#0ea5e9);color:#000;font-weight:700;padding:9px 18px;border-radius:10px;text-decoration:none;font-size:.82rem;white-space:nowrap;">Study Cards →</a>
+      </article>
     </section>
 
     <!-- Review Queue + Notifications -->
@@ -90,16 +127,16 @@
         <!-- Review Queue -->
         <article class="card-glass" style="padding:1.5rem;grid-column:span 2;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-                <h2 class="font-display" style="font-size:1.2rem;font-weight:700;color:var(--text);">⏰ Due Review Queue</h2>
+                <h2 class="font-display" style="font-size:1.2rem;font-weight:700;color:var(--text);"> Due Review Queue</h2>
                 <a href="/learn" style="font-size:0.8rem;font-weight:700;color:var(--primary);text-decoration:none;border:1px solid var(--border-accent);padding:0.3rem 0.8rem;border-radius:0.5rem;transition:background 0.2s;" onmouseover="this.style.background='var(--primary-dim)'" onmouseout="this.style.background='transparent'">Go to study →</a>
             </div>
             <div id="reviewList" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
-            <div id="noReview" class="hidden" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:0.75rem;padding:1rem;color:var(--success);font-size:0.875rem;text-align:center;">✅ No cards due right now — great work!</div>
+            <div id="noReview" class="hidden" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:0.75rem;padding:1rem;color:var(--success);font-size:0.875rem;text-align:center;"> No cards due right now — great work!</div>
         </article>
 
         <!-- Notifications -->
         <article class="card-glass" style="padding:1.5rem;">
-            <h2 class="font-display" style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:1rem;">🔔 Notification Stream</h2>
+            <h2 class="font-display" style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:1rem;"> Notification Stream</h2>
             <div id="notificationStream" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
         </article>
 
@@ -111,19 +148,19 @@
         <!-- Word of the Day -->
         <article class="card-glass" style="padding:1.75rem;">
             <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
-                <span style="font-size:1.25rem;">✨</span>
+                <span style="font-size:1.25rem;"></span>
                 <h2 class="font-display" style="font-size:1.2rem;font-weight:700;color:var(--text);">Word of the Day</h2>
             </div>
             <p id="wod-word" class="font-display" style="font-size:2.25rem;font-weight:800;background:linear-gradient(135deg,var(--text) 0%,var(--primary) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.25rem;"></p>
             <p id="wod-pronunciation" style="font-size:0.9rem;color:var(--primary);margin-bottom:0.5rem;"></p>
             <p id="wod-translation" style="font-size:1.2rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;"></p>
             <p id="wod-example" style="font-size:0.875rem;color:var(--text-muted);font-style:italic;"></p>
-            <button onclick="loadWordOfDay()" class="btn btn-secondary" style="margin-top:1.25rem;font-size:0.8rem;padding:0.5rem 1.1rem;">🔄 Refresh word</button>
+            <button onclick="loadWordOfDay()" class="btn btn-secondary" style="margin-top:1.25rem;font-size:0.8rem;padding:0.5rem 1.1rem;"> Refresh word</button>
         </article>
 
         <!-- Vocabulary Categories -->
         <article class="card-glass" style="padding:1.75rem;">
-            <h2 class="font-display" style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:1rem;">🗂 Vocabulary Categories</h2>
+            <h2 class="font-display" style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:1rem;"> Vocabulary Categories</h2>
             <div id="categoriesGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;"></div>
         </article>
 

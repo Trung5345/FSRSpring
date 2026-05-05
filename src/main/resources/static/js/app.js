@@ -28,7 +28,19 @@ async function loadDashboard() {
         loadCategories(),
         loadFsrsStats(),
         loadNotifications(),
+        loadStreak(),
     ]);
+}
+
+async function loadStreak() {
+    try {
+        const s = await fetch('/api/streak').then(r => r.json());
+        const el = id => document.getElementById(id);
+        if (el('streak-count')) el('streak-count').textContent = s.currentStreak ?? 0;
+        if (el('streak-best'))  el('streak-best').textContent  = s.longestStreak ?? 0;
+        if (el('streak-total')) el('streak-total').textContent = s.totalDaysStudied ?? 0;
+        if (el('streak-fire'))  el('streak-fire').setAttribute('data-level', (s.currentStreak >= 7) ? 'hot' : (s.currentStreak >= 3 ? 'warm' : 'cool'));
+    } catch(e) { /* streak widget stays with dashes */ }
 }
 
 async function loadFsrsStats() {
@@ -91,13 +103,29 @@ async function loadStats() {
 
 async function loadWordOfDay() {
     try {
-        const words = await fetch('/api/words/random?limit=1').then(r => r.json());
-        if (!words || words.length === 0) return;
-        const w = words[0];
-        document.getElementById('wod-word').textContent = w.word;
-        document.getElementById('wod-pronunciation').textContent = w.pronunciation || '';
-        document.getElementById('wod-translation').textContent = w.translation;
-        document.getElementById('wod-example').textContent = w.example ? `"${w.example}"` : '';
+        // Try new WotD endpoint first
+        let w = null;
+        try {
+            const res = await fetch('/api/word-of-the-day');
+            if (res.ok) {
+                const wod = await res.json();
+                w = wod.word;
+            }
+        } catch(e) {}
+        if (!w) {
+            const words = await fetch('/api/words/random?limit=1').then(r => r.json());
+            if (words && words.length) w = words[0];
+        }
+        if (!w) return;
+        const eid = id => document.getElementById(id);
+        if (eid('wod-word')) eid('wod-word').textContent = w.word;
+        if (eid('wod-pronunciation')) eid('wod-pronunciation').textContent = w.pronunciation || '';
+        if (eid('wod-translation')) eid('wod-translation').textContent = w.translation;
+        if (eid('wod-example')) eid('wod-example').textContent = w.example ? `"${w.example}"` : '';
+        // Badge row
+        if (eid('wod-badge-word')) eid('wod-badge-word').textContent = w.word;
+        if (eid('wod-badge-ipa')) eid('wod-badge-ipa').textContent = w.pronunciation || '';
+        if (eid('wod-badge-trans')) eid('wod-badge-trans').textContent = w.translation || '';
     } catch (e) {
         console.error('Failed to load word of day', e);
     }

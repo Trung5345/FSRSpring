@@ -23,10 +23,21 @@ public class WordController {
     public ResponseEntity<List<Word>> getAllWords(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) Word.DifficultyLevel difficulty,
-            @RequestParam(required = false) String search) {
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long topicId,
+            @RequestParam(required = false) com.fsrspring.vocab.model.CefrLevel cefrLevel,
+            @RequestParam(required = false) String partOfSpeech) {
         List<Word> words;
         if (search != null && !search.isBlank()) {
             words = wordService.searchWords(search);
+        } else if (topicId != null && cefrLevel != null) {
+            words = wordService.getWordsByTopicAndCefr(topicId, cefrLevel);
+        } else if (topicId != null) {
+            words = wordService.getWordsByTopic(topicId);
+        } else if (cefrLevel != null) {
+            words = wordService.getWordsByCefrLevel(cefrLevel);
+        } else if (partOfSpeech != null) {
+            words = wordService.getWordsByPartOfSpeech(partOfSpeech);
         } else if (category != null && difficulty != null) {
             words = wordService.getWordsByCategoryAndDifficulty(category, difficulty);
         } else if (category != null) {
@@ -52,6 +63,11 @@ public class WordController {
     @GetMapping("/categories")
     public ResponseEntity<List<String>> getCategories() {
         return ResponseEntity.ok(wordService.getAllCategories());
+    }
+
+    @GetMapping("/parts-of-speech")
+    public ResponseEntity<List<String>> getPartsOfSpeech() {
+        return ResponseEntity.ok(wordService.getAllPartsOfSpeech());
     }
 
     @PostMapping
