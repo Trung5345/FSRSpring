@@ -1,5 +1,6 @@
 package com.fsrspring.vocab.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -49,6 +50,31 @@ public class Word {
     @Column(nullable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    // ── Enriched fields (Free Dictionary API + Datamuse) ──
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "topic_id")
+    @JsonIgnoreProperties({"words"})
+    private Topic topic;
+
+    @Enumerated(EnumType.STRING)
+    private CefrLevel cefrLevel;
+
+    @Column(length = 50)
+    private String partOfSpeech;
+
+    @Column(length = 500)
+    private String audioUrl;
+
+    @Column(length = 1000)
+    private String synonyms;
+
+    @Column(length = 1000)
+    private String antonyms;
+
+    @Column(length = 2000)
+    private String origin;
 
     public enum DifficultyLevel {
         BEGINNER, INTERMEDIATE, ADVANCED

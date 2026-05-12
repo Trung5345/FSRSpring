@@ -6,6 +6,7 @@ let correctCount = 0;
 let incorrectCount = 0;
 let isFlipped = false;
 let learnMode = 'en-vi'; // 'en-vi' or 'vi-en'
+let cardFlipTime = 0; // timestamp when card was flipped (for responseMs)
 
 function escapeHtml(text) {
     if (!text) return '';
@@ -142,16 +143,17 @@ function showRateButtons() {
     document.getElementById('rateButtons').classList.remove('hidden');
     document.getElementById('flipHint').classList.add('hidden');
     document.getElementById('rateHint').classList.remove('hidden');
+    cardFlipTime = Date.now();
 }
 
-async function rateCard(known) {
+async function rateCard(rating) {
     const card = cards[currentIndex];
-    const rating = known ? 3 : 1;
+    const responseMs = cardFlipTime > 0 ? Date.now() - cardFlipTime : 0;
     try {
-        await fetch(`/api/fsrs/review?wordId=${card.id}&rating=${rating}&responseMs=0`, { method: 'POST' });
+        await fetch(`/api/fsrs/review?wordId=${card.id}&rating=${rating}&responseMs=${responseMs}`, { method: 'POST' });
     } catch (e) { /* non-critical */ }
 
-    if (known) {
+    if (rating >= 3) {
         correctCount++;
     } else {
         incorrectCount++;
@@ -202,9 +204,17 @@ function resetLearn() {
 document.addEventListener('keydown', e => {
     const learnScreen = document.getElementById('learnScreen');
     if (learnScreen.classList.contains('hidden')) return;
-    if (e.code === 'Space') { e.preventDefault(); flipCard(); }
-    if (e.code === 'ArrowRight' && isFlipped) rateCard(true);
-    if (e.code === 'ArrowLeft' && isFlipped) rateCard(false);
+    if (e.code === 'Space' && !['INPUT','SELECT','BUTTON'].includes(e.target.tagName)) {
+        e.preventDefault(); flipCard();
+    }
+    if (isFlipped) {
+        if (e.key === '1') rateCard(1);
+        if (e.key === '2') rateCard(2);
+        if (e.key === '3') rateCard(3);
+        if (e.key === '4') rateCard(4);
+        if (e.code === 'ArrowRight') rateCard(3);  // Good
+        if (e.code === 'ArrowLeft')  rateCard(1);  // Again
+    }
 });
 
 // Initialize

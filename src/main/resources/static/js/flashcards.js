@@ -30,17 +30,23 @@ async function loadFlashcards() {
         const cards = await fetch(url).then(r => r.json());
         const list = document.getElementById('flashcardList');
         if (!cards.length) {
-            list.innerHTML = '<p class="text-sm text-slate-500">No flashcards available.</p>';
+            list.innerHTML = `<div class="empty-state">
+  <div class="empty-state-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+  </div>
+  <div class="empty-state-title">No flashcard sets yet</div>
+  <div class="empty-state-desc">Import a curated set from a trusted source to get started quickly.</div>
+</div>`;
             return;
         }
 
         list.innerHTML = cards.map(card => `
-            <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <h3 class="text-xl font-semibold text-slate-800">${escapeHtml(card.word)}</h3>
-                <p class="mt-1 text-slate-600">${escapeHtml(card.translation)}</p>
-                <p class="mt-2 text-sm text-slate-500">${escapeHtml(card.example || '')}</p>
-                <p class="mt-2 text-xs text-slate-400">${escapeHtml(card.sourceName)} | ${escapeHtml(card.topic || 'general')}</p>
-                <button onclick="saveToVocabulary(${card.id})" class="mt-3 rounded-lg bg-indigo-700 px-3 py-2 text-sm font-semibold text-white">Save to Vocabulary</button>
+            <article class="flashcard-source-card">
+                <h3 class="flashcard-source-word">${escapeHtml(card.word)}</h3>
+                <p class="flashcard-source-translation">${escapeHtml(card.translation)}</p>
+                <p class="flashcard-source-example">${escapeHtml(card.example || '')}</p>
+                <p class="flashcard-source-meta">${escapeHtml(card.sourceName)} | ${escapeHtml(card.topic || 'general')}</p>
+                <button onclick="saveToVocabulary(${card.id})" class="btn btn-primary flashcard-save-btn">Save to Vocabulary</button>
             </article>
         `).join('');
     } catch (e) {

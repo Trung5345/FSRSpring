@@ -53,6 +53,26 @@ public class WordService {
         return wordRepository.save(word);
     }
 
+    public List<Word> getWordsByTopic(Long topicId) {
+        return wordRepository.findByTopicId(topicId);
+    }
+
+    public List<Word> getWordsByCefrLevel(com.fsrspring.vocab.model.CefrLevel cefrLevel) {
+        return wordRepository.findByCefrLevel(cefrLevel);
+    }
+
+    public List<Word> getWordsByPartOfSpeech(String partOfSpeech) {
+        return wordRepository.findByPartOfSpeechIgnoreCase(partOfSpeech);
+    }
+
+    public List<Word> getWordsByTopicAndCefr(Long topicId, com.fsrspring.vocab.model.CefrLevel cefrLevel) {
+        return wordRepository.findByTopicIdAndCefrLevel(topicId, cefrLevel);
+    }
+
+    public List<String> getAllPartsOfSpeech() {
+        return wordRepository.findAllPartsOfSpeech();
+    }
+
     public Word updateWord(Long id, Word updatedWord) {
         Word existing = getWordById(id);
         existing.setWord(updatedWord.getWord());
@@ -62,6 +82,13 @@ public class WordService {
         existing.setCategory(updatedWord.getCategory());
         existing.setDifficulty(updatedWord.getDifficulty());
         existing.setImageUrl(updatedWord.getImageUrl());
+        existing.setTopic(updatedWord.getTopic());
+        existing.setCefrLevel(updatedWord.getCefrLevel());
+        existing.setPartOfSpeech(updatedWord.getPartOfSpeech());
+        existing.setAudioUrl(updatedWord.getAudioUrl());
+        existing.setSynonyms(updatedWord.getSynonyms());
+        existing.setAntonyms(updatedWord.getAntonyms());
+        existing.setOrigin(updatedWord.getOrigin());
         return wordRepository.save(existing);
     }
 

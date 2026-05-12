@@ -10,14 +10,14 @@ const CATEGORY_ICONS = {
 };
 
 const CATEGORY_COLORS = [
-    'bg-indigo-100 text-indigo-700',
-    'bg-green-100 text-green-700',
-    'bg-yellow-100 text-yellow-700',
-    'bg-pink-100 text-pink-700',
-    'bg-blue-100 text-blue-700',
-    'bg-orange-100 text-orange-700',
-    'bg-purple-100 text-purple-700',
-    'bg-teal-100 text-teal-700',
+    { bg: 'rgba(99,102,241,0.1)',  color: '#6366f1' },
+    { bg: 'rgba(34,197,94,0.1)',   color: '#16a34a' },
+    { bg: 'rgba(234,179,8,0.1)',   color: '#ca8a04' },
+    { bg: 'rgba(236,72,153,0.1)',  color: '#db2777' },
+    { bg: 'rgba(59,130,246,0.1)',  color: '#2563eb' },
+    { bg: 'rgba(249,115,22,0.1)',  color: '#ea580c' },
+    { bg: 'rgba(168,85,247,0.1)', color: '#9333ea' },
+    { bg: 'rgba(20,184,166,0.1)', color: '#0d9488' },
 ];
 
 async function loadDashboard() {
@@ -28,7 +28,19 @@ async function loadDashboard() {
         loadCategories(),
         loadFsrsStats(),
         loadNotifications(),
+        loadStreak(),
     ]);
+}
+
+async function loadStreak() {
+    try {
+        const s = await fetch('/api/streak').then(r => r.json());
+        const el = id => document.getElementById(id);
+        if (el('streak-count')) el('streak-count').textContent = s.currentStreak ?? 0;
+        if (el('streak-best'))  el('streak-best').textContent  = s.longestStreak ?? 0;
+        if (el('streak-total')) el('streak-total').textContent = s.totalDaysStudied ?? 0;
+        if (el('streak-fire'))  el('streak-fire').setAttribute('data-level', (s.currentStreak >= 7) ? 'hot' : (s.currentStreak >= 3 ? 'warm' : 'cool'));
+    } catch(e) { /* streak widget stays with dashes */ }
 }
 
 async function loadFsrsStats() {
@@ -56,14 +68,14 @@ async function loadNotifications() {
         if (!stream) return;
 
         if (!list || list.length === 0) {
-            stream.innerHTML = '<p class="text-sm text-slate-500">No notification yet.</p>';
+            stream.innerHTML = '<p class="empty-inline">No notification yet.</p>';
             return;
         }
 
         stream.innerHTML = list.slice(0, 4).map(n => `
-            <a href="${escapeHtml(n.deepLink || '/learn?mode=fsrs')}" class="block border-3 border-black bg-white shadow-[2px_2px_0px_#141414] rounded-lg bg-white p-3 hover:bg-slate-50 transition">
-                <p class="text-sm font-semibold text-slate-800">${escapeHtml(n.title)}</p>
-                <p class="text-xs text-slate-500 mt-1">${escapeHtml(n.message)}</p>
+            <a href="${escapeHtml(n.deepLink || '/learn?mode=fsrs')}" class="notification-card">
+                <p class="notification-title">${escapeHtml(n.title)}</p>
+                <p class="notification-message">${escapeHtml(n.message)}</p>
             </a>
         `).join('');
 
@@ -91,13 +103,29 @@ async function loadStats() {
 
 async function loadWordOfDay() {
     try {
-        const words = await fetch('/api/words/random?limit=1').then(r => r.json());
-        if (!words || words.length === 0) return;
-        const w = words[0];
-        document.getElementById('wod-word').textContent = w.word;
-        document.getElementById('wod-pronunciation').textContent = w.pronunciation || '';
-        document.getElementById('wod-translation').textContent = w.translation;
-        document.getElementById('wod-example').textContent = w.example ? `"${w.example}"` : '';
+        // Try new WotD endpoint first
+        let w = null;
+        try {
+            const res = await fetch('/api/word-of-the-day');
+            if (res.ok) {
+                const wod = await res.json();
+                w = wod.word;
+            }
+        } catch(e) {}
+        if (!w) {
+            const words = await fetch('/api/words/random?limit=1').then(r => r.json());
+            if (words && words.length) w = words[0];
+        }
+        if (!w) return;
+        const eid = id => document.getElementById(id);
+        if (eid('wod-word')) eid('wod-word').textContent = w.word;
+        if (eid('wod-pronunciation')) eid('wod-pronunciation').textContent = w.pronunciation || '';
+        if (eid('wod-translation')) eid('wod-translation').textContent = w.translation;
+        if (eid('wod-example')) eid('wod-example').textContent = w.example ? `"${w.example}"` : '';
+        // Badge row
+        if (eid('wod-badge-word')) eid('wod-badge-word').textContent = w.word;
+        if (eid('wod-badge-ipa')) eid('wod-badge-ipa').textContent = w.pronunciation || '';
+        if (eid('wod-badge-trans')) eid('wod-badge-trans').textContent = w.translation || '';
     } catch (e) {
         console.error('Failed to load word of day', e);
     }
@@ -116,10 +144,10 @@ async function loadReviewWords() {
         }
 
         container.innerHTML = reviewList.slice(0, 5).map(p => `
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+            <div class="review-item">
                 <div>
-                    <span class="font-semibold text-gray-800">${escapeHtml(p.word.word)}</span>
-                    <span class="text-gray-400 text-sm ml-2">${escapeHtml(p.word.translation)}</span>
+                    <span class="review-word">${escapeHtml(p.word.word)}</span>
+                    <span class="review-translation">${escapeHtml(p.word.translation)}</span>
                 </div>
                 <span class="badge-mastery-${p.mastery}">${masteryLabel(p.mastery)}</span>
             </div>
@@ -127,7 +155,7 @@ async function loadReviewWords() {
 
         if (reviewList.length > 5) {
             container.innerHTML += `
-                <a href="/learn" class="block text-center text-indigo-500 hover:underline text-sm py-2">
+                <a href="/learn" class="review-more">
                     +${reviewList.length - 5} từ nữa cần ôn tập →
                 </a>`;
         }
@@ -143,12 +171,12 @@ async function loadCategories() {
         if (!categories || categories.length === 0) return;
         grid.innerHTML = categories.map((cat, i) => {
             const icon = CATEGORY_ICONS[cat] || 'notebook-pen';
-            const color = CATEGORY_COLORS[i % CATEGORY_COLORS.length];
+            const c = CATEGORY_COLORS[i % CATEGORY_COLORS.length];
             return `
-                <a href="/vocabulary?category=${encodeURIComponent(cat)}"
-                         class="bg-white rounded-xl shadow-sm p-4 text-center hover:shadow-md transition-shadow duration-200 group">
-                    <div class="text-3xl mb-2 flex justify-center"><i data-lucide="${icon}" class="h-8 w-8"></i></div>
-                    <p class="font-semibold text-gray-700 text-sm group-hover:text-indigo-600 transition-colors">${escapeHtml(cat)}</p>
+                <a href="/vocabulary?category=${encodeURIComponent(cat)}" class="cat-card"
+                   style="--cat-bg:${c.bg};--cat-color:${c.color};">
+                    <span class="cat-icon"><i data-lucide="${icon}"></i></span>
+                    <span class="cat-name">${escapeHtml(cat)}</span>
                 </a>`;
         }).join('');
         initLucide();
