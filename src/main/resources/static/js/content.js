@@ -22,14 +22,14 @@ async function loadContent() {
 function renderContent(containerId, items) {
     const container = document.getElementById(containerId);
     if (!items.length) {
-        container.innerHTML = '<p class="text-sm text-slate-500">No data. Configure API keys and retry.</p>';
+        container.innerHTML = '<p class="empty-inline">No data. Configure API keys and retry.</p>';
         return;
     }
 
     container.innerHTML = items.map(item => `
-        <a class="block rounded-xl border border-slate-200 bg-slate-50 p-4 hover:bg-white transition" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">
-            <p class="font-semibold text-slate-800">${escapeHtml(item.title)}</p>
-            <p class="mt-1 text-xs text-slate-500">${escapeHtml(item.summary || '')}</p>
+        <a class="content-card" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">
+            <p class="content-title">${escapeHtml(item.title)}</p>
+            <p class="content-summary">${escapeHtml(item.summary || '')}</p>
         </a>
     `).join('');
 }

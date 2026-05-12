@@ -75,22 +75,22 @@ function renderMasteryBars(progressList, totalWords) {
 
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
     const colors = {
-        NEW: 'bg-gray-400',
-        LEARNING: 'bg-yellow-400',
-        REVIEWING: 'bg-blue-400',
-        MASTERED: 'bg-green-500',
+        NEW: 'mastery-fill-new',
+        LEARNING: 'mastery-fill-learning',
+        REVIEWING: 'mastery-fill-reviewing',
+        MASTERED: 'mastery-fill-mastered',
     };
 
     document.getElementById('masteryBars').innerHTML = Object.entries(counts).map(([key, count]) => {
         const pct = total > 0 ? Math.round(count / total * 100) : 0;
         return `
-            <div>
-                <div class="flex justify-between text-sm mb-1">
-                    <span class="text-gray-600">${masteryLabel(key)}</span>
-                    <span class="text-gray-500">${count} từ (${pct}%)</span>
+            <div class="mastery-row">
+                <div class="mastery-row-head">
+                    <span>${masteryLabel(key)}</span>
+                    <span>${count} từ (${pct}%)</span>
                 </div>
-                <div class="bg-gray-100 rounded-full h-3">
-                    <div class="${colors[key]} h-3 rounded-full transition-[width] duration-700" style="width: ${pct}%"></div>
+                <div class="mastery-bar-track">
+                    <div class="mastery-bar-fill ${colors[key]}" style="width: ${pct}%"></div>
                 </div>
             </div>
         `;
@@ -101,8 +101,9 @@ function renderSessions(sessions) {
     const container = document.getElementById('recentSessions');
     if (!sessions || sessions.length === 0) {
         container.innerHTML = `
-            <div class="text-center py-8 text-gray-400">
-                <p>Chưa có bài kiểm tra nào. <a href="/quiz" class="text-indigo-500 hover:underline">Làm bài ngay!</a></p>
+            <div class="empty-state">
+                <p class="empty-state-desc">Chưa có bài kiểm tra nào.</p>
+                <a href="/quiz" class="review-more">Làm bài ngay!</a>
             </div>`;
         return;
     }
@@ -114,19 +115,17 @@ function renderSessions(sessions) {
         const date = s.completedAt
             ? new Date(s.completedAt).toLocaleString('vi-VN')
             : 'Chưa hoàn thành';
-        const scoreColor = score >= 80 ? 'text-green-600' : score >= 60 ? 'text-yellow-600' : 'text-red-500';
+        const scoreColor = score >= 80 ? 'progress-score-high' : score >= 60 ? 'progress-score-mid' : 'progress-score-low';
         return `
-            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                <div class="flex items-center gap-3">
-                    <div>
-                        <p class="font-medium text-gray-700">
-                            ${s.correctAnswers}/${s.totalQuestions} câu đúng
-                            ${s.category ? `· <span class="text-gray-400">${escapeHtml(s.category)}</span>` : ''}
-                        </p>
-                        <p class="text-xs text-gray-400">${date}</p>
-                    </div>
+            <div class="session-item">
+                <div>
+                    <p class="session-title">
+                        ${s.correctAnswers}/${s.totalQuestions} câu đúng
+                        ${s.category ? `· <span class="session-meta">${escapeHtml(s.category)}</span>` : ''}
+                    </p>
+                    <p class="session-meta">${date}</p>
                 </div>
-                <span class="${scoreColor} text-xl font-bold">${score}%</span>
+                <span class="${scoreColor}" style="font-size:1.2rem;font-weight:800;">${score}%</span>
             </div>`;
     }).join('');
 }
@@ -147,18 +146,18 @@ function renderProgressTable(progressList) {
 
     tbody.innerHTML = filtered.map(p => {
         const acc = p.totalAttempts > 0 ? Math.round(p.correctCount / p.totalAttempts * 100) : 0;
-        const accColor = acc >= 80 ? 'text-green-600' : acc >= 60 ? 'text-yellow-600' : 'text-red-500';
+        const accColor = acc >= 80 ? 'progress-accuracy-high' : acc >= 60 ? 'progress-accuracy-mid' : 'progress-accuracy-low';
         return `
-            <tr class="hover:bg-gray-50">
-                <td class="py-3 pr-4">
-                    <span class="font-semibold text-gray-800">${escapeHtml(p.word.word)}</span>
-                    ${p.word.pronunciation ? `<span class="text-indigo-400 text-xs ml-1">${escapeHtml(p.word.pronunciation)}</span>` : ''}
+            <tr>
+                <td>
+                    <span class="progress-word">${escapeHtml(p.word.word)}</span>
+                    ${p.word.pronunciation ? `<span class="progress-pronunciation">${escapeHtml(p.word.pronunciation)}</span>` : ''}
                 </td>
-                <td class="py-3 pr-4 text-gray-600">${escapeHtml(p.word.translation)}</td>
-                <td class="py-3 pr-4">${masteryBadge(p.mastery)}</td>
-                <td class="py-3 pr-4 text-green-600 font-medium">${p.correctCount}</td>
-                <td class="py-3 pr-4 text-red-500 font-medium">${p.incorrectCount}</td>
-                <td class="py-3 ${accColor} font-semibold">${acc}%</td>
+                <td>${escapeHtml(p.word.translation)}</td>
+                <td>${masteryBadge(p.mastery)}</td>
+                <td class="text-success" style="font-weight:700;">${p.correctCount}</td>
+                <td class="text-danger" style="font-weight:700;">${p.incorrectCount}</td>
+                <td class="${accColor}" style="font-weight:800;">${acc}%</td>
             </tr>`;
     }).join('');
 }

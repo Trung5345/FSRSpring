@@ -17,23 +17,29 @@ function escapeHtml(text) {
 
 function difficultyBadge(d) {
     const map = {
-        BEGINNER: '<span class="badge-beginner">Sơ cấp</span>',
-        INTERMEDIATE: '<span class="badge-intermediate">Trung cấp</span>',
-        ADVANCED: '<span class="badge-advanced">Nâng cao</span>',
+        BEGINNER: '<span style="font-size:.7rem;background:#c8e6ff;color:#006590;padding:2px 8px;border-radius:99px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;">Beginner</span>',
+        INTERMEDIATE: '<span style="font-size:.7rem;background:#ffdf92;color:#6e5400;padding:2px 8px;border-radius:99px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;">Intermediate</span>',
+        ADVANCED: '<span style="font-size:.7rem;background:#ffdad6;color:#93000a;padding:2px 8px;border-radius:99px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;">Advanced</span>',
     };
-    return map[d] || d;
+    return map[d] || (d ? `<span style="font-size:.7rem;background:#efeded;color:#3e4850;padding:2px 8px;border-radius:99px;font-weight:700;">${escapeHtml(d)}</span>` : '');
 }
 
 function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer') || (() => {
+        const c = document.createElement('div');
+        c.id = 'toastContainer';
+        c.style.cssText = 'position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;';
+        document.body.appendChild(c);
+        return c;
+    })();
+    const colors = { success: 'background:#006590;color:#fff;', error: 'background:#ba1a1a;color:#fff;', info: 'background:#e3e2e2;color:#1b1c1c;' };
+    const icons = { success: 'check_circle', error: 'error', info: 'info' };
     const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.classList.add('show'), 10);
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 400);
-    }, 2500);
+    toast.style.cssText = `pointer-events:auto;display:flex;align-items:center;gap:12px;padding:12px 20px;border-radius:12px;font-family:Nunito Sans,sans-serif;font-weight:500;font-size:17px;${colors[type]||colors.success}opacity:0;transition:opacity 0.3s,transform 0.3s;transform:translateY(16px);`;
+    toast.innerHTML = `<span class="material-symbols-outlined icon-filled" style="font-size:20px;">${icons[type]||icons.success}</span><span>${escapeHtml(message)}</span>`;
+    container.appendChild(toast);
+    requestAnimationFrame(() => { toast.style.opacity='1'; toast.style.transform='translateY(0)'; });
+    setTimeout(() => { toast.style.opacity='0'; toast.style.transform='translateY(8px)'; setTimeout(() => toast.remove(), 350); }, 2800);
 }
 
 async function loadWords() {
@@ -109,30 +115,28 @@ function renderWords(words) {
     empty.classList.add('hidden');
 
     grid.innerHTML = words.map(w => `
-        <div class="word-card bg-white rounded-2xl shadow-sm p-5 border border-gray-100">
-            <div class="flex justify-between items-start mb-3">
-                <div class="flex-1 min-w-0">
-                    <h3 class="text-xl font-bold text-gray-800 truncate">${escapeHtml(w.word)}</h3>
-                    ${w.pronunciation ? `<p class="text-indigo-400 text-sm">${escapeHtml(w.pronunciation)}</p>` : ''}
+        <div class="word-card" style="background:#fff;border:2px solid #bdc8d2;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,box-shadow .15s;" onmouseenter="this.style.borderColor='#006590';this.style.boxShadow='0 2px 8px rgba(0,101,144,.12)'" onmouseleave="this.style.borderColor='#bdc8d2';this.style.boxShadow='none'">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                <div style="flex:1;min-width:0;">
+                    <h3 style="font-size:1.1rem;font-weight:700;color:#1b1c1c;font-family:Lexend,sans-serif;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(w.word)}</h3>
+                    ${w.pronunciation ? `<p style="color:#006590;font-size:0.78rem;font-family:monospace;margin:0;">${escapeHtml(w.pronunciation)}</p>` : ''}
                 </div>
                 ${difficultyBadge(w.difficulty)}
             </div>
-            <p class="text-gray-600 font-medium mb-2">${escapeHtml(w.translation)}</p>
-            ${w.example ? `<p class="text-gray-400 text-sm italic mb-3 line-clamp-2">"${escapeHtml(w.example)}"</p>` : '<div class="mb-3"></div>'}
-            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;">
-              ${w.category  ? `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">${escapeHtml(w.category)}</span>` : ''}
-              ${w.topic     ? `<span style="font-size:.7rem;background:rgba(129,140,248,.1);color:var(--primary, #818cf8);padding:2px 8px;border-radius:99px;font-weight:600;">${escapeHtml((w.topic.iconEmoji||'')+' '+w.topic.name)}</span>` : ''}
-              ${w.cefrLevel ? `<span style="font-size:.7rem;background:rgba(251,191,36,.1);color:#fbbf24;padding:2px 8px;border-radius:99px;font-weight:600;">${escapeHtml(w.cefrLevel)}</span>` : ''}
-              ${w.partOfSpeech ? `<span style="font-size:.7rem;background:rgba(148,163,184,.1);color:#94a3b8;padding:2px 8px;border-radius:99px;">${escapeHtml(w.partOfSpeech)}</span>` : ''}
+            <p style="color:#3e4850;font-weight:600;font-size:0.9rem;margin:0;">${escapeHtml(w.translation)}</p>
+            ${w.example ? `<p style="color:#6e7881;font-size:0.8rem;font-style:italic;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">&ldquo;${escapeHtml(w.example)}&rdquo;</p>` : ''}
+            <div style="display:flex;flex-wrap:wrap;gap:4px;">
+              ${w.category  ? `<span style="font-size:.68rem;background:#efeded;color:#3e4850;padding:2px 8px;border-radius:99px;border:1px solid #bdc8d2;font-weight:600;">${escapeHtml(w.category)}</span>` : ''}
+              ${w.topic     ? `<span style="font-size:.68rem;background:#c8e6ff;color:#006590;padding:2px 8px;border-radius:99px;font-weight:600;">${escapeHtml(w.topic.name)}</span>` : ''}
+              ${w.cefrLevel ? `<span style="font-size:.68rem;background:#ffdf92;color:#6e5400;padding:2px 8px;border-radius:99px;font-weight:600;">${escapeHtml(w.cefrLevel)}</span>` : ''}
+              ${w.partOfSpeech ? `<span style="font-size:.68rem;background:#e3e2e2;color:#6e7881;padding:2px 8px;border-radius:99px;">${escapeHtml(w.partOfSpeech)}</span>` : ''}
             </div>
-            <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100">
-                <button onclick="openEditModal(${w.id})"
-                    class="flex-1 text-sm text-indigo-600 hover:bg-indigo-50 py-1.5 rounded-lg transition flex items-center justify-center gap-1">
-                    Sửa
+            <div style="display:flex;gap:8px;margin-top:auto;padding-top:12px;border-top:1px solid #e3e2e2;">
+                <button onclick="openEditModal(${w.id})" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:8px;border:2px solid #bdc8d2;background:#fff;color:#006590;font-family:Lexend,sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:background .15s;" onmouseenter="this.style.background='#c8e6ff'" onmouseleave="this.style.background='#fff'">
+                    <span class="material-symbols-outlined" style="font-size:15px;">edit</span>Edit
                 </button>
-                <button onclick="openDeleteModal(${w.id})"
-                    class="flex-1 text-sm text-red-500 hover:bg-red-50 py-1.5 rounded-lg transition flex items-center justify-center gap-1">
-                    Xóa
+                <button onclick="openDeleteModal(${w.id})" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:8px;border:2px solid #bdc8d2;background:#fff;color:#ba1a1a;font-family:Lexend,sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:background .15s;" onmouseenter="this.style.background='#ffdad6'" onmouseleave="this.style.background='#fff'">
+                    <span class="material-symbols-outlined" style="font-size:15px;">delete</span>Delete
                 </button>
             </div>
         </div>
@@ -166,11 +170,11 @@ function closeModal() {
 
 function openDeleteModal(id) {
     deleteWordId = id;
-    document.getElementById('deleteModal').classList.remove('hidden');
+    document.getElementById('deleteModal').style.display = 'flex';
 }
 
 function closeDeleteModal() {
-    document.getElementById('deleteModal').classList.add('hidden');
+    document.getElementById('deleteModal').style.display = 'none';
     deleteWordId = null;
 }
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flashcards — VocabSmart</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script>(function(){var t=localStorage.getItem('fsrs-theme');if(t)document.documentElement.setAttribute('data-theme',t);})();function toggleTheme(){var r=document.documentElement,t=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',t);localStorage.setItem('fsrs-theme',t);}</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -12,23 +12,78 @@
 </head>
 <body>
 
-<nav class="nav">
-    <div class="nav-inner">
-        <a href="/" class="nav-brand">
-            <span class="nav-brand-icon"></span>
+<!-- ── Sidebar ── -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <a href="/" class="sidebar-brand">
+            <div class="sidebar-brand-icon">
+                <svg viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'/><path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/></svg>
+            </div>
             <span>VocabSmart</span>
         </a>
-        <div class="nav-links">
-            <a href="/" class="nav-link">Dashboard</a>
-            <a href="/vocabulary" class="nav-link">Vocabulary</a>
-            <a href="/learn" class="nav-link">Study</a>
-            <a href="/quiz" class="nav-link">Quiz</a>
-            <a href="/progress" class="nav-link">Progress</a>
-            <a href="/content" class="nav-link">Content Hub</a>
-            <a href="/flashcards" class="nav-link active">Flashcards</a>
-        </div>
     </div>
-</nav>
+    <nav class="sidebar-nav">
+        <a href="/" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x='3' y='3' width='7' height='7' rx='1'/><rect x='14' y='3' width='7' height='7' rx='1'/><rect x='3' y='14' width='7' height='7' rx='1'/><rect x='14' y='14' width='7' height='7' rx='1'/></svg>
+            <span>Dashboard</span>
+        </a>
+        <a href="/vocabulary" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'/><path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/></svg>
+            <span>Vocabulary</span>
+        </a>
+        <a href="/learn" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d='M22 10v6M2 10l10-5 10 5-10 5z'/><path d='M6 12v5c3 3 9 3 12 0v-5'/></svg>
+            <span>Study</span>
+        </a>
+        <a href="/flashcard-study" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x='2' y='5' width='20' height='14' rx='2'/><line x1='2' y1='10' x2='22' y2='10'/></svg>
+            <span>Cards</span>
+        </a>
+        <a href="/flashcards" class="sidebar-link active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points='12 2 2 7 12 12 22 7 12 2'/><polyline points='2 17 12 22 22 17'/><polyline points='2 12 12 17 22 12'/></svg>
+            <span>Flashcards</span>
+        </a>
+        <a href="/sets" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/></svg>
+            <span>Sets</span>
+        </a>
+        <a href="/quiz" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg>
+            <span>Quiz</span>
+        </a>
+        <a href="/progress" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1='18' y1='20' x2='18' y2='10'/><line x1='12' y1='20' x2='12' y2='4'/><line x1='6' y1='20' x2='6' y2='14'/></svg>
+            <span>Progress</span>
+        </a>
+        <a href="/content" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d='M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4'/><path d='M14 2v4a2 2 0 0 0 2 2h4'/><line x1='2' y1='12' x2='11' y2='12'/><line x1='2' y1='16' x2='8' y2='16'/><line x1='2' y1='20' x2='6' y2='20'/></svg>
+            <span>Content Hub</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <span style="font-size:0.75rem;color:var(--text-muted);font-weight:500;">Theme</span>
+    </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- ── App Main ── -->
+<div class="app-main">
+<div class="mobile-topbar">
+    <button class="hamburger" onclick="openSidebar()" aria-label="Open menu"><span></span><span></span><span></span></button>
+    <a href="/" class="sidebar-brand" style="font-size:0.875rem;">
+        <div class="sidebar-brand-icon" style="width:28px;height:28px;border-radius:7px;"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+        <span>VocabSmart</span>
+    </a>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+</div>
+
 
 <header class="page-header">
     <div class="page-header-inner">
@@ -72,45 +127,10 @@
 </main>
 
 <script src="/js/flashcards.js"></script>
-</body>
-</html>
-
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body class="bg-slate-100 text-slate-900 min-h-screen">
-    <nav class="border-b border-slate-200 bg-white">
-        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-            <a href="/" class="font-display text-xl">VocabSmart FSRS</a>
-            <div class="hidden gap-5 text-sm font-medium md:flex">
-                <a href="/vocabulary">Vocabulary</a>
-                <a href="/learn">Study</a>
-                <a href="/quiz">Quiz</a>
-                <a href="/progress">Progress</a>
-                <a href="/content">Content Hub</a>
-                <a href="/flashcards" class="text-indigo-700">Flashcards</a>
-            </div>
-        </div>
-    </nav>
-
-    <main class="mx-auto max-w-7xl px-4 py-8">
-        <h1 class="font-display text-3xl">Trusted Flashcard Sources</h1>
-        <p class="mt-1 text-slate-500">Import curated flashcards and push selected items into your vocabulary base.</p>
-
-        <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
-            <select id="sourceSelect" class="input md:col-span-2">
-                <option value="BBC Learning English">BBC Learning English</option>
-                <option value="VOA Learning English">VOA Learning English</option>
-                <option value="Cambridge Dictionary Blog">Cambridge Dictionary Blog</option>
-            </select>
-            <input id="topicInput" class="input" value="general" placeholder="Topic">
-            <button id="importBtn" onclick="importFlashcards()" class="rounded-xl bg-indigo-700 px-5 py-2.5 font-semibold text-white">Import set</button>
-        </div>
-
-        <div class="mt-4"><input id="searchInput" oninput="loadFlashcards()" class="input w-full md:w-80" placeholder="Search flashcards"></div>
-
-        <section id="flashcardList" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"></section>
-    </main>
-
-    <script src="/js/flashcards.js"></script>
+<script>
+function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebar-overlay').classList.add('active');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('active');}
+</script>
+</div>
 </body>
 </html>

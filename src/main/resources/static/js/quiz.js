@@ -121,7 +121,7 @@ function showQuestion() {
     const optGrid = document.getElementById('optionsGrid');
     optGrid.innerHTML = q.options.map((opt, i) => `
         <button class="quiz-option" onclick="selectOption(this, ${i})" data-option="${escapeHtml(opt)}">
-            <span class="text-gray-400 mr-2">${String.fromCharCode(65 + i)}.</span>
+            <span class="quiz-option-letter">${String.fromCharCode(65 + i)}.</span>
             ${escapeHtml(opt)}
         </button>
     `).join('');
@@ -162,13 +162,13 @@ function selectOption(btn, index) {
 
     // Show feedback
     const feedback = document.getElementById('feedback');
-    feedback.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'text-green-700', 'text-red-700');
+    feedback.classList.remove('hidden', 'correct-fb', 'incorrect-fb');
     if (isCorrect) {
-        feedback.classList.add('bg-green-50', 'text-green-700');
+        feedback.classList.add('correct-fb');
         document.getElementById('feedbackText').textContent = 'Chính xác';
         document.getElementById('feedbackSubtext').textContent = q.word.example ? `"${q.word.example}"` : '';
     } else {
-        feedback.classList.add('bg-red-50', 'text-red-700');
+        feedback.classList.add('incorrect-fb');
         document.getElementById('feedbackText').textContent = 'Chưa đúng';
         document.getElementById('feedbackSubtext').textContent =
             `Đáp án đúng: ${q.correct}`;
@@ -217,16 +217,16 @@ async function finishQuiz() {
 
     // Score circle color
     const circle = document.getElementById('scoreCircle');
-    circle.classList.remove('border-green-400', 'border-yellow-400', 'border-red-400', 'text-green-600', 'text-yellow-600', 'text-red-600');
+    circle.classList.remove('score-good', 'score-ok', 'score-low');
     let msg;
     if (pct >= 80) {
-        circle.classList.add('border-green-400', 'text-green-600');
+        circle.classList.add('score-good');
         msg = 'Xuất sắc. Bạn nắm vững từ vựng rất tốt.';
     } else if (pct >= 60) {
-        circle.classList.add('border-yellow-400', 'text-yellow-600');
+        circle.classList.add('score-ok');
         msg = 'Khá tốt. Tiếp tục ôn luyện nhé.';
     } else {
-        circle.classList.add('border-red-400', 'text-red-600');
+        circle.classList.add('score-low');
         msg = 'Cần ôn tập thêm. Hãy xem lại flashcard.';
     }
     document.getElementById('resultMessage').textContent = msg;

@@ -7,131 +7,321 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="stylesheet" href="/css/style.css">
+  <script>(function(){var t=localStorage.getItem('fsrs-theme');if(t)document.documentElement.setAttribute('data-theme',t);})();function toggleTheme(){var r=document.documentElement,t=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',t);localStorage.setItem('fsrs-theme',t);}</script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg-base: #0a0a0b; --bg-surface: #111114; --bg-elevated: #18181d; --bg-card: #1f1f27;
-      --primary: #818cf8; --accent: #fbbf24; --success: #4ade80; --danger: #fb7185;
-      --warning: #fb923c; --text-main: #e2e8f0; --text-sub: #94a3b8; --text-dim: #475569; --radius: 16px;
+    /* ── Page Layout ── */
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
     }
-    body { font-family: 'Inter', sans-serif; background: var(--bg-base); color: var(--text-main); min-height: 100vh; }
-    nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 28px; background: var(--bg-surface);
-      border-bottom: 1px solid rgba(255,255,255,.06); position: sticky; top: 0; z-index: 100;
+    .page > .page-header {
+      all: unset;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 2rem;
     }
-    .nav-brand { font-size: 1.1rem; font-weight: 700; color: var(--primary); text-decoration: none; }
-    .nav-links { display: flex; gap: 6px; }
-    .nav-links a {
-      padding: 6px 14px; border-radius: 8px; color: var(--text-sub);
-      text-decoration: none; font-size: .875rem; font-weight: 500; transition: all .2s;
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.03em;
+      line-height: 1.2;
     }
-    .nav-links a:hover, .nav-links a.active { background: var(--bg-card); color: var(--text-main); }
+    .page-sub {
+      margin-top: 0.25rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .btn-create {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), #2563eb);
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(59,130,246,0.25);
+      transition: transform 0.15s, box-shadow 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-create:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(59,130,246,0.35); }
 
-    .page { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
-    .page-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; }
-    .page-title { font-size: 1.7rem; font-weight: 700; }
-    .page-sub { color: var(--text-sub); font-size: .9rem; margin-top: 4px; }
-
-    /* Filter tabs */
-    .filter-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+    /* ── CEFR Filter Tabs ── */
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.75rem;
+    }
     .filter-tab {
-      padding: 7px 16px; border-radius: 99px; border: 1px solid rgba(255,255,255,.1);
-      background: transparent; color: var(--text-sub); cursor: pointer;
-      font-family: 'Inter', sans-serif; font-size: .82rem; font-weight: 600;
-      transition: all .2s; white-space: nowrap;
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.15s;
     }
-    .filter-tab:hover, .filter-tab.active {
-      background: rgba(129,140,248,.12); border-color: var(--primary); color: var(--primary);
+    .filter-tab:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* ── Sets Grid ── */
+    .sets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.25rem;
     }
-
-    /* Grid */
-    .sets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-
-    /* Set card */
     .set-card {
-      background: var(--bg-card); border-radius: var(--radius);
-      border: 1px solid rgba(255,255,255,.06); overflow: hidden;
-      cursor: pointer; transition: all .25s;
-      display: flex; flex-direction: column;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
     }
-    .set-card:hover { transform: translateY(-4px); border-color: rgba(129,140,248,.25); box-shadow: 0 16px 40px rgba(0,0,0,.3); }
+    .set-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
     .set-card-banner {
-      height: 8px;
+      height: 6px;
     }
-    .set-card-body { padding: 20px; flex: 1; }
-    .set-card-name { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
-    .set-card-desc { color: var(--text-sub); font-size: .83rem; margin-bottom: 12px; line-height: 1.5; }
-    .set-meta { display: flex; gap: 8px; flex-wrap: wrap; }
-    .badge { padding: 3px 9px; border-radius: 99px; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
-    .badge-topic { background: rgba(129,140,248,.12); color: var(--primary); }
-    .badge-cefr  { background: rgba(251,191,36,.12); color: var(--accent); }
-    .badge-count { background: rgba(148,163,184,.1); color: var(--text-sub); }
+    .set-card-body {
+      padding: 1.25rem 1.25rem 0.75rem;
+      flex: 1;
+    }
+    .set-card-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.01em;
+    }
+    .set-card-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      line-height: 1.5;
+    }
+    .set-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.6rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .badge-cefr { background: rgba(59,130,246,0.1); color: var(--primary); border-color: rgba(59,130,246,0.2); }
+    .badge-count { background: var(--bg-elevated); }
     .set-card-footer {
-      padding: 14px 20px; border-top: 1px solid rgba(255,255,255,.05);
-      display: flex; gap: 8px;
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem 1rem;
+      border-top: 1px solid var(--border);
     }
     .btn-sm {
-      flex: 1; padding: 8px; border-radius: 10px; border: none; cursor: pointer;
-      font-family: 'Inter', sans-serif; font-size: .82rem; font-weight: 600; transition: all .2s;
+      flex: 1;
+      padding: 0.45rem 0.75rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: calc(var(--radius) - 2px);
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
     }
-    .btn-study { background: linear-gradient(135deg, var(--primary), #6366f1); color: #080810; }
-    .btn-view  { background: rgba(255,255,255,.06); color: var(--text-sub); }
-    .btn-view:hover { background: rgba(255,255,255,.1); color: var(--text-main); }
+    .btn-study { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-study:hover { filter: brightness(1.1); }
+    .btn-view:hover { border-color: var(--primary); color: var(--primary); background: var(--bg-surface); }
 
-    /* Create button */
-    .btn-create {
-      background: linear-gradient(135deg, var(--primary), #6366f1);
-      color: #080810; font-weight: 700; padding: 10px 22px; border-radius: 12px;
-      border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: .875rem;
-      display: inline-flex; align-items: center; gap: 7px;
+    /* ── Empty State ── */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
     }
+    .empty-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+    .empty-sub { font-size: 0.85rem; }
 
-    /* Modal */
+    /* ── Modal ── */
     .modal-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
-      z-index: 1000; align-items: center; justify-content: center;
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
     }
     .modal-overlay.open { display: flex; }
     .modal {
-      background: var(--bg-elevated); border-radius: var(--radius);
-      border: 1px solid rgba(255,255,255,.1); width: 100%; max-width: 480px;
-      margin: 16px; padding: 28px; box-shadow: 0 32px 80px rgba(0,0,0,.5);
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 6px);
+      padding: 2rem;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
-    .modal h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; }
-    .form-row { margin-bottom: 14px; }
-    .form-label { font-size: .8rem; font-weight: 600; color: var(--text-sub); margin-bottom: 5px; display: block; }
+    .modal h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+    }
+    .form-row { margin-bottom: 1rem; }
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
     .form-input, .form-select {
-      width: 100%; background: var(--bg-card); border: 1px solid rgba(255,255,255,.08);
-      color: var(--text-main); padding: 10px 12px; border-radius: 10px;
-      font-family: 'Inter', sans-serif; font-size: .9rem;
+      width: 100%;
+      padding: 0.6rem 0.85rem;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      box-sizing: border-box;
+      font-family: inherit;
+      transition: border-color 0.15s;
     }
-    .form-input:focus, .form-select:focus { outline: 2px solid var(--primary); border-color: transparent; }
-    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-    .btn-cancel { flex: 1; padding: 10px; background: rgba(255,255,255,.06); color: var(--text-sub); border: none; border-radius: 10px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; }
-    .btn-save { flex: 2; padding: 10px; background: linear-gradient(135deg, var(--primary), #6366f1); color: #080810; border: none; border-radius: 10px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 700; }
-
-    .empty-state { text-align: center; padding: 60px 20px; }
-    .empty-icon { font-size: 3rem; margin-bottom: 12px; }
-    .empty-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
-    .empty-sub { color: var(--text-sub); }
-
+    .form-input:focus, .form-select:focus { border-color: var(--primary); }
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      justify-content: flex-end;
+    }
+    .btn-cancel {
+      padding: 0.6rem 1.2rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+    .btn-cancel:hover { color: var(--text); }
+    .btn-save {
+      padding: 0.6rem 1.4rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--primary);
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+    .btn-save:hover { filter: brightness(1.1); }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
-<nav>
-  <a class="nav-brand" href="/">FSRSpring Vocab</a>
-  <div class="nav-links">
-    <a href="/">Dashboard</a>
-    <a href="/vocabulary">Vocabulary</a>
-    <a href="/flashcard-study">Study</a>
-    <a href="/sets" class="active">Sets</a>
-    <a href="/progress">Progress</a>
-    <a href="/quiz">Quiz</a>
-  </div>
-</nav>
+<!-- ── Sidebar ── -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <a href="/" class="sidebar-brand">
+            <div class="sidebar-brand-icon">
+                <svg viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'/><path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/></svg>
+            </div>
+            <span>VocabSmart</span>
+        </a>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="/" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x='3' y='3' width='7' height='7' rx='1'/><rect x='14' y='3' width='7' height='7' rx='1'/><rect x='3' y='14' width='7' height='7' rx='1'/><rect x='14' y='14' width='7' height='7' rx='1'/></svg>
+            <span>Dashboard</span>
+        </a>
+        <a href="/vocabulary" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'/><path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/></svg>
+            <span>Vocabulary</span>
+        </a>
+        <a href="/learn" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d='M22 10v6M2 10l10-5 10 5-10 5z'/><path d='M6 12v5c3 3 9 3 12 0v-5'/></svg>
+            <span>Study</span>
+        </a>
+        <a href="/flashcard-study" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x='2' y='5' width='20' height='14' rx='2'/><line x1='2' y1='10' x2='22' y2='10'/></svg>
+            <span>Cards</span>
+        </a>
+        <a href="/flashcards" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points='12 2 2 7 12 12 22 7 12 2'/><polyline points='2 17 12 22 22 17'/><polyline points='2 12 12 17 22 12'/></svg>
+            <span>Flashcards</span>
+        </a>
+        <a href="/sets" class="sidebar-link active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/></svg>
+            <span>Sets</span>
+        </a>
+        <a href="/quiz" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg>
+            <span>Quiz</span>
+        </a>
+        <a href="/progress" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1='18' y1='20' x2='18' y2='10'/><line x1='12' y1='20' x2='12' y2='4'/><line x1='6' y1='20' x2='6' y2='14'/></svg>
+            <span>Progress</span>
+        </a>
+        <a href="/content" class="sidebar-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d='M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4'/><path d='M14 2v4a2 2 0 0 0 2 2h4'/><line x1='2' y1='12' x2='11' y2='12'/><line x1='2' y1='16' x2='8' y2='16'/><line x1='2' y1='20' x2='6' y2='20'/></svg>
+            <span>Content Hub</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <span style="font-size:0.75rem;color:var(--text-muted);font-weight:500;">Theme</span>
+    </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- ── App Main ── -->
+<div class="app-main">
+<div class="mobile-topbar">
+    <button class="hamburger" onclick="openSidebar()" aria-label="Open menu"><span></span><span></span><span></span></button>
+    <a href="/" class="sidebar-brand" style="font-size:0.875rem;">
+        <div class="sidebar-brand-icon" style="width:28px;height:28px;border-radius:7px;"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+        <span>VocabSmart</span>
+    </a>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+</div>
+
 
 <div class="page">
   <div class="page-header">
@@ -155,10 +345,22 @@
   </div>
 
   <div class="sets-grid" id="sets-grid">
-    <div class="empty-state" id="empty-state" style="grid-column:1/-1">
-      <div class="empty-icon"></div>
-      <div class="empty-title">No sets yet</div>
-      <div class="empty-sub">Create your first vocabulary set to start studying.</div>
+    <div id="empty-state" style="grid-column:1/-1">
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+        </div>
+        <div class="empty-state-title">No vocabulary sets yet</div>
+        <div class="empty-state-desc">Create your first set to group words by topic, CEFR level, or any theme you like.</div>
+        <button class="btn btn-primary" onclick="openCreateModal()" style="margin-top:1rem;padding:0.65rem 1.5rem;">Create First Set</button>
+        <div class="empty-state-pills" style="margin-top:1rem;">
+          <span class="empty-state-pill">Animals</span>
+          <span class="empty-state-pill">Business</span>
+          <span class="empty-state-pill">Travel</span>
+          <span class="empty-state-pill">Technology</span>
+          <span class="empty-state-pill">Daily Life</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -311,5 +513,10 @@
   loadTopics();
   loadSets(null);
 </script>
+<script>
+function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebar-overlay').classList.add('active');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('active');}
+</script>
+</div>
 </body>
 </html>

@@ -16,7 +16,7 @@ public class PageController {
         return "forward:/vocabulary.html";
     }
 
-    @GetMapping("/learn")
+    @GetMapping("/import")
     public String learn() {
         return "forward:/learn.html";
     }

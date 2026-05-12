@@ -3,525 +3,295 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flashcard Study – FSRSpring Vocab</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <title>Flashcards - Linguist</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Nunito+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode:"class",
+      theme:{ extend:{
+        colors:{
+          "outline":"#6e7881","primary-fixed":"#c8e6ff","primary-fixed-dim":"#88ceff",
+          "surface-container-lowest":"#ffffff","surface-container":"#efeded",
+          "surface-container-high":"#e9e8e7","surface-container-highest":"#e3e2e2",
+          "surface-container-low":"#f5f3f3","surface":"#fbf9f9","surface-variant":"#e3e2e2",
+          "on-error":"#ffffff","secondary-container":"#fec700","background":"#fbf9f9",
+          "error-container":"#ffdad6","outline-variant":"#bdc8d2","secondary-fixed-dim":"#f4bf00",
+          "secondary-fixed":"#ffdf92","on-primary-fixed":"#001e2e","primary":"#006590",
+          "on-surface-variant":"#3e4850","on-background":"#1b1c1c","on-surface":"#1b1c1c",
+          "on-secondary-container":"#6e5400","on-primary":"#ffffff","on-primary-container":"#00405d",
+          "primary-container":"#1cb0f6","on-error-container":"#93000a","inverse-primary":"#88ceff",
+          "error":"#ba1a1a","tertiary":"#bb1522","on-tertiary":"#ffffff",
+        },
+        borderRadius:{ DEFAULT:"0.25rem", lg:"0.5rem", xl:"0.75rem", full:"9999px" },
+        spacing:{ xs:"8px", sm:"16px", md:"24px", lg:"32px", xl:"48px", gutter:"16px" },
+        fontFamily:{
+          "button-text":["Lexend","sans-serif"],"headline-md":["Lexend","sans-serif"],
+          "headline-lg":["Lexend","sans-serif"],"body-md":["Nunito Sans","sans-serif"],
+          "label-lg":["Lexend","sans-serif"],"body-lg":["Nunito Sans","sans-serif"]
+        },
+        fontSize:{
+          "button-text":["17px",{lineHeight:"1.0",letterSpacing:"0.02em",fontWeight:"700"}],
+          "headline-md":["24px",{lineHeight:"1.2",letterSpacing:"-0.01em",fontWeight:"700"}],
+          "headline-lg":["32px",{lineHeight:"1.2",letterSpacing:"-0.02em",fontWeight:"700"}],
+          "body-md":["17px",{lineHeight:"1.5",fontWeight:"500"}],
+          "label-lg":["15px",{lineHeight:"1.0",letterSpacing:"0.05em",fontWeight:"700"}],
+          "body-lg":["19px",{lineHeight:"1.5",fontWeight:"500"}]
+        }
+      }}
+    }
+  </script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg-base:     #0a0a0b;
-      --bg-surface:  #111114;
-      --bg-elevated: #18181d;
-      --bg-card:     #1f1f27;
-      --primary:     #818cf8;
-      --accent:      #fbbf24;
-      --success:     #4ade80;
-      --danger:      #fb7185;
-      --warning:     #fb923c;
-      --text-main:   #e2e8f0;
-      --text-sub:    #94a3b8;
-      --text-dim:    #475569;
-      --radius:      16px;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg-base);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── Nav ── */
-    nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 28px;
-      background: var(--bg-surface);
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      position: sticky; top: 0; z-index: 100;
-    }
-    .nav-brand { font-size: 1.1rem; font-weight: 700; color: var(--primary); text-decoration: none; }
-    .nav-links { display: flex; gap: 6px; }
-    .nav-links a {
-      padding: 6px 14px; border-radius: 8px;
-      color: var(--text-sub); text-decoration: none; font-size: .875rem; font-weight: 500;
-      transition: all .2s;
-    }
-    .nav-links a:hover, .nav-links a.active { background: var(--bg-card); color: var(--text-main); }
-
-    /* ── Layout ── */
-    .page { flex: 1; max-width: 700px; margin: 0 auto; width: 100%; padding: 32px 16px; }
-
-    /* ── Progress bar ── */
-    .progress-wrap {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 32px;
-    }
-    .progress-bar-outer {
-      flex: 1; height: 6px; background: var(--bg-card); border-radius: 99px; overflow: hidden;
-    }
-    .progress-bar-inner {
-      height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent));
-      border-radius: 99px; transition: width .4s ease;
-    }
-    .progress-label { font-size: .8rem; color: var(--text-sub); white-space: nowrap; }
-
-    /* ── 3D Flip Card ── */
-    .card-scene {
-      width: 100%; aspect-ratio: 3/2;
-      perspective: 1200px;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-    .card-3d {
-      width: 100%; height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform .6s cubic-bezier(.4,0,.2,1);
-    }
-    .card-3d.is-flipped { transform: rotateY(180deg); }
-
-    .card-face {
-      position: absolute; inset: 0;
-      border-radius: var(--radius);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      display: flex; flex-direction: column;
-      overflow: hidden;
-    }
-    .card-front {
-      background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
-      border: 1px solid rgba(129,140,248,.15);
-      box-shadow: 0 20px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.04);
-      align-items: center; justify-content: center;
-      text-align: center; padding: 40px 32px;
-    }
-    .card-back {
-      background: linear-gradient(135deg, #0f2040 0%, #162035 100%);
-      border: 1px solid rgba(251,191,36,.15);
-      box-shadow: 0 20px 60px rgba(0,0,0,.4);
-      transform: rotateY(180deg);
-      padding: 28px 32px; overflow-y: auto;
-    }
-
-    /* Front content */
-    .card-badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
-    .badge {
-      padding: 3px 10px; border-radius: 99px; font-size: .7rem; font-weight: 600; letter-spacing: .5px;
-      text-transform: uppercase;
-    }
-    .badge-topic { background: rgba(129,140,248,.15); color: var(--primary); }
-    .badge-cefr  { background: rgba(251,191,36,.15); color: var(--accent); }
-    .badge-pos   { background: rgba(148,163,184,.1); color: var(--text-sub); }
-
-    .word-main {
-      font-size: clamp(2rem, 7vw, 3.5rem); font-weight: 700;
-      background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      line-height: 1.1; margin-bottom: 12px;
-    }
-    .word-ipa {
-      font-size: 1.1rem; color: var(--text-sub); margin-bottom: 20px; font-family: 'Inter', sans-serif;
-    }
-    .audio-btn {
-      background: rgba(129,140,248,.12); border: 1px solid rgba(129,140,248,.3);
-      color: var(--primary); padding: 8px 20px; border-radius: 99px;
-      cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
-      font-size: .85rem; font-weight: 600; transition: all .2s;
-    }
-    .audio-btn:hover { background: rgba(129,140,248,.25); }
-    .flip-hint { position: absolute; bottom: 16px; color: var(--text-dim); font-size: .75rem; }
-
-    /* Back content */
-    .back-translation {
-      font-size: 1.8rem; font-weight: 700; color: var(--accent); margin-bottom: 6px;
-    }
-    .back-pos { font-size: .8rem; color: var(--text-sub); margin-bottom: 16px; }
-    .section-label {
-      font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-      color: var(--text-dim); margin-bottom: 6px; margin-top: 14px;
-    }
-    .back-definition { color: var(--text-main); line-height: 1.6; font-size: .95rem; }
-    .back-example {
-      color: var(--text-sub); font-style: italic; line-height: 1.6; font-size: .9rem;
-      border-left: 3px solid var(--primary); padding-left: 10px;
-    }
-    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-    .chip {
-      padding: 3px 10px; border-radius: 99px; font-size: .78rem; font-weight: 500;
-    }
-    .chip-syn { background: rgba(74,222,128,.1); color: var(--success); }
-    .chip-ant { background: rgba(251,113,117,.1); color: var(--danger); }
-
-    /* ── Rating buttons ── */
-    .rating-wrap { margin-top: 28px; }
-    .rating-label {
-      text-align: center; color: var(--text-sub); font-size: .8rem; margin-bottom: 14px;
-      letter-spacing: .5px; text-transform: uppercase;
-    }
-    .rating-buttons {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-    }
-    .rate-btn {
-      padding: 12px 8px; border-radius: 12px; border: none; cursor: pointer;
-      font-family: 'Inter', sans-serif; font-size: .875rem; font-weight: 600;
-      transition: all .2s; display: flex; flex-direction: column; align-items: center; gap: 3px;
-    }
-    .rate-btn .key-hint { font-size: .65rem; opacity: .5; font-family: 'JetBrains Mono', monospace; }
-    .rate-btn .rate-interval { font-size: .68rem; font-weight: 400; opacity: .75; }
-    .rate-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-    .rate-again { background: rgba(251,113,117,.15); color: var(--danger); border: 1px solid rgba(251,113,117,.3); }
-    .rate-hard  { background: rgba(251,146,60,.15);  color: var(--warning); border: 1px solid rgba(251,146,60,.3); }
-    .rate-good  { background: rgba(74,222,128,.15);  color: var(--success); border: 1px solid rgba(74,222,128,.3); }
-    .rate-easy  { background: rgba(129,140,248,.15); color: var(--primary); border: 1px solid rgba(129,140,248,.3); }
-
-    /* ── Empty / Done states ── */
-    .state-panel {
-      text-align: center; padding: 60px 20px;
-    }
-    .state-icon { font-size: 3.5rem; margin-bottom: 16px; }
-    .state-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
-    .state-sub { color: var(--text-sub); font-size: .95rem; max-width: 320px; margin: 0 auto 24px; }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), #6366f1);
-      color: #080810; font-weight: 700; padding: 12px 28px; border-radius: 12px;
-      border: none; cursor: pointer; font-family: 'Inter', sans-serif;
-      font-size: .95rem; text-decoration: none; display: inline-block;
-    }
-
-    /* ── Config panel ── */
-    .config-bar {
-      display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 24px;
-    }
-    .config-select {
-      background: var(--bg-card); border: 1px solid rgba(255,255,255,.08);
-      color: var(--text-main); padding: 7px 12px; border-radius: 10px;
-      font-family: 'Inter', sans-serif; font-size: .85rem; cursor: pointer;
-      flex: 1; min-width: 130px;
-    }
-    .config-select:focus { outline: 2px solid var(--primary); }
-    .btn-start {
-      background: linear-gradient(135deg, var(--primary), #6366f1);
-      color: #080810; font-weight: 700; padding: 8px 22px; border-radius: 10px;
-      border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: .875rem;
-    }
-
-    hidden { display: none !important; }
-    .hidden { display: none !important; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .icon-filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    /* Flip card */
+    .card-scene { perspective: 900px; }
+    #flashcard { width:100%; height:280px; position:relative; transform-style:preserve-3d; transition:transform 0.5s cubic-bezier(.4,0,.2,1); cursor:pointer; }
+    #flashcard.flipped { transform:rotateY(180deg); }
+    .card-face { position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px; gap:12px; border:2px solid #bdc8d2; }
+    .card-front { background:#fff; }
+    .card-back { background:#c8e6ff; transform:rotateY(180deg); border-color:#006590; }
+    /* Difficulty badges */
+    .badge-beginner { font-size:.7rem;background:#c8e6ff;color:#006590;padding:3px 10px;border-radius:99px;font-weight:700;letter-spacing:.04em;text-transform:uppercase; }
+    .badge-intermediate { font-size:.7rem;background:#ffdf92;color:#6e5400;padding:3px 10px;border-radius:99px;font-weight:700;letter-spacing:.04em;text-transform:uppercase; }
+    .badge-advanced { font-size:.7rem;background:#ffdad6;color:#93000a;padding:3px 10px;border-radius:99px;font-weight:700;letter-spacing:.04em;text-transform:uppercase; }
+    /* 3D buttons */
+    .btn-again { background:#ba1a1a;color:#fff;box-shadow:0 4px 0 0 #7c000f; }
+    .btn-again:active { transform:translateY(2px);box-shadow:0 2px 0 0 #7c000f; }
+    .btn-hard { background:#bb1522;color:#fff;box-shadow:0 4px 0 0 #8b0010; }
+    .btn-hard:active { transform:translateY(2px);box-shadow:0 2px 0 0 #8b0010; }
+    .btn-good { background:#fec700;color:#6e5400;box-shadow:0 4px 0 0 #6e5400; }
+    .btn-good:active { transform:translateY(2px);box-shadow:0 2px 0 0 #6e5400; }
+    .btn-easy { background:#006590;color:#fff;box-shadow:0 4px 0 0 #004c6e; }
+    .btn-easy:active { transform:translateY(2px);box-shadow:0 2px 0 0 #004c6e; }
+    .btn-flip { background:#006590;color:#fff;box-shadow:0 4px 0 0 #004c6e; }
+    .btn-flip:active { transform:translateY(2px);box-shadow:0 2px 0 0 #004c6e; }
   </style>
 </head>
-<body>
-<nav>
-  <a class="nav-brand" href="/">FSRSpring Vocab</a>
-  <div class="nav-links">
-    <a href="/">Dashboard</a>
-    <a href="/vocabulary">Vocabulary</a>
-    <a href="/flashcard-study" class="active">Study</a>
-    <a href="/sets">Sets</a>
-    <a href="/progress">Progress</a>
-    <a href="/quiz">Quiz</a>
+<body class="bg-background min-h-screen text-on-background font-body-md">
+
+<!-- Sidebar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-6 w-64 border-r-2 border-outline-variant bg-surface-container-lowest z-50">
+  <div class="mb-10">
+    <h1 class="text-headline-lg font-headline-lg text-primary font-black">Linguist</h1>
   </div>
+  <ul class="flex flex-col flex-1 gap-2">
+    <li><a href="/" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+      <span class="material-symbols-outlined">home</span>Home</a></li>
+    <li><a href="/vocabulary" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+      <span class="material-symbols-outlined">menu_book</span>Words</a></li>
+    <li><a href="/flashcard-study" class="flex items-center gap-4 px-4 py-3 bg-primary-fixed text-primary border-2 border-primary rounded-xl font-label-lg text-label-lg uppercase tracking-wider">
+      <span class="material-symbols-outlined icon-filled">style</span>Flashcards</a></li>
+    <li><a href="/quiz" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+      <span class="material-symbols-outlined">extension</span>Quiz</a></li>
+    <li><a href="/progress" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+      <span class="material-symbols-outlined">leaderboard</span>Progress</a></li>
+    <li><a href="/import" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+      <span class="material-symbols-outlined">add_circle</span>Import</a></li>
+  </ul>
 </nav>
 
-<main class="page">
+<!-- Top Header -->
+<header class="fixed top-0 right-0 left-64 flex justify-between items-center px-xl h-20 z-40 bg-surface-container-lowest border-b-2 border-outline-variant">
+  <div class="font-headline-md text-headline-md text-on-surface font-bold">Flashcards</div>
+  <div class="flex items-center gap-6">
+    <button class="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+      <span class="material-symbols-outlined icon-filled text-secondary-fixed-dim text-2xl">local_fire_department</span>
+      <span id="streakCount" class="text-secondary-fixed-dim font-bold font-label-lg text-label-lg">0</span>
+    </button>
+    <button class="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+      <span class="material-symbols-outlined icon-filled text-primary-container text-2xl">diamond</span>
+      <span id="xpCount" class="text-primary-container font-bold font-label-lg text-label-lg">0</span>
+    </button>
+    <div id="notifWidget"></div>
+  </div>
+</header>
 
-  <!-- Config panel -->
-  <div id="config-panel">
-    <h1 style="font-size:1.6rem;font-weight:700;margin-bottom:6px;">Flashcard Study</h1>
-    <p style="color:var(--text-sub);margin-bottom:20px;">Choose a filter then start your session</p>
-    <div class="config-bar">
-      <select id="sel-topic" class="config-select">
-        <option value="">All Topics</option>
-      </select>
-      <select id="sel-cefr" class="config-select">
-        <option value="">All CEFR Levels</option>
-        <option>A1</option><option>A2</option><option>B1</option>
-        <option>B2</option><option>C1</option><option>C2</option>
-      </select>
-      <select id="sel-limit" class="config-select" style="max-width:130px;">
-        <option value="10">10 cards</option>
-        <option value="20" selected>20 cards</option>
-        <option value="50">50 cards</option>
-        <option value="0">All cards</option>
-      </select>
-      <button class="btn-start" onclick="startSession()">Start Study</button>
+<!-- Main Content -->
+<main class="ml-64 mt-20 min-h-screen bg-background p-xl">
+
+  <!-- SETUP SCREEN -->
+  <div id="setupScreen">
+    <div class="max-w-lg mx-auto">
+      <!-- Hero -->
+      <div class="bg-primary rounded-xl p-lg mb-lg flex items-center gap-md">
+        <div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined icon-filled text-primary text-4xl">style</span>
+        </div>
+        <div>
+          <h2 class="text-headline-md font-headline-md text-on-primary font-bold">Flashcard Review</h2>
+          <p class="text-primary-fixed font-body-md text-body-md">FSRS-powered spaced repetition</p>
+        </div>
+      </div>
+
+      <!-- Setup Form -->
+      <div class="bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-lg flex flex-col gap-md">
+        <h3 class="font-headline-md text-headline-md text-on-surface font-bold">Session Setup</h3>
+        <div class="flex flex-col gap-xs">
+          <label class="font-label-lg text-label-lg text-on-surface-variant uppercase">Category</label>
+          <select id="lcategory" class="px-3 py-3 bg-surface-container border-2 border-outline-variant rounded-xl font-body-md text-body-md text-on-surface outline-none focus:border-primary cursor-pointer">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-xs">
+          <label class="font-label-lg text-label-lg text-on-surface-variant uppercase">Difficulty</label>
+          <select id="ldifficulty" class="px-3 py-3 bg-surface-container border-2 border-outline-variant rounded-xl font-body-md text-body-md text-on-surface outline-none focus:border-primary cursor-pointer">
+            <option value="">All Levels</option>
+            <option value="BEGINNER">Beginner</option>
+            <option value="INTERMEDIATE">Intermediate</option>
+            <option value="ADVANCED">Advanced</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-md">
+          <div class="flex flex-col gap-xs">
+            <label class="font-label-lg text-label-lg text-on-surface-variant uppercase">Card Count</label>
+            <input id="lcardCount" type="number" value="20" min="5" max="100"
+              class="px-3 py-3 bg-surface-container border-2 border-outline-variant rounded-xl font-body-md text-body-md text-on-surface outline-none focus:border-primary">
+          </div>
+          <div class="flex flex-col gap-xs">
+            <label class="font-label-lg text-label-lg text-on-surface-variant uppercase">Mode</label>
+            <select id="lmode" class="px-3 py-3 bg-surface-container border-2 border-outline-variant rounded-xl font-body-md text-body-md text-on-surface outline-none focus:border-primary cursor-pointer">
+              <option value="en-vi">EN to VI</option>
+              <option value="vi-en">VI to EN</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="startLearn()" style="margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 24px;background:#006590;color:#fff;border:none;border-radius:12px;font-family:Lexend,sans-serif;font-size:17px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 0 0 #004c6e;transition:all .1s ease;" onmousedown="this.style.transform='translateY(2px)';this.style.boxShadow='0 2px 0 0 #004c6e';" onmouseup="this.style.transform='';this.style.boxShadow='0 4px 0 0 #004c6e';">
+          <span class="material-symbols-outlined">play_arrow</span>Start Session
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Study area (hidden until session starts) -->
-  <div id="study-area" class="hidden">
-    <!-- Progress -->
-    <div class="progress-wrap">
-      <div class="progress-bar-outer">
-        <div class="progress-bar-inner" id="prog-bar" style="width:0%"></div>
+  <!-- LEARN SCREEN -->
+  <div id="learnScreen" class="hidden">
+    <div class="max-w-lg mx-auto flex flex-col gap-md">
+      <!-- Progress Bar -->
+      <div class="flex items-center gap-md">
+        <button onclick="endSession()" class="text-on-surface-variant hover:text-on-surface transition-colors">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <div class="flex-1 flex items-center gap-sm">
+          <div class="flex-1 h-3 bg-surface-container rounded-full overflow-hidden">
+            <div id="progressBar" class="h-full bg-primary rounded-full transition-all duration-500" style="width:0%"></div>
+          </div>
+          <span id="cardProgress" class="font-label-lg text-label-lg text-on-surface-variant whitespace-nowrap">0 / 0</span>
+        </div>
       </div>
-      <span class="progress-label" id="prog-label">0 / 0</span>
-    </div>
 
-    <!-- Card -->
-    <div class="card-scene" id="card-scene" onclick="flipCard()">
-      <div class="card-3d" id="card-3d">
+      <!-- Counters -->
+      <div class="flex gap-md">
+        <div class="flex-1 flex items-center justify-center gap-sm bg-error-container rounded-xl py-sm">
+          <span class="material-symbols-outlined text-on-error-container">close</span>
+          <span id="incorrectCount" class="font-headline-md text-headline-md text-on-error-container font-black">0</span>
+        </div>
+        <div class="flex-1 flex items-center justify-center gap-sm bg-primary-fixed rounded-xl py-sm">
+          <span class="material-symbols-outlined text-primary">check</span>
+          <span id="correctCount" class="font-headline-md text-headline-md text-primary font-black">0</span>
+        </div>
+      </div>
 
-        <!-- FRONT -->
-        <div class="card-face card-front">
-          <div class="card-badges" id="front-badges"></div>
-          <div class="word-main" id="front-word">—</div>
-          <div class="word-ipa" id="front-ipa"></div>
-          <button class="audio-btn" id="audio-btn" onclick="playAudio(event)">
-            <i data-lucide="volume-2" style="width:14px;height:14px;"></i> Play Audio
+      <!-- Difficulty Badge -->
+      <div class="flex justify-end">
+        <span id="difficultyBadge"></span>
+      </div>
+
+      <!-- Flip Card -->
+      <div class="card-scene">
+        <div id="flashcard" onclick="flipCard()">
+          <div class="card-face card-front">
+            <span id="cardCategory" class="font-label-lg text-label-lg text-on-surface-variant uppercase"></span>
+            <p id="cardFront" class="font-headline-lg text-headline-lg text-on-surface font-black text-center leading-tight"></p>
+            <p id="cardPronunciation" class="font-body-md text-body-md text-primary font-mono text-center"></p>
+            <p id="cardHint" class="font-label-lg text-label-lg text-on-surface-variant uppercase"></p>
+          </div>
+          <div class="card-face card-back">
+            <span class="font-label-lg text-label-lg text-primary uppercase">Translation</span>
+            <p id="cardBack" class="font-headline-lg text-headline-lg text-on-primary-fixed font-black text-center leading-tight" style="color:#00405d;"></p>
+            <p id="cardExample" class="font-body-md text-body-md text-on-surface-variant italic text-center"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flip Buttons (shown before flip) -->
+      <div id="flipButtons">
+        <p id="flipHint" class="text-center font-label-lg text-label-lg text-on-surface-variant uppercase mb-sm">Press Space or tap card to reveal</p>
+        <button onclick="flipCard()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border:none;border-radius:12px;font-family:Lexend,sans-serif;font-size:17px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;cursor:pointer;" class="btn-flip transition-all">
+          <span class="material-symbols-outlined">flip</span>Reveal Answer
+        </button>
+      </div>
+
+      <!-- Rate Buttons (shown after flip) -->
+      <div id="rateButtons" class="hidden flex flex-col gap-sm">
+        <p id="rateHint" class="text-center font-label-lg text-label-lg text-on-surface-variant uppercase">How well did you know it? (Keys 1-4)</p>
+        <div class="grid grid-cols-4 gap-sm">
+          <button onclick="rateCard(1)" style="padding:14px 8px;border:none;border-radius:12px;font-family:Lexend,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .1s ease;" class="btn-again">
+            <span>Again</span><span style="font-size:11px;opacity:.8;">1</span>
           </button>
-          <span class="flip-hint">Click card or press Space to reveal</span>
+          <button onclick="rateCard(2)" style="padding:14px 8px;border:none;border-radius:12px;font-family:Lexend,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .1s ease;" class="btn-hard">
+            <span>Hard</span><span style="font-size:11px;opacity:.8;">2</span>
+          </button>
+          <button onclick="rateCard(3)" style="padding:14px 8px;border:none;border-radius:12px;font-family:Lexend,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .1s ease;" class="btn-good">
+            <span>Good</span><span style="font-size:11px;opacity:.8;">3</span>
+          </button>
+          <button onclick="rateCard(4)" style="padding:14px 8px;border:none;border-radius:12px;font-family:Lexend,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .1s ease;" class="btn-easy">
+            <span>Easy</span><span style="font-size:11px;opacity:.8;">4</span>
+          </button>
         </div>
-
-        <!-- BACK -->
-        <div class="card-face card-back">
-          <div class="back-translation" id="back-trans">—</div>
-          <div class="back-pos" id="back-pos"></div>
-
-          <div class="section-label">Definition</div>
-          <div class="back-definition" id="back-def">—</div>
-
-          <div class="section-label" id="lbl-example">Example</div>
-          <div class="back-example" id="back-example" style="display:none"></div>
-
-          <div class="section-label" id="lbl-syn" style="display:none">Synonyms</div>
-          <div class="chips" id="back-syn"></div>
-
-          <div class="section-label" id="lbl-ant" style="display:none">Antonyms</div>
-          <div class="chips" id="back-ant"></div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Rating buttons -->
-    <div class="rating-wrap" id="rating-wrap" style="visibility:hidden">
-      <p class="rating-label">How well did you know it?</p>
-      <div class="rating-buttons">
-        <button class="rate-btn rate-again" onclick="rate(1)" aria-label="Again">Again<span class="rate-interval">&lt; 1 day</span><span class="key-hint">[1]</span></button>
-        <button class="rate-btn rate-hard"  onclick="rate(2)" aria-label="Hard">Hard<span class="rate-interval">~2 days</span><span class="key-hint">[2]</span></button>
-        <button class="rate-btn rate-good"  onclick="rate(3)" aria-label="Good">Good<span class="rate-interval">~5 days</span><span class="key-hint">[3]</span></button>
-        <button class="rate-btn rate-easy"  onclick="rate(4)" aria-label="Easy">Easy<span class="rate-interval">~2 wks</span><span class="key-hint">[4]</span></button>
+        <button onclick="endSession()" style="padding:10px;background:transparent;border:2px solid #bdc8d2;border-radius:12px;font-family:Lexend,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#3e4850;cursor:pointer;transition:background .15s;" onmouseenter="this.style.background='#efeded'" onmouseleave="this.style.background='transparent'">
+          End Session
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Done state -->
-  <div id="done-panel" class="hidden state-panel">
-    <div class="state-icon"></div>
-    <div class="state-title">Session Complete!</div>
-    <div class="state-sub" id="done-msg">You reviewed all cards. Keep it up!</div>
-    <button class="btn-primary" onclick="resetSession()">Study Again</button>
+  <!-- RESULT SCREEN -->
+  <div id="resultScreen" class="hidden">
+    <div class="max-w-lg mx-auto">
+      <div class="bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-xl flex flex-col items-center gap-lg text-center">
+        <div class="w-24 h-24 rounded-full bg-primary-fixed flex items-center justify-center">
+          <span class="material-symbols-outlined icon-filled text-primary" style="font-size:48px;">celebration</span>
+        </div>
+        <div>
+          <h2 class="text-headline-lg font-headline-lg text-on-surface font-black mb-sm">Session Complete!</h2>
+          <p id="resultMessage" class="text-on-surface-variant font-body-md text-body-md"></p>
+        </div>
+        <div class="grid grid-cols-3 gap-md w-full">
+          <div class="flex flex-col items-center gap-xs bg-surface-container rounded-xl py-md">
+            <span class="font-headline-md text-headline-md text-on-surface font-black" id="rTotal">0</span>
+            <span class="font-label-lg text-label-lg text-on-surface-variant uppercase">Total</span>
+          </div>
+          <div class="flex flex-col items-center gap-xs bg-primary-fixed rounded-xl py-md">
+            <span class="font-headline-md text-headline-md text-primary font-black" id="rCorrect">0</span>
+            <span class="font-label-lg text-label-lg text-on-surface-variant uppercase">Correct</span>
+          </div>
+          <div class="flex flex-col items-center gap-xs bg-error-container rounded-xl py-md">
+            <span class="font-headline-md text-headline-md text-error font-black" id="rIncorrect">0</span>
+            <span class="font-label-lg text-label-lg text-on-surface-variant uppercase">Missed</span>
+          </div>
+        </div>
+        <div class="flex gap-sm w-full">
+          <button onclick="resetLearn()" style="flex:1;padding:14px;background:#006590;color:#fff;border:none;border-radius:12px;font-family:Lexend,sans-serif;font-size:17px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 0 0 #004c6e;transition:all .1s;" onmousedown="this.style.transform='translateY(2px)';this.style.boxShadow='0 2px 0 0 #004c6e';" onmouseup="this.style.transform='';this.style.boxShadow='0 4px 0 0 #004c6e';">
+            Study Again
+          </button>
+          <a href="/" style="flex:1;padding:14px;background:#fff;color:#006590;border:2px solid #bdc8d2;border-radius:12px;font-family:Lexend,sans-serif;font-size:17px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;">
+            Go Home
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 
 </main>
 
-<audio id="audio-player" style="display:none"></audio>
-
 <script>
-  lucide.createIcons();
-
-  let words = [];
-  let index = 0;
-  let flipped = false;
-  let currentAudioUrl = null;
-
-  // Load topics into dropdown
-  async function loadTopics() {
-    try {
-      const res = await fetch('/api/topics');
-      const topics = await res.json();
-      const sel = document.getElementById('sel-topic');
-      topics.forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t.id;
-        opt.textContent = `${t.iconEmoji || ''} ${t.name}`;
-        sel.appendChild(opt);
-      });
-    } catch (e) { console.warn('topics load failed', e); }
-  }
-
-  async function startSession() {
-    const topicId = document.getElementById('sel-topic').value;
-    const cefr    = document.getElementById('sel-cefr').value;
-    const limit   = parseInt(document.getElementById('sel-limit').value) || 0;
-
-    let url = '/api/words?';
-    if (topicId) url += `topicId=${topicId}&`;
-    if (cefr)    url += `cefrLevel=${cefr}&`;
-
-    try {
-      const res = await fetch(url);
-      let data = await res.json();
-      if (limit > 0) data = data.slice(0, limit);
-      // shuffle
-      for (let i = data.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [data[i], data[j]] = [data[j], data[i]];
-      }
-      words = data;
-    } catch(e) {
-      alert('Failed to load words. Please try again.'); return;
-    }
-
-    if (!words.length) { alert('No words found for this filter.'); return; }
-
-    document.getElementById('config-panel').classList.add('hidden');
-    document.getElementById('study-area').classList.remove('hidden');
-    index = 0;
-    showCard();
-  }
-
-  function showCard() {
-    if (index >= words.length) { finishSession(); return; }
-
-    const w = words[index];
-    flipped = false;
-    document.getElementById('card-3d').classList.remove('is-flipped');
-    document.getElementById('rating-wrap').style.visibility = 'hidden';
-
-    // Badges
-    const badges = document.getElementById('front-badges');
-    badges.innerHTML = '';
-    if (w.topic?.name)  badges.innerHTML += `<span class="badge badge-topic">${w.topic.iconEmoji || ''}${w.topic.name}</span>`;
-    if (w.cefrLevel)    badges.innerHTML += `<span class="badge badge-cefr">${w.cefrLevel}</span>`;
-    if (w.partOfSpeech) badges.innerHTML += `<span class="badge badge-pos">${w.partOfSpeech}</span>`;
-
-    document.getElementById('front-word').textContent = w.word;
-    document.getElementById('front-ipa').textContent  = w.pronunciation || '';
-
-    // Audio button
-    currentAudioUrl = w.audioUrl || null;
-    document.getElementById('audio-btn').style.display = currentAudioUrl ? 'inline-flex' : 'none';
-
-    // Back
-    document.getElementById('back-trans').textContent = w.translation || '—';
-    document.getElementById('back-pos').textContent   = w.partOfSpeech ? `(${w.partOfSpeech})` : '';
-
-    // Definition from example as fallback
-    document.getElementById('back-def').textContent = w.example || '—';
-    const exEl = document.getElementById('back-example');
-    const lblEx = document.getElementById('lbl-example');
-    // no separate definition field, show example in italic
-    exEl.style.display = 'none';
-    lblEx.style.display = 'none';
-
-    // Synonyms
-    const synWrap = document.getElementById('back-syn');
-    const antWrap = document.getElementById('back-ant');
-    const lblSyn = document.getElementById('lbl-syn');
-    const lblAnt = document.getElementById('lbl-ant');
-    synWrap.innerHTML = ''; antWrap.innerHTML = '';
-
-    if (w.synonyms) {
-      lblSyn.style.display = '';
-      w.synonyms.split(',').map(s => s.trim()).filter(Boolean).forEach(s => {
-        synWrap.innerHTML += `<span class="chip chip-syn">${s}</span>`;
-      });
-    } else { lblSyn.style.display = 'none'; }
-
-    if (w.antonyms) {
-      lblAnt.style.display = '';
-      w.antonyms.split(',').map(a => a.trim()).filter(Boolean).forEach(a => {
-        antWrap.innerHTML += `<span class="chip chip-ant">${a}</span>`;
-      });
-    } else { lblAnt.style.display = 'none'; }
-
-    updateProgress();
-    lucide.createIcons();
-  }
-
-  function updateProgress() {
-    const pct = words.length ? (index / words.length) * 100 : 0;
-    document.getElementById('prog-bar').style.width = pct + '%';
-    document.getElementById('prog-label').textContent = `${index} / ${words.length}`;
-  }
-
-  function flipCard() {
-    if (!words.length) return;
-    flipped = !flipped;
-    document.getElementById('card-3d').classList.toggle('is-flipped', flipped);
-    if (flipped) {
-      document.getElementById('rating-wrap').style.visibility = 'visible';
-      window._cardFlipTime = Date.now();
-    }
-  }
-
-  async function rate(rating) {
-    if (!flipped) return; // must flip first
-    const w = words[index];
-    const responseMs = window._cardFlipTime ? Date.now() - window._cardFlipTime : 0;
-    // Submit to FSRS
-    try {
-      await fetch(`/api/fsrs/review?wordId=${w.id}&rating=${rating}&responseMs=${responseMs}`, { method: 'POST' });
-    } catch(e) { /* non-blocking */ }
-    // Check-in streak
-    try { await fetch('/api/streak/check-in', { method: 'POST' }); } catch(e) {}
-
-    index++;
-    showCard();
-  }
-
-  function playAudio(e) {
-    e.stopPropagation();
-    if (currentAudioUrl) {
-      const audio = document.getElementById('audio-player');
-      audio.src = currentAudioUrl;
-      audio.play().catch(() => speechFallback());
-    } else {
-      speechFallback();
-    }
-  }
-
-  function speechFallback() {
-    if (!window.speechSynthesis) return;
-    const w = words[index];
-    const utt = new SpeechSynthesisUtterance(w.word);
-    utt.lang = 'en-US';
-    window.speechSynthesis.speak(utt);
-  }
-
-  function finishSession() {
-    document.getElementById('study-area').classList.add('hidden');
-    document.getElementById('done-panel').classList.remove('hidden');
-    document.getElementById('done-msg').textContent =
-      `You reviewed ${words.length} cards. Great work!`;
-  }
-
-  function resetSession() {
-    document.getElementById('done-panel').classList.add('hidden');
-    document.getElementById('config-panel').classList.remove('hidden');
-  }
-
-  // Keyboard shortcuts
-  document.addEventListener('keydown', e => {
-    if (e.code === 'Space' && !['INPUT','SELECT','BUTTON'].includes(e.target.tagName)) {
-      e.preventDefault(); flipCard();
-    }
-    if (flipped) {
-      if (e.key === '1') rate(1);
-      if (e.key === '2') rate(2);
-      if (e.key === '3') rate(3);
-      if (e.key === '4') rate(4);
-    }
-  });
-
-  // Touch swipe to flip
-  let touchStartX = 0;
-  document.getElementById('card-scene') && document.addEventListener('touchstart', e => {
-    touchStartX = e.touches[0].clientX;
-  });
-  document.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(dx) > 60) flipCard();
-  });
-
-  loadTopics();
+fetch('/api/streak').then(r=>r.json()).then(d=>{
+  const el = document.getElementById('streakCount');
+  if(el) el.textContent = d.currentStreak ?? 0;
+}).catch(()=>{});
 </script>
+<script src="/js/learn.js"></script>
+<script src="/js/notifications.js"></script>
 </body>
 </html>

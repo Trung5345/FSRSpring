@@ -1,175 +1,299 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VocabSmart FSRS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
-    <script src="/webjars/lucide/dist/umd/lucide.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - Linguist</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Nunito+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: { extend: {
+        colors: {
+          "outline":"#6e7881","primary-fixed":"#c8e6ff","primary-fixed-dim":"#88ceff",
+          "surface-container-lowest":"#ffffff","surface-container":"#efeded",
+          "surface-container-high":"#e9e8e7","surface-container-highest":"#e3e2e2",
+          "surface-container-low":"#f5f3f3","surface":"#fbf9f9","surface-variant":"#e3e2e2",
+          "on-error":"#ffffff","secondary-container":"#fec700","background":"#fbf9f9",
+          "error-container":"#ffdad6","outline-variant":"#bdc8d2","secondary-fixed-dim":"#f4bf00",
+          "secondary-fixed":"#ffdf92","on-primary-fixed":"#001e2e","primary":"#006590",
+          "on-surface-variant":"#3e4850","on-background":"#1b1c1c","on-surface":"#1b1c1c",
+          "on-secondary-container":"#6e5400","on-primary":"#ffffff","on-primary-container":"#00405d",
+          "primary-container":"#1cb0f6","on-error-container":"#93000a","inverse-primary":"#88ceff",
+          "error":"#ba1a1a","tertiary":"#bb1522","on-tertiary":"#ffffff",
+          "tertiary-fixed-dim":"#ffb3ae",
+        },
+        borderRadius: { DEFAULT:"0.25rem", lg:"0.5rem", xl:"0.75rem", full:"9999px" },
+        spacing: { xs:"8px", sm:"16px", md:"24px", lg:"32px", xl:"48px", gutter:"16px" },
+        fontFamily: {
+          "button-text":["Lexend","sans-serif"],"headline-md":["Lexend","sans-serif"],
+          "headline-lg":["Lexend","sans-serif"],"body-md":["Nunito Sans","sans-serif"],
+          "label-lg":["Lexend","sans-serif"],"body-lg":["Nunito Sans","sans-serif"]
+        },
+        fontSize: {
+          "button-text":["17px",{lineHeight:"1.0",letterSpacing:"0.02em",fontWeight:"700"}],
+          "headline-md":["24px",{lineHeight:"1.2",letterSpacing:"-0.01em",fontWeight:"700"}],
+          "headline-lg":["32px",{lineHeight:"1.2",letterSpacing:"-0.02em",fontWeight:"700"}],
+          "body-md":["17px",{lineHeight:"1.5",fontWeight:"500"}],
+          "label-lg":["15px",{lineHeight:"1.0",letterSpacing:"0.05em",fontWeight:"700"}],
+          "body-lg":["19px",{lineHeight:"1.5",fontWeight:"500"}]
+        }
+      }}
+    }
+  </script>
+  <style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .icon-filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .btn-3d-primary { box-shadow: 0 4px 0 0 #004c6e; }
+    .btn-3d-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 0 #004c6e; }
+    .btn-3d-secondary { box-shadow: 0 4px 0 0 #6e5400; }
+    .btn-3d-secondary:active { transform: translateY(2px); box-shadow: 0 2px 0 0 #6e5400; }
+    .stat-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+  </style>
 </head>
-<body>
+<body class="bg-background min-h-screen text-on-background font-body-md">
 
-<!-- ── Navigation ── -->
-<nav class="nav">
-    <div class="nav-inner">
-        <a href="/" class="nav-brand">
-            <span class="nav-brand-icon"></span>
-            <span>VocabSmart</span>
-        </a>
-        <div class="nav-links">
-            <a href="/" class="nav-link active">Dashboard</a>
-            <a href="/vocabulary" class="nav-link">Vocabulary</a>
-            <a href="/learn" class="nav-link">Study</a>
-            <a href="/flashcard-study" class="nav-link">Cards</a>
-            <a href="/sets" class="nav-link">Sets</a>
-            <a href="/quiz" class="nav-link">Quiz</a>
-            <a href="/progress" class="nav-link">Progress</a>
-            <a href="/content" class="nav-link">Content Hub</a>
-        </div>
-    </div>
+<!-- Sidebar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-6 w-64 border-r-2 border-outline-variant bg-surface-container-lowest z-50">
+  <div class="mb-10">
+    <h1 class="text-headline-lg font-headline-lg text-primary font-black">Linguist</h1>
+  </div>
+  <ul class="flex flex-col flex-1 gap-2">
+    <li><a href="/" class="flex items-center gap-4 px-4 py-3 bg-primary-fixed text-primary border-2 border-primary rounded-xl font-label-lg text-label-lg uppercase tracking-wider">
+      <span class="material-symbols-outlined icon-filled">home</span>Home
+    </a></li>
+    <li><a href="/vocabulary" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+      <span class="material-symbols-outlined">menu_book</span>Words
+    </a></li>
+    <li><a href="/flashcard-study" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+      <span class="material-symbols-outlined">style</span>Flashcards
+    </a></li>
+    <li><a href="/quiz" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+      <span class="material-symbols-outlined">extension</span>Quiz
+    </a></li>
+    <li><a href="/progress" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+      <span class="material-symbols-outlined">leaderboard</span>Progress
+    </a></li>
+    <li><a href="/learn" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+      <span class="material-symbols-outlined">add_circle</span>Import
+    </a></li>
+  </ul>
 </nav>
 
-<!-- ── Hero Banner ── -->
-<header class="page-header">
-    <div class="page-header-inner">
-        <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.25em;color:var(--primary);font-weight:700;margin-bottom:0.75rem;">FSRS Intelligence</p>
-        <h1>Master English with<br>Smart Repetition</h1>
-        <p>FSRS-powered scheduling adapts to your memory curve — study less, retain more. Track your progress and jump into review sessions instantly.</p>
-        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1.75rem;">
-            <a href="/learn" class="btn btn-primary" style="font-size:0.95rem;padding:0.75rem 1.75rem;">Start FSRS Review</a>
-            <a href="/content" class="btn btn-secondary" style="font-size:0.95rem;padding:0.75rem 1.75rem;">Open Content Hub</a>
-        </div>
-    </div>
+<!-- Top Header -->
+<header class="fixed top-0 right-0 left-64 flex justify-between items-center px-xl h-20 z-40 bg-surface-container-lowest border-b-2 border-outline-variant">
+  <div class="font-headline-md text-headline-md text-on-surface font-bold">Home</div>
+  <div class="flex items-center gap-6">
+    <button id="headerStreak" class="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+      <span class="material-symbols-outlined icon-filled text-secondary-fixed-dim text-2xl">local_fire_department</span>
+      <span id="streakCount" class="text-secondary-fixed-dim font-bold font-label-lg text-label-lg">0</span>
+    </button>
+    <button id="headerXp" class="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+      <span class="material-symbols-outlined icon-filled text-primary-container text-2xl">diamond</span>
+      <span id="xpCount" class="text-primary-container font-bold font-label-lg text-label-lg">0</span>
+    </button>
+    <div id="notifWidget"></div>
+  </div>
 </header>
 
-<!-- ── Main Content ── -->
-<main style="max-width:1280px;margin:0 auto;padding:2rem 1.5rem;">
+<!-- Main Content -->
+<main class="ml-64 mt-20 p-xl min-h-screen bg-background">
 
-    <!-- Stats Grid -->
-    <section style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:2rem;" class="md:grid-cols-4 xl:grid-cols-8">
-        <article class="metric-card">
-            <p>Total Words</p>
-            <strong id="totalWords">0</strong>
-        </article>
-        <article class="metric-card">
-            <p>Mastered</p>
-            <strong id="masteredWords">0</strong>
-        </article>
-        <article class="metric-card">
-            <p>Learning</p>
-            <strong id="learningWords">0</strong>
-        </article>
-        <article class="metric-card">
-            <p>Accuracy</p>
-            <strong id="accuracy">0%</strong>
-        </article>
-        <article class="metric-card">
-            <p>Due Now</p>
-            <strong id="dueNow">0</strong>
-        </article>
-        <article class="metric-card">
-            <p>Retention</p>
-            <strong id="retentionEstimate">0%</strong>
-        </article>
-        <article class="metric-card">
-            <p>Unread</p>
-            <strong id="unreadCount">0</strong>
-        </article>
-        <article class="metric-card">
-            <p>Engine</p>
-            <strong style="font-size:1.2rem;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">FSRS</strong>
-        </article>
-    </section>
+  <!-- Hero / Welcome Section -->
+  <section class="mb-lg rounded-xl bg-primary p-xl flex items-center justify-between overflow-hidden relative">
+    <div class="relative z-10">
+      <p class="text-primary-fixed font-body-md text-body-md mb-1">Good day, learner!</p>
+      <h2 class="text-headline-lg font-headline-lg text-on-primary font-black mb-md">Ready to review?</h2>
+      <p id="heroSubtext" class="text-primary-fixed-dim font-body-md text-body-md mb-lg">You have <strong id="dueNow" class="text-on-primary">...</strong> cards due today.</p>
+      <a href="/flashcard-study" class="inline-flex items-center gap-2 bg-on-primary text-primary font-button-text text-button-text uppercase rounded-xl px-lg py-sm btn-3d-primary transition-all">
+        <span class="material-symbols-outlined">play_arrow</span>
+        Start Review
+      </a>
+    </div>
+    <!-- Decorative circle -->
+    <div class="absolute right-0 top-0 w-48 h-48 rounded-full bg-primary-fixed-dim opacity-20 translate-x-16 -translate-y-8"></div>
+    <div class="absolute right-16 bottom-0 w-32 h-32 rounded-full bg-primary-container opacity-15 translate-y-8"></div>
+    <div class="relative z-10 hidden md:flex items-center justify-center w-40 h-40 rounded-full bg-primary-fixed bg-opacity-20">
+      <span class="material-symbols-outlined text-on-primary icon-filled" style="font-size:80px;">school</span>
+    </div>
+  </section>
 
-    <!-- Streak + WotD quick row -->
-    <section style="display:grid;grid-template-columns:auto 1fr;gap:1rem;margin-bottom:1.5rem;align-items:stretch;" id="streak-wotd-row">
-      <article class="card-glass" style="padding:1.25rem 1.75rem;display:flex;align-items:center;gap:1.25rem;">
-        <span id="streak-fire" aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;">
-          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" xmlns="http://www.w3.org/2000/svg" style="transition:filter .3s ease">
-            <defs>
-              <linearGradient id="sg-cool" x1="8" y1="3" x2="16" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient>
-              <linearGradient id="sg-warm" x1="8" y1="3" x2="16" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f97316"/></linearGradient>
-              <linearGradient id="sg-hot"  x1="8" y1="3" x2="16" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#ef4444"/></linearGradient>
-            </defs>
-            <path class="flame-path" d="M12 2C12 2 7 8.5 7 13.5a5 5 0 0010 0C17 8.5 12 2 12 2z"/>
-          </svg>
-        </span>
+  <!-- Stats Grid -->
+  <section class="grid grid-cols-2 lg:grid-cols-4 gap-md mb-lg">
+    <div class="stat-card bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md flex flex-col gap-sm">
+      <div class="flex items-center gap-sm">
+        <span class="material-symbols-outlined icon-filled text-primary-container text-2xl">style</span>
+        <span class="text-on-surface-variant font-label-lg text-label-lg uppercase">Due Today</span>
+      </div>
+      <p id="statDue" class="text-headline-lg font-headline-lg text-on-surface font-black">--</p>
+      <p class="text-on-surface-variant font-body-md text-sm">Cards to review</p>
+    </div>
+    <div class="stat-card bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md flex flex-col gap-sm">
+      <div class="flex items-center gap-sm">
+        <span class="material-symbols-outlined icon-filled text-secondary-fixed-dim text-2xl">local_fire_department</span>
+        <span class="text-on-surface-variant font-label-lg text-label-lg uppercase">Streak</span>
+      </div>
+      <p id="statStreak" class="text-headline-lg font-headline-lg text-on-surface font-black">--</p>
+      <p class="text-on-surface-variant font-body-md text-sm">Days in a row</p>
+    </div>
+    <div class="stat-card bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md flex flex-col gap-sm">
+      <div class="flex items-center gap-sm">
+        <span class="material-symbols-outlined icon-filled text-primary text-2xl">psychology</span>
+        <span class="text-on-surface-variant font-label-lg text-label-lg uppercase">Retention</span>
+      </div>
+      <p id="statRetention" class="text-headline-lg font-headline-lg text-on-surface font-black">--%</p>
+      <p class="text-on-surface-variant font-body-md text-sm">Estimated recall</p>
+    </div>
+    <div class="stat-card bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md flex flex-col gap-sm">
+      <div class="flex items-center gap-sm">
+        <span class="material-symbols-outlined icon-filled text-primary text-2xl">menu_book</span>
+        <span class="text-on-surface-variant font-label-lg text-label-lg uppercase">Words</span>
+      </div>
+      <p id="statWords" class="text-headline-lg font-headline-lg text-on-surface font-black">--</p>
+      <p class="text-on-surface-variant font-body-md text-sm">Total vocabulary</p>
+    </div>
+  </section>
+
+  <!-- Quick Actions + Progress -->
+  <section class="grid grid-cols-1 md:grid-cols-2 gap-md mb-lg">
+    <!-- Quick Actions -->
+    <div class="bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md">
+      <h3 class="font-headline-md text-headline-md text-on-surface font-bold mb-md">Quick Actions</h3>
+      <div class="flex flex-col gap-sm">
+        <a href="/flashcard-study" class="flex items-center gap-md p-sm rounded-xl hover:bg-primary-fixed transition-colors group">
+          <div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined icon-filled text-primary text-2xl">style</span>
+          </div>
+          <div class="flex-1">
+            <p class="font-label-lg text-label-lg text-on-surface uppercase">Flashcard Review</p>
+            <p class="text-on-surface-variant font-body-md text-sm">FSRS-powered spaced repetition</p>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">chevron_right</span>
+        </a>
+        <a href="/quiz" class="flex items-center gap-md p-sm rounded-xl hover:bg-primary-fixed transition-colors group">
+          <div class="w-12 h-12 rounded-xl bg-secondary-fixed flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined icon-filled text-on-secondary-container text-2xl">extension</span>
+          </div>
+          <div class="flex-1">
+            <p class="font-label-lg text-label-lg text-on-surface uppercase">Multiple Choice Quiz</p>
+            <p class="text-on-surface-variant font-body-md text-sm">Test your knowledge</p>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">chevron_right</span>
+        </a>
+        <a href="/vocabulary" class="flex items-center gap-md p-sm rounded-xl hover:bg-primary-fixed transition-colors group">
+          <div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined icon-filled text-on-surface text-2xl">menu_book</span>
+          </div>
+          <div class="flex-1">
+            <p class="font-label-lg text-label-lg text-on-surface uppercase">Browse Words</p>
+            <p class="text-on-surface-variant font-body-md text-sm">Manage your vocabulary list</p>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">chevron_right</span>
+        </a>
+        <a href="/import" class="flex items-center gap-md p-sm rounded-xl hover:bg-primary-fixed transition-colors group">
+          <div class="w-12 h-12 rounded-xl bg-error-container flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined icon-filled text-on-error-container text-2xl">add_circle</span>
+          </div>
+          <div class="flex-1">
+            <p class="font-label-lg text-label-lg text-on-surface uppercase">Import Words</p>
+            <p class="text-on-surface-variant font-body-md text-sm">Add new vocabulary to study</p>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">chevron_right</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Mastery Progress -->
+    <div class="bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md">
+      <h3 class="font-headline-md text-headline-md text-on-surface font-bold mb-md">Mastery Progress</h3>
+      <div class="flex flex-col gap-md">
         <div>
-          <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:2px;">Daily Streak</div>
-          <div style="font-size:2rem;font-weight:800;background:linear-gradient(135deg,#fbbf24,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;" id="streak-count">–</div>
-          <div style="font-size:.75rem;color:var(--text-muted);" id="streak-label">days in a row</div>
+          <div class="flex justify-between items-center mb-xs">
+            <span class="font-label-lg text-label-lg text-on-surface-variant uppercase">Mastered</span>
+            <span id="masterCount" class="font-label-lg text-label-lg text-primary">--</span>
+          </div>
+          <div class="w-full h-3 bg-surface-container rounded-full overflow-hidden">
+            <div id="masterBar" class="h-full bg-primary rounded-full transition-all duration-700" style="width:0%"></div>
+          </div>
         </div>
-        <div style="border-left:1px solid rgba(255,255,255,.07);padding-left:1.25rem;">
-          <div style="font-size:.75rem;font-weight:700;color:var(--text-muted);margin-bottom:2px;">Best</div>
-          <div style="font-size:1.25rem;font-weight:700;color:var(--accent);" id="streak-best">–</div>
-          <div style="font-size:.75rem;color:var(--text-muted);">Total</div>
-          <div style="font-size:1.1rem;font-weight:700;color:var(--text);" id="streak-total">–</div>
+        <div>
+          <div class="flex justify-between items-center mb-xs">
+            <span class="font-label-lg text-label-lg text-on-surface-variant uppercase">Learning</span>
+            <span id="learningCount" class="font-label-lg text-label-lg text-secondary-fixed-dim">--</span>
+          </div>
+          <div class="w-full h-3 bg-surface-container rounded-full overflow-hidden">
+            <div id="learningBar" class="h-full bg-secondary-fixed-dim rounded-full transition-all duration-700" style="width:0%"></div>
+          </div>
         </div>
-      </article>
-      <article class="card-glass" style="padding:1.25rem 1.75rem;display:flex;align-items:center;gap:1rem;">
-        <div style="flex:1;">
-          <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px;">Word of the Day</div>
-          <span id="wod-badge-word" style="font-size:1.35rem;font-weight:800;background:linear-gradient(135deg,#fff,var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">…</span>
-          <span id="wod-badge-ipa" style="font-size:.8rem;color:var(--primary);margin-left:8px;"></span>
-          <div id="wod-badge-trans" style="font-size:.9rem;color:var(--text);margin-top:2px;"></div>
+        <div>
+          <div class="flex justify-between items-center mb-xs">
+            <span class="font-label-lg text-label-lg text-on-surface-variant uppercase">New</span>
+            <span id="newCount" class="font-label-lg text-label-lg text-on-surface-variant">--</span>
+          </div>
+          <div class="w-full h-3 bg-surface-container rounded-full overflow-hidden">
+            <div id="newBar" class="h-full bg-surface-container-highest rounded-full transition-all duration-700" style="width:0%"></div>
+          </div>
         </div>
-        <a href="/flashcard-study" style="background:linear-gradient(135deg,var(--primary),#0ea5e9);color:#000;font-weight:700;padding:9px 18px;border-radius:10px;text-decoration:none;font-size:.82rem;white-space:nowrap;">Study Cards →</a>
-      </article>
-    </section>
-
-    <!-- Review Queue + Notifications -->
-    <section style="display:grid;gap:1.5rem;margin-bottom:1.5rem;" class="lg:grid-cols-3">
-
-        <!-- Review Queue -->
-        <article class="card-glass" style="padding:1.5rem;grid-column:span 2;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-                <h2 class="font-display" style="font-size:1.2rem;font-weight:700;color:var(--text);">Due Review Queue</h2>
-                <a href="/learn" style="font-size:0.8rem;font-weight:700;color:var(--primary);text-decoration:none;border:1px solid var(--border-accent);padding:0.3rem 0.8rem;border-radius:0.5rem;transition:background 0.2s;" onmouseover="this.style.background='var(--primary-dim)'" onmouseout="this.style.background='transparent'">Go to study →</a>
-            </div>
-            <div id="reviewList" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
-            <div id="noReview" class="hidden" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:0.75rem;padding:1rem;color:var(--success);font-size:0.875rem;text-align:center;">No cards due right now — great work!</div>
-        </article>
-
-        <!-- Notifications -->
-        <article class="card-glass" style="padding:1.5rem;">
-            <h2 class="font-display" style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:1rem;">Notification Stream</h2>
-            <div id="notificationStream" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
-        </article>
-
-    </section>
-
-    <!-- Word of Day + Categories -->
-    <section style="display:grid;gap:1.5rem;" class="lg:grid-cols-2">
-
-        <!-- Word of the Day -->
-        <article class="card-glass" style="padding:1.75rem;">
-            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
-                <h2 class="font-display" style="font-size:1.2rem;font-weight:700;color:var(--text);">Word of the Day</h2>
-            </div>
-            <p id="wod-word" class="font-display" style="font-size:2.25rem;font-weight:800;background:linear-gradient(135deg,var(--text) 0%,var(--primary) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.25rem;"></p>
-            <p id="wod-pronunciation" style="font-size:0.9rem;color:var(--primary);margin-bottom:0.5rem;"></p>
-            <p id="wod-translation" style="font-size:1.2rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;"></p>
-            <p id="wod-example" style="font-size:0.875rem;color:var(--text-muted);font-style:italic;"></p>
-            <button onclick="loadWordOfDay()" class="btn btn-secondary" style="margin-top:1.25rem;font-size:0.8rem;padding:0.5rem 1.1rem;">Refresh</button>
-        </article>
-
-        <!-- Vocabulary Categories -->
-        <article class="card-glass" style="padding:1.75rem;">
-            <h2 class="font-display" style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:1rem;">Vocabulary Categories</h2>
-            <div id="categoriesGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;"></div>
-        </article>
-
-    </section>
+        <div class="pt-sm border-t-2 border-outline-variant">
+          <div class="flex justify-between items-center">
+            <span class="text-on-surface-variant font-body-md text-sm">Accuracy</span>
+            <span id="accuracyRate" class="font-label-lg text-label-lg text-on-surface font-bold">--%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
 </main>
 
 <script>
-    if (window.lucide) { window.lucide.createIcons(); }
+function escapeHtml(text) {
+  if (!text) return '';
+  return String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+async function loadHomeData() {
+  try {
+    const [fsrs, streak, wordCount, progressStats] = await Promise.all([
+      fetch('/api/fsrs/stats').then(r => r.json()).catch(() => ({})),
+      fetch('/api/streak').then(r => r.json()).catch(() => ({})),
+      fetch('/api/words/count').then(r => r.json()).catch(() => ({count: 0})),
+      fetch('/api/progress/stats').then(r => r.json()).catch(() => ({})),
+    ]);
+
+    // Header streak
+    const sc = document.getElementById('streakCount');
+    if (sc) sc.textContent = streak.currentStreak ?? 0;
+
+    // Stats
+    const due = fsrs.dueNow ?? 0;
+    document.getElementById('dueNow').textContent = due;
+    document.getElementById('statDue').textContent = due;
+    document.getElementById('statStreak').textContent = streak.currentStreak ?? 0;
+    document.getElementById('statRetention').textContent = (fsrs.retentionEstimate != null ? fsrs.retentionEstimate.toFixed(1) : '--') + '%';
+    document.getElementById('statWords').textContent = wordCount.count ?? 0;
+
+    // Mastery bars
+    const mastered = progressStats.mastered ?? 0;
+    const learning = progressStats.learning ?? 0;
+    const total = wordCount.count ?? 1;
+    document.getElementById('masterCount').textContent = mastered;
+    document.getElementById('learningCount').textContent = learning;
+    document.getElementById('newCount').textContent = Math.max(0, total - mastered - learning);
+    document.getElementById('masterBar').style.width = Math.min(100, (mastered / total) * 100) + '%';
+    document.getElementById('learningBar').style.width = Math.min(100, (learning / total) * 100) + '%';
+    document.getElementById('newBar').style.width = Math.min(100, Math.max(0, (total - mastered - learning) / total) * 100) + '%';
+    document.getElementById('accuracyRate').textContent = (progressStats.accuracy != null ? progressStats.accuracy.toFixed(1) : '--') + '%';
+  } catch (e) {
+    console.error('Failed to load home data', e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadHomeData);
 </script>
-<script src="/js/app.js"></script>
+<script src="/js/notifications.js"></script>
 </body>
 </html>
