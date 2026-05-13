@@ -131,6 +131,15 @@ function updateSidebar(url) {
             if (icon) icon.classList.remove('icon-filled');
         }
     });
+    // Update profile link active state
+    const profileLink = document.querySelector('nav #userMenuContainer a[href="/profile"]');
+    if (profileLink) {
+        if (path === '/profile') {
+            profileLink.className = 'flex items-center gap-3 px-4 py-3 bg-primary-fixed text-primary border-2 border-primary rounded-xl transition-colors w-full text-left font-label-lg group';
+        } else {
+            profileLink.className = 'flex items-center gap-3 px-4 py-3 bg-surface-container-lowest text-on-surface hover:bg-surface-container border-2 border-transparent hover:border-outline-variant rounded-xl transition-colors w-full text-left font-label-lg group';
+        }
+    }
 }
 
 async function loadNewScripts(doc) {
@@ -213,6 +222,62 @@ async function loadCurrentUser() {
 window.onAppLoad(() => {
     loadCurrentUser();
 });
+
+async function loadUserMenu() {
+    const container = document.getElementById('userMenuContainer');
+    if (!container) return;
+    container.innerHTML = `
+        <div class="flex items-center gap-3 px-4 py-3 text-on-surface font-label-lg">
+          <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center border-2 border-primary overflow-hidden">
+            <span class="material-symbols-outlined icon-filled text-primary text-sm block">person</span>
+          </div>
+          <div class="flex-1 min-w-0 font-bold text-on-surface uppercase tracking-wider">Loading...</div>
+        </div>
+    `;
+    try {
+        const res = await fetch('/api/user/me');
+        if (res.ok) {
+            const user = await res.json();
+            const path = window.location.pathname;
+            const isProfile = path === '/profile';
+            const linkClass = isProfile
+                ? 'flex items-center gap-3 px-4 py-3 bg-primary-fixed text-primary border-2 border-primary rounded-xl transition-colors w-full text-left font-label-lg group'
+                : 'flex items-center gap-3 px-4 py-3 bg-surface-container-lowest text-on-surface hover:bg-surface-container border-2 border-transparent hover:border-outline-variant rounded-xl transition-colors w-full text-left font-label-lg group';
+            const avatarHtml = user.avatarUrl
+                ? `<img src="${user.avatarUrl}" alt="Avatar" class="w-full h-full object-cover">`
+                : `<span class="material-symbols-outlined icon-filled text-primary text-sm block">person</span>`;
+            container.innerHTML = `
+                <a href="/profile" class="${linkClass}">
+                  <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center border-2 border-primary overflow-hidden">
+                    ${avatarHtml}
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="truncate font-bold text-on-surface leading-tight">${user.name || 'Student'}</div>
+                    <div class="truncate text-xs text-on-surface-variant font-normal leading-tight">${user.email || ''}</div>
+                  </div>
+                </a>
+                <button onclick="window.location.href='/logout'" class="flex items-center justify-center gap-2 px-4 py-2 text-error hover:bg-error-container rounded-xl transition-colors font-label-lg font-bold w-full uppercase tracking-wider mt-2 border-2 border-transparent hover:border-error">
+                  <span class="material-symbols-outlined">logout</span>Logout
+                </button>
+            `;
+        } else {
+            container.innerHTML = `
+                <a href="/oauth2/authorization/google" class="flex items-center gap-3 px-4 py-3 bg-primary text-on-primary hover:opacity-90 rounded-xl transition-colors w-full text-left font-label-lg border-2 border-primary">
+                  <div class="w-8 h-8 rounded-full bg-on-primary flex items-center justify-center overflow-hidden">
+                    <span class="material-symbols-outlined text-primary text-sm block">account_circle</span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="truncate font-bold uppercase tracking-wider">Login</div>
+                  </div>
+                </a>
+            `;
+        }
+    } catch (e) {
+        console.error('Failed to load user menu', e);
+    }
+}
+
+window.onAppLoad(loadUserMenu);
 
 // Sync styles between pages
 function syncStyles(newDoc) {

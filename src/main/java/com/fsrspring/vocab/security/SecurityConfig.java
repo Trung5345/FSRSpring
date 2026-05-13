@@ -2,6 +2,7 @@ package com.fsrspring.vocab.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -11,9 +12,13 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final String frontendBaseUrl;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
+    public SecurityConfig(
+            CustomOAuth2UserService customOAuth2UserService,
+            @Value("${app.frontend.base-url:/}") String frontendBaseUrl) {
         this.customOAuth2UserService = customOAuth2UserService;
+        this.frontendBaseUrl = frontendBaseUrl;
     }
 
     @Bean
@@ -32,11 +37,10 @@ public class SecurityConfig {
                 .userInfoEndpoint(userInfo -> userInfo
                     .userService(customOAuth2UserService)
                 )
-                // Optional: Config the login success handler, user-info endpoint
-                .defaultSuccessUrl("/", true)
+                .defaultSuccessUrl(frontendBaseUrl, true)
             )
             .logout(logout -> logout
-                .logoutSuccessUrl("/")
+                .logoutSuccessUrl(frontendBaseUrl)
                 .permitAll()
             );
         return http.build();

@@ -171,6 +171,41 @@
     return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  // Toast Notification System
+  window.showToast = function(message, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'toast-container';
+      container.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:10000;display:flex;flex-direction:column;gap:12px;pointer-events:none;';
+      document.body.appendChild(container);
+    }
+    const colors = {
+      info: { bg: '#c8e6ff', text: '#00405d', border: '#006590', icon: 'info' },
+      success: { bg: '#e2f5ee', text: '#004d40', border: '#0d9488', icon: 'check_circle' },
+      error: { bg: '#ffdad6', text: '#93000a', border: '#ba1a1a', icon: 'error' },
+      warning: { bg: '#ffdf92', text: '#6e5400', border: '#fcc100', icon: 'warning' }
+    };
+    const c = colors[type] || colors.info;
+
+    const toast = document.createElement('div');
+    toast.style.cssText = `background:${c.bg};color:${c.text};border:2px solid ${c.border};padding:12px 16px;border-radius:12px;font-family:Lexend,sans-serif;font-size:14px;font-weight:600;box-shadow:0 8px 16px rgba(0,0,0,0.1);opacity:0;transform:translateY(20px);transition:all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);display:flex;align-items:center;gap:12px;min-width:250px;max-width:350px;pointer-events:auto;`;
+    toast.innerHTML = \`<span class="material-symbols-outlined icon-filled" style="font-size:24px;color:\${c.border};">\${c.icon}</span><span>\${escHtml(message)}</span>\`;
+    
+    container.appendChild(toast);
+    
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateY(0)';
+    });
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px) scale(0.95)';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  };
+
   function initNotifications() {
     buildWidget();
     refresh();

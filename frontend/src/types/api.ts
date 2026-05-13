@@ -1,0 +1,103 @@
+export type DifficultyLevel = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
+
+export interface Topic {
+  id: number;
+  name: string;
+  slug?: string;
+  description?: string;
+  iconEmoji?: string;
+}
+
+export interface Word {
+  id: number;
+  word: string;
+  translation: string;
+  pronunciation?: string;
+  category?: string;
+  difficulty?: DifficultyLevel;
+  cefrLevel?: CefrLevel;
+  partOfSpeech?: string;
+  example?: string;
+  imageUrl?: string;
+  enrichmentStatus?: string;
+  topic?: Topic | null;
+}
+
+export interface UserProgress {
+  id: number;
+  word: Word;
+  mastery?: string;
+  correctCount?: number;
+  incorrectCount?: number;
+  lastReviewed?: string;
+  nextReviewAt?: string;
+  stability?: number;
+  difficulty?: number;
+}
+
+export interface QuizSession {
+  id: number;
+  totalQuestions?: number;
+  correctAnswers?: number;
+  completed?: boolean;
+  score?: number;
+  createdAt?: string;
+  completedAt?: string;
+}
+
+export interface AppUser {
+  id: number;
+  email: string;
+  name?: string;
+  avatarUrl?: string;
+  role?: string;
+  createdAt?: string;
+  lastLoginAt?: string;
+}
+
+export interface TrustedFlashcard {
+  id: number;
+  front?: string;
+  back?: string;
+  word?: string;
+  definition?: string;
+  example?: string;
+  source?: string;
+  topic?: string;
+}
+
+export interface ImportRow {
+  clientRowId: string;
+  word: string;
+  translation?: string;
+  pronunciation?: string;
+  category?: string;
+  difficulty?: DifficultyLevel;
+  cefrLevel?: CefrLevel | "";
+  partOfSpeech?: string;
+  example?: string;
+  topicId?: number | null;
+}
+
+export interface ImportJob {
+  id: number;
+  sourceType?: string;
+  fileName?: string;
+  targetSetName?: string;
+  status?: string;
+  totalRows?: number;
+  created?: number;
+  skipped?: number;
+  failed?: number;
+  createdAt?: string;
+  rows?: Array<Record<string, unknown>>;
+}
+
+export interface NotificationItem {
+  id: number;
+  title: string;
+  message: string;
+  deepLink?: string;
+  read?: boolean;
+}

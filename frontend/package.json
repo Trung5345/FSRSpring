@@ -1,0 +1,33 @@
+{
+  "name": "fsrspring-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0",
+    "build": "next build",
+    "start": "next start --hostname 0.0.0.0",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@next/eslint-plugin-next": "latest",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-toast": "^1.2.15",
+    "@tabler/icons-react": "^3.44.0",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "latest",
+    "lucide-react": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "autoprefixer": "latest",
+    "postcss": "latest",
+    "tailwindcss": "^3.4.17",
+    "typescript": "latest"
+  }
+}

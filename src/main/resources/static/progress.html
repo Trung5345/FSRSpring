@@ -113,7 +113,7 @@
     <li><a href="/vocabulary" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
       <span class="material-symbols-outlined">menu_book</span>Words
     </a></li>
-    <li><a href="/flashcard-study" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
+    <li><a href="/flashcards" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
       <span class="material-symbols-outlined">style</span>Flashcards
     </a></li>
     <li><a href="/quiz" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
@@ -276,58 +276,6 @@ fetch('/api/streak').then(r=>r.json()).then(d=>{
 
 
 
-<script>
-async function loadUserMenu() {
-  const container = document.getElementById('userMenuContainer');
-  if (!container) return;
-  
-  // Set initial loading state
-  container.innerHTML = `
-    <div class="flex items-center gap-3 px-4 py-3 text-on-surface font-label-lg">
-      <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center border-2 border-primary overflow-hidden">
-        <span class="material-symbols-outlined icon-filled text-primary text-sm block">person</span>
-      </div>
-      <div class="flex-1 min-w-0 font-bold text-on-surface uppercase tracking-wider">Loading...</div>
-    </div>
-  `;
-  
-  try {
-    const res = await fetch('/api/user/me');
-    if (res.ok) {
-      const user = await res.json();
-      container.innerHTML = `
-        <a href="/profile" class="flex items-center gap-3 px-4 py-3 bg-surface-container-lowest text-on-surface hover:bg-surface-container border-2 border-transparent hover:border-outline-variant rounded-xl transition-colors w-full text-left font-label-lg group">
-          <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center border-2 border-primary overflow-hidden">
-            ${user.avatarUrl ? \`<img src="${user.avatarUrl}" alt="Avatar" class="w-full h-full object-cover">\` : \`<span class="material-symbols-outlined icon-filled text-primary text-sm block">person</span>\`}
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="truncate font-bold text-on-surface leading-tight">${user.name || 'Student'}</div>
-            <div class="truncate text-xs text-on-surface-variant font-normal leading-tight">${user.email || ''}</div>
-          </div>
-        </a>
-        <button onclick="window.location.href='/logout'" class="flex items-center justify-center gap-2 px-4 py-2 text-error hover:bg-error-container rounded-xl transition-colors font-label-lg font-bold w-full uppercase tracking-wider mt-2 border-2 border-transparent hover:border-error">
-          <span class="material-symbols-outlined">logout</span>Logout
-        </button>
-      `;
-    } else {
-      // Not logged in Show Login button
-      container.innerHTML = `
-        <a href="/oauth2/authorization/google" class="flex items-center gap-3 px-4 py-3 bg-primary text-on-primary hover:opacity-90 rounded-xl transition-colors w-full text-left font-label-lg border-2 border-primary">
-          <div class="w-8 h-8 rounded-full bg-on-primary flex items-center justify-center overflow-hidden">
-            <span class="material-symbols-outlined text-primary text-sm block">login</span>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="truncate font-bold uppercase tracking-wider">Login</div>
-          </div>
-        </a>
-      `;
-    }
-  } catch (e) {
-    console.error('Failed to check user status', e);
-  }
-}
-document.addEventListener('DOMContentLoaded', loadUserMenu);
-</script>
 
 </body>
 </html>

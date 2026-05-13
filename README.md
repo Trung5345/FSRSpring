@@ -53,6 +53,22 @@ Application URL: http://localhost:8080
 
 H2 Console URL: http://localhost:8080/h2-console
 
+## Run Next.js Frontend
+
+The migrated UI lives in `frontend/` and calls the Spring Boot API through
+Next.js rewrites.
+
+```bash
+cd frontend
+corepack enable
+pnpm install
+SPRING_API_BASE_URL=http://localhost:8080 pnpm dev
+```
+
+Frontend URL: http://localhost:3000
+
+Spring Boot remains the API, OAuth, session, database, and FSRS backend.
+
 ## Build And Test
 
 macOS/Linux:
@@ -74,6 +90,11 @@ Build and run with Docker Compose:
 ```bash
 docker compose up --build
 ```
+
+Docker Compose starts:
+
+- Next.js frontend: http://localhost:3000
+- Spring Boot API/classic UI: http://localhost:8080
 
 Stop containers:
 

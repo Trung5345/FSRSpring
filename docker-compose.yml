@@ -1,4 +1,18 @@
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: fsrspring-frontend:local
+    container_name: fsrspring-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      SPRING_API_BASE_URL: http://app:8080
+    depends_on:
+      - app
+    restart: unless-stopped
+
   app:
     build:
       context: .
@@ -11,13 +25,18 @@ services:
       - .env
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      MYSQL_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-fsrspring}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATA_REDIS_HOST: redis
       APP_API_LIBRETRANSLATE_BASE_URL: http://libretranslate:5000
+      APP_FRONTEND_BASE_URL: http://localhost:3000
       JAVA_OPTS: -Xms128m -Xmx512m
     depends_on:
-      - mysql
-      - redis
-      - libretranslate
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      libretranslate:
+        condition: service_started
     restart: unless-stopped
 
   mysql:
@@ -52,7 +71,7 @@ services:
     image: libretranslate/libretranslate:latest
     container_name: fsrspring-libretranslate
     ports:
-      - "5000:5000"
+      - "${LIBRETRANSLATE_HOST_PORT:-5001}:5000"
     restart: unless-stopped
 
 volumes:

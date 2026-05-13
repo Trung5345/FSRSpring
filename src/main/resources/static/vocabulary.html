@@ -75,7 +75,7 @@
     <li><a href="/vocabulary" class="flex items-center gap-4 px-4 py-3 bg-primary-fixed text-primary border-2 border-primary rounded-xl font-label-lg text-label-lg uppercase tracking-wider">
       <span class="material-symbols-outlined icon-filled">menu_book</span>Words
     </a></li>
-    <li><a href="/flashcard-study" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
+    <li><a href="/flashcards" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
       <span class="material-symbols-outlined">style</span>Flashcards
     </a></li>
     <li><a href="/quiz" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
@@ -91,19 +91,7 @@
 
   <!-- User Profile Menu -->
   <div class="mt-auto flex flex-col pt-6 border-t-2 border-outline-variant" id="userMenuContainer">
-    <a href="/profile" class="flex items-center gap-3 px-4 py-3 text-on-surface hover:bg-surface-container rounded-xl transition-colors w-full text-left font-label-lg group border-2 border-transparent hover:border-outline-variant">
-        <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center border-2 border-primary overflow-hidden">
-          <img id="userAvatar" src="" alt="Avatar" class="w-full h-full object-cover hidden">
-          <span id="userInitial" class="material-symbols-outlined icon-filled text-primary text-sm block">person</span>
-        </div>
-        <div class="flex-1 min-w-0">
-          <div id="userName" class="truncate font-bold text-on-surface leading-tight">Student</div>
-          <div id="userEmail" class="truncate text-xs text-on-surface-variant font-normal leading-tight">...</div>
-        </div>
-    </a>
-    <button onclick="window.location.href='/logout'" class="flex items-center justify-center gap-2 px-4 py-2 text-error hover:bg-error-container rounded-xl transition-colors font-label-lg font-bold w-full uppercase tracking-wider mt-2 border-2 border-transparent hover:border-error">
-        <span class="material-symbols-outlined">logout</span>Logout
-    </button>
+    <!-- Loaded dynamically -->
   </div>
 </nav>
 
@@ -271,6 +259,7 @@ function escapeHtml(text) {
 </script>
 <script src="/js/vocabulary.js"></script>
 <script src="/js/notifications.js"></script>
+
 
 
 
