@@ -1,0 +1,642 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Wiktapi",
+    "version": "1",
+    "description": "Multilingual dictionary REST API built on Wiktionary data"
+  },
+  "servers": [
+    {
+      "url": "https://api.wiktapi.dev",
+      "description": "Local Development Server",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/_openapi.json": {
+      "get": {
+        "tags": [
+          "Internal"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/_scalar": {
+      "get": {
+        "tags": [
+          "Internal"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/_swagger": {
+      "get": {
+        "tags": [
+          "Internal"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "App Routes"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/{edition}/search": {
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "edition",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Wiktionary edition (e.g. `en`, `fr`, `de`)."
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search prefix."
+          },
+          {
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by language code (e.g. `de`, `ja`)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "word": {
+                            "type": "string"
+                          },
+                          "lang_code": {
+                            "type": "string"
+                          },
+                          "lang": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "pos": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing required query param `q`."
+          }
+        },
+        "summary": "Prefix search",
+        "description": "Returns up to 50 words that start with the given prefix, optionally filtered by language."
+      }
+    },
+    "/v1/{edition}/word/{word}": {
+      "get": {
+        "tags": [
+          "Word"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "edition",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Wiktionary edition (e.g. `en`, `fr`, `de`)."
+          },
+          {
+            "in": "path",
+            "name": "word",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The word to look up."
+          },
+          {
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by language code (e.g. `de`, `ja`)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "word": {
+                      "type": "string"
+                    },
+                    "edition": {
+                      "type": "string"
+                    },
+                    "entries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "description": "Full kaikki.org entry objects."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Full word entry",
+        "description": "Returns the full raw Wiktionary entry for a word. Each item in `entries` is the complete parsed JSON from kaikki.org."
+      }
+    },
+    "/v1/{edition}/word/{word}/definitions": {
+      "get": {
+        "tags": [
+          "Word"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "edition",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Wiktionary edition (e.g. `en`, `fr`, `de`)."
+          },
+          {
+            "in": "path",
+            "name": "word",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The word to look up."
+          },
+          {
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by language code (e.g. `de`, `ja`)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "word": {
+                      "type": "string"
+                    },
+                    "edition": {
+                      "type": "string"
+                    },
+                    "definitions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "pos": {
+                            "type": "string",
+                            "example": "noun"
+                          },
+                          "lang_code": {
+                            "type": "string",
+                            "example": "de"
+                          },
+                          "senses": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "glosses": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "examples": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object"
+                                  }
+                                },
+                                "tags": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Word definitions",
+        "description": "Returns senses (glosses, examples, tags) for each part-of-speech entry of the word."
+      }
+    },
+    "/v1/{edition}/word/{word}/forms": {
+      "get": {
+        "tags": [
+          "Word"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "edition",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Wiktionary edition (e.g. `en`, `fr`, `de`)."
+          },
+          {
+            "in": "path",
+            "name": "word",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The word to look up."
+          },
+          {
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by language code (e.g. `de`, `ja`)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "word": {
+                      "type": "string"
+                    },
+                    "edition": {
+                      "type": "string"
+                    },
+                    "forms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "pos": {
+                            "type": "string"
+                          },
+                          "lang_code": {
+                            "type": "string"
+                          },
+                          "forms": {
+                            "type": "array",
+                            "items": {
+                              "type": "object"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Word forms",
+        "description": "Returns inflected forms (e.g. plural, genitive, conjugations) for each part-of-speech entry."
+      }
+    },
+    "/v1/{edition}/word/{word}/pronunciations": {
+      "get": {
+        "tags": [
+          "Word"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "edition",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Wiktionary edition (e.g. `en`, `fr`, `de`)."
+          },
+          {
+            "in": "path",
+            "name": "word",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The word to look up."
+          },
+          {
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by language code (e.g. `de`, `ja`)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "word": {
+                      "type": "string"
+                    },
+                    "edition": {
+                      "type": "string"
+                    },
+                    "pronunciations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "pos": {
+                            "type": "string"
+                          },
+                          "lang_code": {
+                            "type": "string"
+                          },
+                          "sounds": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "ipa": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "example": "/haʊs/"
+                                },
+                                "audio": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "tags": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Word pronunciations",
+        "description": "Returns IPA and audio pronunciations for each part-of-speech entry of the word."
+      }
+    },
+    "/v1/{edition}/word/{word}/translations": {
+      "get": {
+        "tags": [
+          "Word"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "edition",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Wiktionary edition (e.g. `en`, `fr`, `de`)."
+          },
+          {
+            "in": "path",
+            "name": "word",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The word to look up."
+          },
+          {
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by language code (e.g. `de`, `ja`)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "word": {
+                      "type": "string"
+                    },
+                    "edition": {
+                      "type": "string"
+                    },
+                    "translations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "pos": {
+                            "type": "string"
+                          },
+                          "lang_code": {
+                            "type": "string"
+                          },
+                          "translations": {
+                            "type": "array",
+                            "items": {
+                              "type": "object"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Word translations",
+        "description": "Returns translation lists for each part-of-speech entry of the word."
+      }
+    },
+    "/v1/editions": {
+      "get": {
+        "tags": [
+          "Meta"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "editions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "en",
+                        "fr",
+                        "de"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List editions",
+        "description": "Returns all Wiktionary editions available in the database (e.g. `en`, `fr`, `de`)."
+      }
+    },
+    "/v1/languages": {
+      "get": {
+        "tags": [
+          "Meta"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "languages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "lang_code": {
+                            "type": "string",
+                            "example": "de"
+                          },
+                          "lang": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "German"
+                          },
+                          "entry_count": {
+                            "type": "integer",
+                            "example": 42000
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List languages",
+        "description": "Returns all languages present in the database with their entry counts, sorted by frequency."
+      }
+    }
+  }
+}
