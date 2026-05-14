@@ -26,8 +26,7 @@ public class Word {
     @Column(nullable = false, length = 200)
     private String word;
 
-    @NotBlank(message = "Translation is required")
-    @Column(nullable = false, length = 500)
+    @Column(length = 500)
     private String translation;
 
     @Column(length = 1000)
@@ -76,7 +75,29 @@ public class Word {
     @Column(length = 2000)
     private String origin;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private EnrichmentStatus enrichmentStatus = EnrichmentStatus.NOT_REQUESTED;
+
+    @Column(columnDefinition = "LONGTEXT")
+    private String enrichmentJson;
+
+    @Column(columnDefinition = "LONGTEXT")
+    private String imageMetadataJson;
+
+    private LocalDateTime enrichedAt;
+
     public enum DifficultyLevel {
         BEGINNER, INTERMEDIATE, ADVANCED
+    }
+
+    public enum EnrichmentStatus {
+        NOT_REQUESTED,
+        PENDING,
+        RUNNING,
+        PARTIAL,
+        COMPLETED,
+        FAILED
     }
 }

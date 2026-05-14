@@ -1,5 +1,6 @@
 package com.fsrspring.vocab.controller;
 
+import com.fsrspring.vocab.model.CefrLevel;
 import com.fsrspring.vocab.model.QuizSession;
 import com.fsrspring.vocab.model.Word;
 import com.fsrspring.vocab.service.QuizService;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,16 +25,35 @@ public class QuizController {
     public ResponseEntity<Map<String, Object>> startQuiz(
             @RequestParam(defaultValue = "10") int count,
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) Word.DifficultyLevel difficulty) {
+            @RequestParam(required = false) Word.DifficultyLevel difficulty,
+            @RequestParam(required = false) Long topicId,
+            @RequestParam(required = false) CefrLevel cefrLevel) {
         List<Word> words;
-        if (category != null && difficulty != null) {
-            words = wordService.getWordsByCategoryAndDifficulty(category, difficulty);
+        if (topicId != null && cefrLevel != null) {
+            words = new ArrayList<>(wordService.getWordsByTopicAndCefr(topicId, cefrLevel));
+        } else if (topicId != null) {
+            words = new ArrayList<>(wordService.getWordsByTopic(topicId));
+        } else if (cefrLevel != null) {
+            words = new ArrayList<>(wordService.getWordsByCefrLevel(cefrLevel));
+        } else if (category != null && difficulty != null) {
+            words = new ArrayList<>(wordService.getWordsByCategoryAndDifficulty(category, difficulty));
         } else if (category != null) {
-            words = wordService.getWordsByCategory(category);
+            words = new ArrayList<>(wordService.getWordsByCategory(category));
         } else if (difficulty != null) {
-            words = wordService.getWordsByDifficulty(difficulty);
+            words = new ArrayList<>(wordService.getWordsByDifficulty(difficulty));
         } else {
-            words = wordService.getRandomWords(count);
+            words = new ArrayList<>(wordService.getRandomWords(count));
+        }
+        // Apply category/difficulty filter on top of topic/cefr if both are specified
+        if (topicId != null || cefrLevel != null) {
+            if (category != null) {
+                final String cat = category;
+                words.removeIf(w -> !cat.equals(w.getCategory()));
+            }
+            if (difficulty != null) {
+                final Word.DifficultyLevel diff = difficulty;
+                words.removeIf(w -> !diff.equals(w.getDifficulty()));
+            }
         }
         if (words.size() > count) {
             words = words.subList(0, count);

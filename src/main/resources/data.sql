@@ -1,7 +1,7 @@
 -- ──────────────────────────────────────────────
--- 1. Topics (categories / chủ đề)
+-- 1. Topics (categories / chu de)
 -- ──────────────────────────────────────────────
-INSERT INTO topic (name, slug, description, icon_emoji, color_hex) VALUES
+INSERT IGNORE INTO topic (name, slug, description, icon_emoji, color_hex) VALUES
 ('Animals', 'animals', 'Vocabulary about animals and wildlife', '', '#4ade80'),
 ('Food & Drink', 'food', 'Food, drinks, and cooking vocabulary', '', '#fbbf24'),
 ('Technology', 'technology', 'Tech, software, and digital world terms', '', '#38bdf8'),
@@ -16,7 +16,7 @@ INSERT INTO topic (name, slug, description, icon_emoji, color_hex) VALUES
 -- ──────────────────────────────────────────────
 -- 2. Words (with topic_id FK via subquery, cefr_level, part_of_speech)
 -- ──────────────────────────────────────────────
-INSERT INTO words (word, translation, example, pronunciation, category, difficulty, created_at, topic_id, cefr_level, part_of_speech, synonyms, antonyms) VALUES
+INSERT IGNORE INTO words (word, translation, example, pronunciation, category, difficulty, created_at, topic_id, cefr_level, part_of_speech, synonyms, antonyms) VALUES
 
 -- Animals (A1-C1)
 ('cat',        'con mèo',      'The cat is sleeping on the sofa.',               '/kæt/',            'Animals', 'BEGINNER',     CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='animals'), 'A1', 'noun',      'feline, kitty',           'dog'),
@@ -78,7 +78,136 @@ INSERT INTO words (word, translation, example, pronunciation, category, difficul
 ('immunity',    'miễn dịch',    'Regular exercise can boost your immunity.',             '/ɪˈmjuːnɪti/', 'Health', 'ADVANCED',     CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='health'), 'C1', 'noun',      'resistance, defense',     'susceptibility'),
 
 -- Education (A2-C1)
-('curriculum',  'chương trình học', 'The school updated its science curriculum.',        '/kəˈrɪkjʊləm/', 'Education', 'ADVANCED',   CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='education'), 'C1', 'noun',   'syllabus, program',       null),
-('scholarship', 'học bổng',         'She received a full scholarship to university.',   '/ˈskɒlərʃɪp/', 'Education', 'INTERMEDIATE', CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='education'), 'B2', 'noun',  'grant, fellowship, award',null),
-('thesis',      'luận văn',         'He spent two years writing his doctoral thesis.',  '/ˈθiːsɪs/',    'Education', 'ADVANCED',     CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='education'), 'C1', 'noun',   'dissertation, paper',     null);
+('curriculum',  'chuong trinh hoc', 'The school updated its science curriculum.',        '/kəˈrɪkjʊləm/', 'Education', 'ADVANCED',   CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='education'), 'C1', 'noun',   'syllabus, program',       null),
+('scholarship', 'hoc bong',         'She received a full scholarship to university.',   '/ˈskɒlərʃɪp/', 'Education', 'INTERMEDIATE', CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='education'), 'B2', 'noun',  'grant, fellowship, award',null),
+('thesis',      'luan van',         'He spent two years writing his doctoral thesis.',  '/ˈθiːsɪs/',    'Education', 'ADVANCED',     CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='education'), 'C1', 'noun',   'dissertation, paper',     null);
+
+-- ──────────────────────────────────────────────
+-- 3. Extended vocabulary (enrichment pipeline fills translation/pronunciation)
+-- ──────────────────────────────────────────────
+INSERT IGNORE INTO words (word, category, difficulty, cefr_level, topic_id, created_at) VALUES
+
+-- Animals
+('lion',       'Animals', 'BEGINNER',     'A2', (SELECT id FROM topic WHERE slug='animals'), CURRENT_TIMESTAMP),
+('tiger',      'Animals', 'BEGINNER',     'A2', (SELECT id FROM topic WHERE slug='animals'), CURRENT_TIMESTAMP),
+('dolphin',    'Animals', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='animals'), CURRENT_TIMESTAMP),
+('penguin',    'Animals', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='animals'), CURRENT_TIMESTAMP),
+('giraffe',    'Animals', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='animals'), CURRENT_TIMESTAMP),
+('gorilla',    'Animals', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='animals'), CURRENT_TIMESTAMP),
+('crocodile',  'Animals', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='animals'), CURRENT_TIMESTAMP),
+('chameleon',  'Animals', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='animals'), CURRENT_TIMESTAMP),
+('nocturnal',  'Animals', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='animals'), CURRENT_TIMESTAMP),
+
+-- Food & Drink
+('rice',       'Food', 'BEGINNER',     'A1', (SELECT id FROM topic WHERE slug='food'), CURRENT_TIMESTAMP),
+('coffee',     'Food', 'BEGINNER',     'A1', (SELECT id FROM topic WHERE slug='food'), CURRENT_TIMESTAMP),
+('sushi',      'Food', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='food'), CURRENT_TIMESTAMP),
+('spicy',      'Food', 'BEGINNER',     'A2', (SELECT id FROM topic WHERE slug='food'), CURRENT_TIMESTAMP),
+('ferment',    'Food', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='food'), CURRENT_TIMESTAMP),
+('garnish',    'Food', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='food'), CURRENT_TIMESTAMP),
+('simmer',     'Food', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='food'), CURRENT_TIMESTAMP),
+('marinate',   'Food', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='food'), CURRENT_TIMESTAMP),
+('umami',      'Food', 'ADVANCED',     'C2', (SELECT id FROM topic WHERE slug='food'), CURRENT_TIMESTAMP),
+
+-- Technology
+('internet',   'Technology', 'BEGINNER',     'A2', (SELECT id FROM topic WHERE slug='technology'), CURRENT_TIMESTAMP),
+('smartphone', 'Technology', 'BEGINNER',     'A2', (SELECT id FROM topic WHERE slug='technology'), CURRENT_TIMESTAMP),
+('cloud',      'Technology', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='technology'), CURRENT_TIMESTAMP),
+('blockchain', 'Technology', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='technology'), CURRENT_TIMESTAMP),
+('bandwidth',  'Technology', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='technology'), CURRENT_TIMESTAMP),
+('firewall',   'Technology', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='technology'), CURRENT_TIMESTAMP),
+('latency',    'Technology', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='technology'), CURRENT_TIMESTAMP),
+('scalability','Technology', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='technology'), CURRENT_TIMESTAMP),
+('microservice','Technology','ADVANCED',     'C2', (SELECT id FROM topic WHERE slug='technology'), CURRENT_TIMESTAMP),
+
+-- Nature
+('ocean',      'Nature', 'BEGINNER',     'A1', (SELECT id FROM topic WHERE slug='nature'), CURRENT_TIMESTAMP),
+('volcano',    'Nature', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='nature'), CURRENT_TIMESTAMP),
+('glacier',    'Nature', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='nature'), CURRENT_TIMESTAMP),
+('drought',    'Nature', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='nature'), CURRENT_TIMESTAMP),
+('erosion',    'Nature', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='nature'), CURRENT_TIMESTAMP),
+('sediment',   'Nature', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='nature'), CURRENT_TIMESTAMP),
+('canopy',     'Nature', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='nature'), CURRENT_TIMESTAMP),
+('tundra',     'Nature', 'ADVANCED',     'C2', (SELECT id FROM topic WHERE slug='nature'), CURRENT_TIMESTAMP),
+('biodiversity','Nature','ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='nature'), CURRENT_TIMESTAMP),
+
+-- Emotions
+('angry',      'Emotions', 'BEGINNER',     'A1', (SELECT id FROM topic WHERE slug='emotions'), CURRENT_TIMESTAMP),
+('afraid',     'Emotions', 'BEGINNER',     'A2', (SELECT id FROM topic WHERE slug='emotions'), CURRENT_TIMESTAMP),
+('grateful',   'Emotions', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='emotions'), CURRENT_TIMESTAMP),
+('anxious',    'Emotions', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='emotions'), CURRENT_TIMESTAMP),
+('contempt',   'Emotions', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='emotions'), CURRENT_TIMESTAMP),
+('apprehensive','Emotions','ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='emotions'), CURRENT_TIMESTAMP),
+('ambivalent', 'Emotions', 'ADVANCED',     'C2', (SELECT id FROM topic WHERE slug='emotions'), CURRENT_TIMESTAMP),
+('exasperated','Emotions', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='emotions'), CURRENT_TIMESTAMP),
+('serene',     'Emotions', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='emotions'), CURRENT_TIMESTAMP),
+
+-- Travel
+('airport',    'Travel', 'BEGINNER',     'A1', (SELECT id FROM topic WHERE slug='travel'), CURRENT_TIMESTAMP),
+('luggage',    'Travel', 'BEGINNER',     'A2', (SELECT id FROM topic WHERE slug='travel'), CURRENT_TIMESTAMP),
+('visa',       'Travel', 'BEGINNER',     'A2', (SELECT id FROM topic WHERE slug='travel'), CURRENT_TIMESTAMP),
+('customs',    'Travel', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='travel'), CURRENT_TIMESTAMP),
+('turbulence', 'Travel', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='travel'), CURRENT_TIMESTAMP),
+('embarkation','Travel', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='travel'), CURRENT_TIMESTAMP),
+('excursion',  'Travel', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='travel'), CURRENT_TIMESTAMP),
+('backpacker', 'Travel', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='travel'), CURRENT_TIMESTAMP),
+('expatriate', 'Travel', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='travel'), CURRENT_TIMESTAMP),
+
+-- Business
+('budget',     'Business', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='business'), CURRENT_TIMESTAMP),
+('profit',     'Business', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='business'), CURRENT_TIMESTAMP),
+('invoice',    'Business', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='business'), CURRENT_TIMESTAMP),
+('startup',    'Business', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='business'), CURRENT_TIMESTAMP),
+('merger',     'Business', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='business'), CURRENT_TIMESTAMP),
+('liability',  'Business', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='business'), CURRENT_TIMESTAMP),
+('leverage',   'Business', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='business'), CURRENT_TIMESTAMP),
+('procurement','Business', 'ADVANCED',     'C2', (SELECT id FROM topic WHERE slug='business'), CURRENT_TIMESTAMP),
+('arbitrage',  'Business', 'ADVANCED',     'C2', (SELECT id FROM topic WHERE slug='business'), CURRENT_TIMESTAMP),
+('dividend',   'Business', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='business'), CURRENT_TIMESTAMP),
+('liquidity',  'Business', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='business'), CURRENT_TIMESTAMP),
+
+-- Health
+('exercise',   'Health', 'BEGINNER',     'A2', (SELECT id FROM topic WHERE slug='health'), CURRENT_TIMESTAMP),
+('nutrition',  'Health', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='health'), CURRENT_TIMESTAMP),
+('vaccine',    'Health', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='health'), CURRENT_TIMESTAMP),
+('diagnosis',  'Health', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='health'), CURRENT_TIMESTAMP),
+('therapy',    'Health', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='health'), CURRENT_TIMESTAMP),
+('chronic',    'Health', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='health'), CURRENT_TIMESTAMP),
+('metabolism', 'Health', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='health'), CURRENT_TIMESTAMP),
+('prognosis',  'Health', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='health'), CURRENT_TIMESTAMP),
+('pathogen',   'Health', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='health'), CURRENT_TIMESTAMP),
+('sedentary',  'Health', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='health'), CURRENT_TIMESTAMP),
+('resilience', 'Health', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='health'), CURRENT_TIMESTAMP),
+('hypertension','Health','ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='health'), CURRENT_TIMESTAMP),
+
+-- Education
+('student',    'Education', 'BEGINNER',     'A1', (SELECT id FROM topic WHERE slug='education'), CURRENT_TIMESTAMP),
+('teacher',    'Education', 'BEGINNER',     'A1', (SELECT id FROM topic WHERE slug='education'), CURRENT_TIMESTAMP),
+('library',    'Education', 'BEGINNER',     'A2', (SELECT id FROM topic WHERE slug='education'), CURRENT_TIMESTAMP),
+('lecture',    'Education', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='education'), CURRENT_TIMESTAMP),
+('assignment', 'Education', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='education'), CURRENT_TIMESTAMP),
+('graduation', 'Education', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='education'), CURRENT_TIMESTAMP),
+('plagiarism', 'Education', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='education'), CURRENT_TIMESTAMP),
+('pedagogy',   'Education', 'ADVANCED',     'C2', (SELECT id FROM topic WHERE slug='education'), CURRENT_TIMESTAMP),
+('epistemology','Education','ADVANCED',     'C2', (SELECT id FROM topic WHERE slug='education'), CURRENT_TIMESTAMP),
+('accreditation','Education','ADVANCED',   'C1', (SELECT id FROM topic WHERE slug='education'), CURRENT_TIMESTAMP),
+('literacy',   'Education', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='education'), CURRENT_TIMESTAMP),
+('cognition',  'Education', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='education'), CURRENT_TIMESTAMP),
+
+-- Arts & Culture
+('music',      'Arts & Culture', 'BEGINNER',     'A1', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('painting',   'Arts & Culture', 'BEGINNER',     'A2', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('sculpture',  'Arts & Culture', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('festival',   'Arts & Culture', 'BEGINNER',     'A2', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('tradition',  'Arts & Culture', 'INTERMEDIATE', 'B1', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('heritage',   'Arts & Culture', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('mythology',  'Arts & Culture', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('renaissance','Arts & Culture', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('metaphor',   'Arts & Culture', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('allegory',   'Arts & Culture', 'ADVANCED',     'C2', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('aesthetics', 'Arts & Culture', 'ADVANCED',     'C2', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('improvise',  'Arts & Culture', 'INTERMEDIATE', 'B2', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('choreography','Arts & Culture','ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('dialect',    'Arts & Culture', 'ADVANCED',     'C1', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP),
+('iconography','Arts & Culture', 'ADVANCED',     'C2', (SELECT id FROM topic WHERE slug='arts'), CURRENT_TIMESTAMP);
 

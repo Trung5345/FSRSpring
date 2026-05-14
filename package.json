@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "validate": "node scripts/validate-tailwind.js",
+    "validate:fix": "node scripts/validate-tailwind.js --fix"
+  },
+  "dependencies": {
+    "jsdom": "^29.1.1"
+  }
+}

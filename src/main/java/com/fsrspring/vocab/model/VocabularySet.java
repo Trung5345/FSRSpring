@@ -45,6 +45,7 @@ public class VocabularySet {
         inverseJoinColumns = @JoinColumn(name = "word_id")
     )
     @JsonIgnore
+    @Builder.Default
     private Set<Word> words = new HashSet<>();
 
     @Column(nullable = false)

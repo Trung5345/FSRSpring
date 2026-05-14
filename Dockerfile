@@ -4,13 +4,13 @@ FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 
 COPY .mvn .mvn
-COPY mvnw mvnw
+COPY scripts/mvnw scripts/mvnw
 COPY pom.xml pom.xml
-RUN chmod +x mvnw
-RUN ./mvnw -q -DskipTests dependency:go-offline
+RUN chmod +x scripts/mvnw
+RUN ./scripts/mvnw -q -DskipTests dependency:go-offline
 
 COPY src src
-RUN ./mvnw -q -DskipTests clean package
+RUN ./scripts/mvnw -q -DskipTests clean package
 
 FROM eclipse-temurin:17-jre AS runtime
 WORKDIR /app

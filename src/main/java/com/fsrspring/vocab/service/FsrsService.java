@@ -1,14 +1,18 @@
 package com.fsrspring.vocab.service;
 
+import com.fsrspring.vocab.model.AppUser;
 import com.fsrspring.vocab.model.ReviewEvent;
 import com.fsrspring.vocab.model.UserProgress;
 import com.fsrspring.vocab.model.Word;
 import com.fsrspring.vocab.repository.ReviewEventRepository;
 import com.fsrspring.vocab.repository.UserProgressRepository;
+import com.fsrspring.vocab.repository.WordRepository;
+import com.fsrspring.vocab.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,14 +25,22 @@ public class FsrsService {
 
     private final UserProgressRepository progressRepository;
     private final ReviewEventRepository reviewEventRepository;
+    private final WordRepository wordRepository;
+    private final CurrentUserService currentUserService;
 
     public UserProgress getOrCreateProgress(Word word) {
-        return progressRepository.findByWord(word)
-                .orElseGet(() -> progressRepository.save(UserProgress.builder().word(word).build()));
+        AppUser user = currentUserService.getCurrentUser();
+        return progressRepository.findByUserAndWord(user, word)
+                .orElseGet(() -> progressRepository.save(UserProgress.builder()
+                        .user(user)
+                        .word(word)
+                        .nextReview(LocalDateTime.now())
+                        .build()));
     }
 
     public UserProgress reviewWord(Word word, int rating, long responseTimeMs) {
         int boundedRating = Math.max(1, Math.min(4, rating));
+        AppUser user = currentUserService.getCurrentUser();
         UserProgress progress = getOrCreateProgress(word);
         LocalDateTime now = LocalDateTime.now();
 
@@ -57,6 +69,7 @@ public class FsrsService {
         progress.setNextReview(calculateNextReview(now, progress, boundedRating));
 
         reviewEventRepository.save(ReviewEvent.builder()
+                .user(user)
                 .word(word)
                 .rating(boundedRating)
                 .correct(correct)
@@ -68,21 +81,44 @@ public class FsrsService {
     }
 
     public List<UserProgress> getDueWords(int limit) {
-        List<UserProgress> due = progressRepository.findDueWords(LocalDateTime.now());
-        if (limit > 0 && due.size() > limit) {
-            return due.subList(0, limit);
+        AppUser user = currentUserService.getCurrentUser();
+        int boundedLimit = Math.max(0, limit);
+        LocalDateTime now = LocalDateTime.now();
+        List<UserProgress> due = new ArrayList<>(progressRepository.findDueWords(user, now));
+
+        if (boundedLimit > 0 && due.size() >= boundedLimit) {
+            return due.subList(0, boundedLimit);
+        }
+
+        int remaining = boundedLimit == 0 ? Integer.MAX_VALUE : boundedLimit - due.size();
+        List<Word> missingWords = wordRepository.findWordsWithoutProgressForUser(user);
+        for (Word word : missingWords) {
+            if (remaining <= 0) {
+                break;
+            }
+            due.add(progressRepository.save(UserProgress.builder()
+                    .user(user)
+                    .word(word)
+                    .nextReview(now)
+                    .build()));
+            remaining--;
+        }
+
+        if (boundedLimit > 0 && due.size() > boundedLimit) {
+            return due.subList(0, boundedLimit);
         }
         return due;
     }
 
     public Map<String, Object> getFsrsStats() {
+        AppUser user = currentUserService.getCurrentUser();
         LocalDateTime now = LocalDateTime.now();
-        long dueNow = progressRepository.countDueWords(now);
-        long mastered = progressRepository.countMastered();
-        long learning = progressRepository.countLearning();
+        long dueNow = progressRepository.countDueWords(user, now);
+        long mastered = progressRepository.countMastered(user);
+        long learning = progressRepository.countLearning(user);
 
         double retentionEstimate = 0.0;
-        List<UserProgress> all = progressRepository.findAll();
+        List<UserProgress> all = progressRepository.findByUser(user);
         if (!all.isEmpty()) {
             retentionEstimate = all.stream()
                     .mapToDouble(UserProgress::getFsrsRetrievability)

@@ -1,4 +1,18 @@
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: fsrspring-frontend:local
+    container_name: fsrspring-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      SPRING_API_BASE_URL: http://app:8080
+    depends_on:
+      - app
+    restart: unless-stopped
+
   app:
     build:
       context: .
@@ -7,7 +21,62 @@ services:
     container_name: fsrspring-vocab
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      MYSQL_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-fsrspring}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8&useUnicode=true
+      SPRING_DATA_REDIS_HOST: redis
+      APP_API_LIBRETRANSLATE_BASE_URL: http://libretranslate:5000
+      APP_FRONTEND_BASE_URL: http://localhost:3000
       JAVA_OPTS: -Xms128m -Xmx512m
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      libretranslate:
+        condition: service_started
+    volumes:
+      - app_generated_images:/app/data/enrichment-images
     restart: unless-stopped
+
+  mysql:
+    image: mysql:8.4
+    container_name: fsrspring-mysql
+    ports:
+      - "${MYSQL_HOST_PORT:-3307}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-fsrspring}
+      MYSQL_USER: ${MYSQL_USER:-fsr_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-fsr_pass}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: fsrspring-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    container_name: fsrspring-libretranslate
+    ports:
+      - "${LIBRETRANSLATE_HOST_PORT:-5001}:5000"
+    restart: unless-stopped
+
+volumes:
+  app_generated_images:
+  redis_data:
+  mysql_data:

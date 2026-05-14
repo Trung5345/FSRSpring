@@ -15,6 +15,10 @@ function escapeHtml(text) {
         .replace(/'/g, '&#039;');
 }
 
+function escapeAttr(text) {
+    return escapeHtml(text);
+}
+
 function difficultyBadge(d) {
     const map = {
         BEGINNER: '<span style="font-size:.7rem;background:#c8e6ff;color:#006590;padding:2px 8px;border-radius:99px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;">Beginner</span>',
@@ -22,6 +26,27 @@ function difficultyBadge(d) {
         ADVANCED: '<span style="font-size:.7rem;background:#ffdad6;color:#93000a;padding:2px 8px;border-radius:99px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;">Advanced</span>',
     };
     return map[d] || (d ? `<span style="font-size:.7rem;background:#efeded;color:#3e4850;padding:2px 8px;border-radius:99px;font-weight:700;">${escapeHtml(d)}</span>` : '');
+}
+
+function enrichmentBadge(status) {
+    const value = status || 'NOT_REQUESTED';
+    const labels = {
+        NOT_REQUESTED: 'Not enriched',
+        PENDING: 'Enriching',
+        RUNNING: 'Enriching',
+        PARTIAL: 'Partial',
+        COMPLETED: 'Enriched',
+        FAILED: 'Failed'
+    };
+    const colors = {
+        NOT_REQUESTED: 'background:#efeded;color:#3e4850;border:1px solid #bdc8d2;',
+        PENDING: 'background:#ffdf92;color:#6e5400;border:1px solid #f4bf00;',
+        RUNNING: 'background:#ffdf92;color:#6e5400;border:1px solid #f4bf00;',
+        PARTIAL: 'background:#c8e6ff;color:#006590;border:1px solid #88ceff;',
+        COMPLETED: 'background:#d8f3dc;color:#1b5e20;border:1px solid #95d5b2;',
+        FAILED: 'background:#ffdad6;color:#93000a;border:1px solid #ffb3ae;'
+    };
+    return `<span style="font-size:.68rem;padding:2px 8px;border-radius:99px;font-weight:700;text-transform:uppercase;${colors[value] || colors.NOT_REQUESTED}">${escapeHtml(labels[value] || value)}</span>`;
 }
 
 function showToast(message, type = 'success') {
@@ -116,6 +141,7 @@ function renderWords(words) {
 
     grid.innerHTML = words.map(w => `
         <div class="word-card" style="background:#fff;border:2px solid #bdc8d2;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,box-shadow .15s;" onmouseenter="this.style.borderColor='#006590';this.style.boxShadow='0 2px 8px rgba(0,101,144,.12)'" onmouseleave="this.style.borderColor='#bdc8d2';this.style.boxShadow='none'">
+            ${w.imageUrl ? `<img src="${escapeAttr(w.imageUrl)}" alt="${escapeAttr(w.word)}" loading="lazy" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;border:1px solid #bdc8d2;background:#efeded;">` : ''}
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
                 <div style="flex:1;min-width:0;">
                     <h3 style="font-size:1.1rem;font-weight:700;color:#1b1c1c;font-family:Lexend,sans-serif;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(w.word)}</h3>
@@ -130,11 +156,15 @@ function renderWords(words) {
               ${w.topic     ? `<span style="font-size:.68rem;background:#c8e6ff;color:#006590;padding:2px 8px;border-radius:99px;font-weight:600;">${escapeHtml(w.topic.name)}</span>` : ''}
               ${w.cefrLevel ? `<span style="font-size:.68rem;background:#ffdf92;color:#6e5400;padding:2px 8px;border-radius:99px;font-weight:600;">${escapeHtml(w.cefrLevel)}</span>` : ''}
               ${w.partOfSpeech ? `<span style="font-size:.68rem;background:#e3e2e2;color:#6e7881;padding:2px 8px;border-radius:99px;">${escapeHtml(w.partOfSpeech)}</span>` : ''}
+              ${enrichmentBadge(w.enrichmentStatus)}
             </div>
             <div style="display:flex;gap:8px;margin-top:auto;padding-top:12px;border-top:1px solid #e3e2e2;">
                 <button onclick="openEditModal(${w.id})" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:8px;border:2px solid #bdc8d2;background:#fff;color:#006590;font-family:Lexend,sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:background .15s;" onmouseenter="this.style.background='#c8e6ff'" onmouseleave="this.style.background='#fff'">
                     <span class="material-symbols-outlined" style="font-size:15px;">edit</span>Edit
                 </button>
+                ${w.enrichmentStatus === 'FAILED' || w.enrichmentStatus === 'NOT_REQUESTED' ? `<button onclick="retryEnrichment(${w.id})" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:8px;border:2px solid #bdc8d2;background:#fff;color:#6e5400;font-family:Lexend,sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:background .15s;" onmouseenter="this.style.background='#ffdf92'" onmouseleave="this.style.background='#fff'">
+                    <span class="material-symbols-outlined" style="font-size:15px;">auto_awesome</span>Enrich
+                </button>` : ''}
                 <button onclick="openDeleteModal(${w.id})" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:8px;border:2px solid #bdc8d2;background:#fff;color:#ba1a1a;font-family:Lexend,sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:background .15s;" onmouseenter="this.style.background='#ffdad6'" onmouseleave="this.style.background='#fff'">
                     <span class="material-symbols-outlined" style="font-size:15px;">delete</span>Delete
                 </button>
@@ -207,6 +237,17 @@ async function saveWord(event) {
     }
 }
 
+async function retryEnrichment(id) {
+    try {
+        const res = await fetch(`/api/enrichment/words/${id}`, { method: 'POST' });
+        if (!res.ok) throw new Error('Failed to queue enrichment');
+        showToast('Enrichment queued!', 'info');
+        await loadWords();
+    } catch (e) {
+        showToast('Could not queue enrichment.', 'error');
+    }
+}
+
 const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', async () => {
     if (!deleteWordId) return;
@@ -221,15 +262,18 @@ if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', async () => {
     }
 });
 
-// Close modals on backdrop click
-const wordModalEl = document.getElementById('wordModal');
-if (wordModalEl) wordModalEl.addEventListener('click', e => {
-    if (e.target === wordModalEl) closeModal();
-});
-const deleteModalEl = document.getElementById('deleteModal');
-if (deleteModalEl) deleteModalEl.addEventListener('click', e => {
-    if (e.target === deleteModalEl) closeDeleteModal();
-});
-
 // Initialize
-loadWords();
+window.onAppLoad(() => {
+    const wordModalEl = document.getElementById('wordModal');
+    if (wordModalEl) wordModalEl.addEventListener('click', e => {
+        if (e.target === wordModalEl) closeModal();
+    });
+    const deleteModalEl = document.getElementById('deleteModal');
+    if (deleteModalEl) deleteModalEl.addEventListener('click', e => {
+        if (e.target === deleteModalEl) closeDeleteModal();
+    });
+
+    if (document.getElementById('wordGrid')) {
+        loadWords();
+    }
+});

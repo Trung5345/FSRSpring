@@ -167,4 +167,8 @@ function filterProgress() {
 }
 
 // Initialize
-loadProgress();
+window.onAppLoad(() => {
+    if (document.getElementById('progressTableBody')) {
+        loadProgress();
+    }
+});

@@ -18,7 +18,7 @@ public class PageController {
 
     @GetMapping("/import")
     public String learn() {
-        return "forward:/learn.html";
+        return "forward:/import.html";
     }
 
     @GetMapping("/quiz")
@@ -31,23 +31,13 @@ public class PageController {
         return "forward:/progress.html";
     }
 
-    @GetMapping("/content")
-    public String content() {
-        return "forward:/content.html";
-    }
-
     @GetMapping("/flashcards")
     public String flashcards() {
         return "forward:/flashcards.html";
     }
 
-    @GetMapping("/flashcard-study")
-    public String flashcardStudy() {
-        return "forward:/flashcard-study.html";
-    }
-
-    @GetMapping("/sets")
-    public String sets() {
-        return "forward:/sets.html";
+    @GetMapping("/profile")
+    public String profile() {
+        return "forward:/profile.html";
     }
 }

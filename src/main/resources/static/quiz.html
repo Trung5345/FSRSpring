@@ -4,9 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quiz - Linguist</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script src="/js/router.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Nunito+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- CRITICAL LOAD ORDER: DO NOT REORDER THESE TWO BLOCKS.
+       Rule: CDN script must load FIRST (defines window.tailwind),
+       then tailwind.config block runs. Wrong order = all custom
+       colors/fonts/spacing silently broken. See .git/hooks/pre-commit. -->
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
   <script>
     tailwind.config = {
       darkMode:"class",
@@ -78,23 +83,34 @@
 
 <!-- Sidebar -->
 <nav class="fixed left-0 top-0 h-full flex flex-col p-6 w-64 border-r-2 border-outline-variant bg-surface-container-lowest z-50">
-  <div class="mb-10">
+  <div class="mb-10 flex items-center gap-3">
     <h1 class="text-headline-lg font-headline-lg text-primary font-black">Linguist</h1>
   </div>
   <ul class="flex flex-col flex-1 gap-2">
-    <li><a href="/" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
-      <span class="material-symbols-outlined">home</span>Home</a></li>
-    <li><a href="/vocabulary" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
-      <span class="material-symbols-outlined">menu_book</span>Words</a></li>
-    <li><a href="/flashcard-study" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
-      <span class="material-symbols-outlined">style</span>Flashcards</a></li>
+    <li><a href="/" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
+      <span class="material-symbols-outlined">home</span>Home
+    </a></li>
+    <li><a href="/vocabulary" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
+      <span class="material-symbols-outlined">menu_book</span>Words
+    </a></li>
+    <li><a href="/flashcards" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
+      <span class="material-symbols-outlined">style</span>Flashcards
+    </a></li>
     <li><a href="/quiz" class="flex items-center gap-4 px-4 py-3 bg-primary-fixed text-primary border-2 border-primary rounded-xl font-label-lg text-label-lg uppercase tracking-wider">
-      <span class="material-symbols-outlined icon-filled">extension</span>Quiz</a></li>
-    <li><a href="/progress" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
-      <span class="material-symbols-outlined">leaderboard</span>Progress</a></li>
-    <li><a href="/import" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
-      <span class="material-symbols-outlined">add_circle</span>Import</a></li>
+      <span class="material-symbols-outlined icon-filled">extension</span>Quiz
+    </a></li>
+    <li><a href="/progress" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
+      <span class="material-symbols-outlined">leaderboard</span>Progress
+    </a></li>
+    <li><a href="/import" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
+      <span class="material-symbols-outlined">add_circle</span>Import
+    </a></li>
   </ul>
+
+  <!-- User Profile Menu -->
+  <div class="mt-auto flex flex-col pt-6 border-t-2 border-outline-variant" id="userMenuContainer">
+    <!-- Loaded dynamically -->
+  </div>
 </nav>
 
 <!-- Top Header -->
@@ -135,13 +151,13 @@
         <h3 class="font-headline-md text-headline-md text-on-surface font-bold">Quiz Setup</h3>
         <div class="flex flex-col gap-xs">
           <label class="font-label-lg text-label-lg text-on-surface-variant uppercase">Category</label>
-          <select id="qcategory" class="px-3 py-3 bg-surface-container border-2 border-outline-variant rounded-xl font-body-md text-body-md text-on-surface outline-none focus:border-primary cursor-pointer">
+          <select id="qcategory" class="pl-3 pr-10 py-3 bg-surface-container border-2 border-outline-variant rounded-xl font-body-md text-body-md text-on-surface outline-none focus:border-primary cursor-pointer">
             <option value="">All Categories</option>
           </select>
         </div>
         <div class="flex flex-col gap-xs">
           <label class="font-label-lg text-label-lg text-on-surface-variant uppercase">Difficulty</label>
-          <select id="qdifficulty" class="px-3 py-3 bg-surface-container border-2 border-outline-variant rounded-xl font-body-md text-body-md text-on-surface outline-none focus:border-primary cursor-pointer">
+          <select id="qdifficulty" class="pl-3 pr-10 py-3 bg-surface-container border-2 border-outline-variant rounded-xl font-body-md text-body-md text-on-surface outline-none focus:border-primary cursor-pointer">
             <option value="">All Levels</option>
             <option value="BEGINNER">Beginner</option>
             <option value="INTERMEDIATE">Intermediate</option>
@@ -156,7 +172,7 @@
           </div>
           <div class="flex flex-col gap-xs">
             <label class="font-label-lg text-label-lg text-on-surface-variant uppercase">Type</label>
-            <select id="qtype" class="px-3 py-3 bg-surface-container border-2 border-outline-variant rounded-xl font-body-md text-body-md text-on-surface outline-none focus:border-primary cursor-pointer">
+            <select id="qtype" class="pl-3 pr-10 py-3 bg-surface-container border-2 border-outline-variant rounded-xl font-body-md text-body-md text-on-surface outline-none focus:border-primary cursor-pointer">
               <option value="en-vi">EN to VI</option>
               <option value="vi-en">VI to EN</option>
             </select>
@@ -212,6 +228,10 @@
       <div id="feedback" class="hidden rounded-xl border-2 p-md flex flex-col gap-xs">
         <p id="feedbackText" class="font-headline-md text-headline-md font-bold"></p>
         <p id="feedbackSubtext" class="font-body-md text-body-md text-on-surface-variant italic"></p>
+        <!-- Countdown bar -->
+        <div style="margin-top:8px;height:4px;border-radius:4px;background:rgba(0,0,0,.12);overflow:hidden">
+          <div id="countdownBar" style="height:100%;width:100%;border-radius:4px;transition:none"></div>
+        </div>
       </div>
 
       <!-- Next Button -->
@@ -269,7 +289,7 @@ fetch('/api/streak').then(r=>r.json()).then(d=>{
 
 // nextBtn hidden class fix — quiz.js uses classList.remove('hidden') but button also has style.display
 // Patch nextBtn toggling to work with both mechanisms
-document.addEventListener('DOMContentLoaded', () => {
+window.onAppLoad(() => {
   const orig = document.getElementById('nextBtn');
   if (orig) {
     // Override classList.remove to also set display
@@ -288,5 +308,10 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script src="/js/quiz.js"></script>
 <script src="/js/notifications.js"></script>
+
+
+
+
+
 </body>
 </html>

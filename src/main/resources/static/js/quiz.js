@@ -1,5 +1,30 @@
 // quiz.js - Quiz/test page
 
+function showToast(message, type = 'error') {
+    const existing = document.getElementById('quizToast');
+    if (existing) existing.remove();
+
+    const colors = {
+        error: { bg: '#ffdad6', border: '#ba1a1a', text: '#93000a', icon: 'error' },
+        warn:  { bg: '#ffdf92', border: '#6e5400', text: '#6e5400', icon: 'warning' },
+        info:  { bg: '#c8e6ff', border: '#006590', text: '#00405d', icon: 'info' },
+    };
+    const c = colors[type] || colors.error;
+
+    const toast = document.createElement('div');
+    toast.id = 'quizToast';
+    toast.style.cssText = `position:fixed;top:88px;right:2rem;z-index:9999;
+        background:${c.bg};border:1.5px solid ${c.border};color:${c.text};
+        padding:14px 20px;border-radius:12px;display:flex;align-items:center;gap:10px;
+        font-family:'Nunito Sans',sans-serif;font-size:15px;font-weight:600;
+        box-shadow:0 4px 16px rgba(0,0,0,.12);max-width:420px;`;
+    toast.innerHTML = `<span class="material-symbols-outlined" style="font-size:20px;flex-shrink:0">${c.icon}</span>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" style="margin-left:8px;background:none;border:none;cursor:pointer;color:${c.text};font-size:18px;line-height:1">&#x2715;</button>`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+}
+
 let sessionId = null;
 let questions = [];
 let currentQ = 0;
@@ -39,7 +64,7 @@ async function startQuiz() {
         // Fetch all words to build distractors
         allWords = await fetch('/api/words').then(r => r.json());
         if (allWords.length < 4) {
-            alert('Cần ít nhất 4 từ vựng để bắt đầu kiểm tra!');
+            showToast('Cần ít nhất 4 từ vựng để bắt đầu kiểm tra!', 'warn');
             return;
         }
 
@@ -53,7 +78,7 @@ async function startQuiz() {
         const words = data.words;
 
         if (!words || words.length === 0) {
-            alert('Không có từ vựng phù hợp!');
+            showToast('Không có từ vựng phù hợp với bộ lọc đã chọn!', 'warn');
             return;
         }
 
@@ -82,7 +107,7 @@ async function startQuiz() {
         showQuestion();
     } catch (e) {
         console.error('Failed to start quiz', e);
-        alert('Có lỗi xảy ra. Thử lại!');
+        showToast('Có lỗi xảy ra. Vui lòng thử lại!', 'error');
     }
 }
 
@@ -128,7 +153,9 @@ function showQuestion() {
 
     // Hide feedback and next button
     document.getElementById('feedback').classList.add('hidden');
-    document.getElementById('nextBtn').classList.add('hidden');
+    const nb = document.getElementById('nextBtn');
+    nb.classList.add('hidden');
+    nb.style.display = 'none';
     questionStartTime = Date.now();
 }
 
@@ -182,14 +209,34 @@ function selectOption(btn, index) {
     fetch(`/api/fsrs/review?wordId=${q.word.id}&rating=${isCorrect ? 3 : 1}&responseMs=${Date.now() - questionStartTime}`, { method: 'POST' })
         .catch(e => console.error(e));
 
-    // Show next button (or finish)
+    // Auto-advance after 2s with countdown bar; also allow manual skip
     const nextBtn = document.getElementById('nextBtn');
     nextBtn.classList.remove('hidden');
+    nextBtn.style.display = '';
     if (currentQ + 1 >= questions.length) {
-        nextBtn.textContent = 'Xem Ket Qua';
+        nextBtn.textContent = 'Xem Kết Quả';
     } else {
-        nextBtn.textContent = 'Cau Tiep Theo';
+        nextBtn.textContent = 'Câu Tiếp Theo';
     }
+
+    // Animate countdown bar
+    const bar = document.getElementById('countdownBar');
+    const barColor = isCorrect ? '#006590' : '#ba1a1a';
+    bar.style.transition = 'none';
+    bar.style.background = barColor;
+    bar.style.width = '100%';
+    // Force reflow then animate
+    bar.getBoundingClientRect();
+    bar.style.transition = 'width 2s linear';
+    bar.style.width = '0%';
+
+    let autoTimer = setTimeout(() => nextQuestion(), 2000);
+
+    // If user clicks manually, cancel auto timer
+    nextBtn.onclick = () => {
+        clearTimeout(autoTimer);
+        nextQuestion();
+    };
 }
 
 function nextQuestion() {
@@ -243,5 +290,8 @@ function resetQuiz() {
     document.getElementById('resultScreen').classList.add('hidden');
 }
 
-// Initialize
-loadCategories();
+window.onAppLoad(() => {
+    if (document.getElementById('setupScreen')) {
+        loadCategories();
+    }
+});

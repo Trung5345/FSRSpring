@@ -1,7 +1,6 @@
 package com.fsrspring.vocab.controller;
 
 import com.fsrspring.vocab.dto.DictionaryApiResponse;
-import com.fsrspring.vocab.model.Word;
 import com.fsrspring.vocab.service.WordEnrichmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +25,12 @@ public class DictionaryController {
 
     /** Enrich a saved word entity by its ID */
     @PostMapping("/enrich/{id}")
-    public ResponseEntity<Word> enrich(@PathVariable Long id) {
-        Word enriched = enrichmentService.enrichWord(id);
-        return ResponseEntity.ok(enriched);
+    public ResponseEntity<Map<String, Object>> enrich(@PathVariable Long id) {
+        return ResponseEntity.accepted().body(Map.of(
+                "wordId", id,
+                "status", enrichmentService.retryWord(id).getStatus(),
+                "message", "Enrichment queued"
+        ));
     }
 
     /** Bulk enrich all words missing enrichment data */

@@ -20,6 +20,10 @@ public class QuizSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private AppUser user;
+
     @Column(nullable = false)
     private Integer totalQuestions;
 

@@ -20,6 +20,10 @@ public class UserStreak {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private AppUser user;
+
     private LocalDate lastStudyDate;
 
     @Builder.Default

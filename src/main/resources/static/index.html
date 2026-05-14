@@ -4,9 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home - Linguist</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script src="/js/router.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Nunito+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- CRITICAL LOAD ORDER: DO NOT REORDER THESE TWO BLOCKS.
+       Rule: CDN script must load FIRST (defines window.tailwind),
+       then tailwind.config block runs. Wrong order = all custom
+       colors/fonts/spacing silently broken. See .git/hooks/pre-commit. -->
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
   <script>
     tailwind.config = {
       darkMode: "class",
@@ -58,29 +63,34 @@
 
 <!-- Sidebar -->
 <nav class="fixed left-0 top-0 h-full flex flex-col p-6 w-64 border-r-2 border-outline-variant bg-surface-container-lowest z-50">
-  <div class="mb-10">
+  <div class="mb-10 flex items-center gap-3">
     <h1 class="text-headline-lg font-headline-lg text-primary font-black">Linguist</h1>
   </div>
   <ul class="flex flex-col flex-1 gap-2">
     <li><a href="/" class="flex items-center gap-4 px-4 py-3 bg-primary-fixed text-primary border-2 border-primary rounded-xl font-label-lg text-label-lg uppercase tracking-wider">
       <span class="material-symbols-outlined icon-filled">home</span>Home
     </a></li>
-    <li><a href="/vocabulary" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+    <li><a href="/vocabulary" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
       <span class="material-symbols-outlined">menu_book</span>Words
     </a></li>
-    <li><a href="/flashcard-study" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+    <li><a href="/flashcards" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
       <span class="material-symbols-outlined">style</span>Flashcards
     </a></li>
-    <li><a href="/quiz" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+    <li><a href="/quiz" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
       <span class="material-symbols-outlined">extension</span>Quiz
     </a></li>
-    <li><a href="/progress" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+    <li><a href="/progress" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
       <span class="material-symbols-outlined">leaderboard</span>Progress
     </a></li>
-    <li><a href="/learn" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider">
+    <li><a href="/import" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container rounded-xl transition-colors font-label-lg text-label-lg uppercase tracking-wider text-bold font-bold">
       <span class="material-symbols-outlined">add_circle</span>Import
     </a></li>
   </ul>
+
+  <!-- User Profile Menu -->
+  <div class="mt-auto flex flex-col pt-6 border-t-2 border-outline-variant" id="userMenuContainer">
+    <!-- Loaded dynamically -->
+  </div>
 </nav>
 
 <!-- Top Header -->
@@ -108,7 +118,7 @@
       <p class="text-primary-fixed font-body-md text-body-md mb-1">Good day, learner!</p>
       <h2 class="text-headline-lg font-headline-lg text-on-primary font-black mb-md">Ready to review?</h2>
       <p id="heroSubtext" class="text-primary-fixed-dim font-body-md text-body-md mb-lg">You have <strong id="dueNow" class="text-on-primary">...</strong> cards due today.</p>
-      <a href="/flashcard-study" class="inline-flex items-center gap-2 bg-on-primary text-primary font-button-text text-button-text uppercase rounded-xl px-lg py-sm btn-3d-primary transition-all">
+      <a href="/flashcards" class="inline-flex items-center gap-2 bg-on-primary text-primary font-button-text text-button-text uppercase rounded-xl px-lg py-sm btn-3d-primary transition-all">
         <span class="material-symbols-outlined">play_arrow</span>
         Start Review
       </a>
@@ -123,38 +133,38 @@
 
   <!-- Stats Grid -->
   <section class="grid grid-cols-2 lg:grid-cols-4 gap-md mb-lg">
-    <div class="stat-card bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md flex flex-col gap-sm">
+    <a href="/flashcards" class="stat-card no-underline bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md flex flex-col gap-sm hover:border-primary hover:bg-surface-container transition-all cursor-pointer">
       <div class="flex items-center gap-sm">
         <span class="material-symbols-outlined icon-filled text-primary-container text-2xl">style</span>
         <span class="text-on-surface-variant font-label-lg text-label-lg uppercase">Due Today</span>
       </div>
       <p id="statDue" class="text-headline-lg font-headline-lg text-on-surface font-black">--</p>
       <p class="text-on-surface-variant font-body-md text-sm">Cards to review</p>
-    </div>
-    <div class="stat-card bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md flex flex-col gap-sm">
+    </a>
+    <a href="/progress" class="stat-card no-underline bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md flex flex-col gap-sm hover:border-primary hover:bg-surface-container transition-all cursor-pointer">
       <div class="flex items-center gap-sm">
         <span class="material-symbols-outlined icon-filled text-secondary-fixed-dim text-2xl">local_fire_department</span>
         <span class="text-on-surface-variant font-label-lg text-label-lg uppercase">Streak</span>
       </div>
       <p id="statStreak" class="text-headline-lg font-headline-lg text-on-surface font-black">--</p>
       <p class="text-on-surface-variant font-body-md text-sm">Days in a row</p>
-    </div>
-    <div class="stat-card bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md flex flex-col gap-sm">
+    </a>
+    <a href="/progress" class="stat-card no-underline bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md flex flex-col gap-sm hover:border-primary hover:bg-surface-container transition-all cursor-pointer">
       <div class="flex items-center gap-sm">
         <span class="material-symbols-outlined icon-filled text-primary text-2xl">psychology</span>
         <span class="text-on-surface-variant font-label-lg text-label-lg uppercase">Retention</span>
       </div>
       <p id="statRetention" class="text-headline-lg font-headline-lg text-on-surface font-black">--%</p>
       <p class="text-on-surface-variant font-body-md text-sm">Estimated recall</p>
-    </div>
-    <div class="stat-card bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md flex flex-col gap-sm">
+    </a>
+    <a href="/vocabulary" class="stat-card no-underline bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md flex flex-col gap-sm hover:border-primary hover:bg-surface-container transition-all cursor-pointer">
       <div class="flex items-center gap-sm">
         <span class="material-symbols-outlined icon-filled text-primary text-2xl">menu_book</span>
         <span class="text-on-surface-variant font-label-lg text-label-lg uppercase">Words</span>
       </div>
       <p id="statWords" class="text-headline-lg font-headline-lg text-on-surface font-black">--</p>
       <p class="text-on-surface-variant font-body-md text-sm">Total vocabulary</p>
-    </div>
+    </a>
   </section>
 
   <!-- Quick Actions + Progress -->
@@ -163,7 +173,7 @@
     <div class="bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-md">
       <h3 class="font-headline-md text-headline-md text-on-surface font-bold mb-md">Quick Actions</h3>
       <div class="flex flex-col gap-sm">
-        <a href="/flashcard-study" class="flex items-center gap-md p-sm rounded-xl hover:bg-primary-fixed transition-colors group">
+        <a href="/flashcards" class="flex items-center gap-md p-sm rounded-xl hover:bg-primary-fixed transition-colors group">
           <div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined icon-filled text-primary text-2xl">style</span>
           </div>
@@ -292,8 +302,13 @@ async function loadHomeData() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', loadHomeData);
+window.onAppLoad(loadHomeData);
 </script>
 <script src="/js/notifications.js"></script>
+
+
+
+
+
 </body>
 </html>

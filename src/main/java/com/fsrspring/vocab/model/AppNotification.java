@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "app_notifications", indexes = {
-        @Index(name = "idx_notifications_read_created", columnList = "isRead,createdAt")
+        @Index(name = "idx_notifications_user_read_created", columnList = "user_id,isRead,createdAt")
 })
 @Data
 @Builder
@@ -21,6 +21,10 @@ public class AppNotification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private AppUser user;
 
     @Column(nullable = false, length = 200)
     private String title;

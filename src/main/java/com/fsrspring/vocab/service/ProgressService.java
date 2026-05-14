@@ -3,6 +3,7 @@ package com.fsrspring.vocab.service;
 import com.fsrspring.vocab.model.UserProgress;
 import com.fsrspring.vocab.model.Word;
 import com.fsrspring.vocab.repository.UserProgressRepository;
+import com.fsrspring.vocab.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ public class ProgressService {
 
     private final UserProgressRepository progressRepository;
     private final FsrsService fsrsService;
+    private final CurrentUserService currentUserService;
 
     public UserProgress getOrCreateProgress(Word word) {
         return fsrsService.getOrCreateProgress(word);
@@ -28,32 +30,32 @@ public class ProgressService {
     }
 
     public List<UserProgress> getWordsForReview() {
-        return progressRepository.findWordsForReview(LocalDateTime.now());
+        return progressRepository.findWordsForReview(currentUserService.getCurrentUser(), LocalDateTime.now());
     }
 
     public List<UserProgress> getAllProgress() {
-        return progressRepository.findAll();
+        return progressRepository.findByUser(currentUserService.getCurrentUser());
     }
 
     public UserProgress getProgressByWordId(Long wordId) {
-        return progressRepository.findByWordId(wordId).orElse(null);
+        return progressRepository.findByUserAndWordId(currentUserService.getCurrentUser(), wordId).orElse(null);
     }
 
     public long countMastered() {
-        return progressRepository.countMastered();
+        return progressRepository.countMastered(currentUserService.getCurrentUser());
     }
 
     public long countLearning() {
-        return progressRepository.countLearning();
+        return progressRepository.countLearning(currentUserService.getCurrentUser());
     }
 
     public long totalCorrect() {
-        Long val = progressRepository.sumCorrectAnswers();
+        Long val = progressRepository.sumCorrectAnswers(currentUserService.getCurrentUser());
         return val != null ? val : 0L;
     }
 
     public long totalIncorrect() {
-        Long val = progressRepository.sumIncorrectAnswers();
+        Long val = progressRepository.sumIncorrectAnswers(currentUserService.getCurrentUser());
         return val != null ? val : 0L;
     }
 }

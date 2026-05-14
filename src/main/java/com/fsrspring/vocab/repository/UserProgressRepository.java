@@ -2,6 +2,7 @@ package com.fsrspring.vocab.repository;
 
 import com.fsrspring.vocab.model.UserProgress;
 import com.fsrspring.vocab.model.Word;
+import com.fsrspring.vocab.model.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,28 +16,34 @@ public interface UserProgressRepository extends JpaRepository<UserProgress, Long
 
     Optional<UserProgress> findByWord(Word word);
 
+    Optional<UserProgress> findByUserAndWord(AppUser user, Word word);
+
     Optional<UserProgress> findByWordId(Long wordId);
+
+    Optional<UserProgress> findByUserAndWordId(AppUser user, Long wordId);
+
+    List<UserProgress> findByUser(AppUser user);
 
     List<UserProgress> findByMastery(UserProgress.MasteryLevel mastery);
 
-    @Query("SELECT up FROM UserProgress up WHERE up.nextReview <= :now OR up.nextReview IS NULL ORDER BY up.nextReview ASC NULLS FIRST")
-    List<UserProgress> findWordsForReview(LocalDateTime now);
+    @Query("SELECT up FROM UserProgress up WHERE up.user = :user AND (up.nextReview <= :now OR up.nextReview IS NULL) ORDER BY up.nextReview ASC NULLS FIRST")
+    List<UserProgress> findWordsForReview(AppUser user, LocalDateTime now);
 
-    @Query("SELECT up FROM UserProgress up WHERE up.nextReview <= :now ORDER BY up.nextReview ASC")
-    List<UserProgress> findDueWords(LocalDateTime now);
+    @Query("SELECT up FROM UserProgress up WHERE up.user = :user AND (up.nextReview <= :now OR up.nextReview IS NULL) ORDER BY up.nextReview ASC NULLS FIRST")
+    List<UserProgress> findDueWords(AppUser user, LocalDateTime now);
 
-    @Query("SELECT COUNT(up) FROM UserProgress up WHERE up.nextReview <= :now")
-    long countDueWords(LocalDateTime now);
+    @Query("SELECT COUNT(up) FROM UserProgress up WHERE up.user = :user AND (up.nextReview <= :now OR up.nextReview IS NULL)")
+    long countDueWords(AppUser user, LocalDateTime now);
 
-    @Query("SELECT COUNT(up) FROM UserProgress up WHERE up.mastery = 'MASTERED'")
-    long countMastered();
+    @Query("SELECT COUNT(up) FROM UserProgress up WHERE up.user = :user AND up.mastery = 'MASTERED'")
+    long countMastered(AppUser user);
 
-    @Query("SELECT COUNT(up) FROM UserProgress up WHERE up.mastery = 'LEARNING'")
-    long countLearning();
+    @Query("SELECT COUNT(up) FROM UserProgress up WHERE up.user = :user AND up.mastery = 'LEARNING'")
+    long countLearning(AppUser user);
 
-    @Query("SELECT SUM(up.correctCount) FROM UserProgress up")
-    Long sumCorrectAnswers();
+    @Query("SELECT SUM(up.correctCount) FROM UserProgress up WHERE up.user = :user")
+    Long sumCorrectAnswers(AppUser user);
 
-    @Query("SELECT SUM(up.incorrectCount) FROM UserProgress up")
-    Long sumIncorrectAnswers();
+    @Query("SELECT SUM(up.incorrectCount) FROM UserProgress up WHERE up.user = :user")
+    Long sumIncorrectAnswers(AppUser user);
 }

@@ -14,4 +14,11 @@ public interface TrustedFlashcardRepository extends JpaRepository<TrustedFlashca
     List<TrustedFlashcard> searchByKeyword(String keyword);
 
     List<TrustedFlashcard> findTop100ByOrderByImportedAtDesc();
+
+    List<TrustedFlashcard> findBySourceNameIgnoreCaseAndTopicIgnoreCaseAndWordIgnoreCaseOrderByImportedAtDesc(
+            String sourceName,
+            String topic,
+            String word);
+
+    boolean existsByWordIgnoreCase(String word);
 }

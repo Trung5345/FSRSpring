@@ -64,4 +64,9 @@ async function saveToVocabulary(id) {
     }
 }
 
-loadFlashcards();
+window.onAppLoad(() => {
+    // Basic element check to ensure we are on the flashcard page
+    if (document.querySelector('.flashcard-grid')) {
+        loadFlashcards();
+    }
+});

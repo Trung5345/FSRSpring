@@ -39,7 +39,7 @@ public class VocabularySetController {
     public VocabularySet createSet(@RequestBody Map<String, Object> body) {
         String name = (String) body.get("name");
         String description = (String) body.get("description");
-        Long topicId = body.get("topicId") != null ? Long.valueOf(body.get("topicId").toString()) : null;
+        Long topicId = resolveTopicId(body);
         CefrLevel cefrLevel = body.get("cefrLevel") != null
                 ? CefrLevel.valueOf(body.get("cefrLevel").toString()) : null;
         return setService.createSet(name, description, topicId, cefrLevel);
@@ -72,5 +72,18 @@ public class VocabularySetController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Long resolveTopicId(Map<String, Object> body) {
+        Object topicId = body.get("topicId");
+        if (topicId != null) {
+            return Long.valueOf(topicId.toString());
+        }
+        Object topic = body.get("topic");
+        if (topic instanceof Map<?, ?> topicMap && topicMap.get("id") != null) {
+            return Long.valueOf(topicMap.get("id").toString());
+        }
+        return null;
     }
 }

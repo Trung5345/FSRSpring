@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "review_events", indexes = {
-        @Index(name = "idx_review_events_word_reviewed_at", columnList = "word_id,reviewedAt")
+        @Index(name = "idx_review_events_user_word_reviewed_at", columnList = "user_id,word_id,reviewedAt")
 })
 @Data
 @Builder
@@ -21,6 +21,10 @@ public class ReviewEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private AppUser user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "word_id", nullable = false)

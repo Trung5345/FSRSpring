@@ -53,6 +53,11 @@ jacoco.exec
 
 # Node / frontend
 node_modules/
+.pnpm-store/
+.next/
+frontend/.next/
+frontend/out/
+frontend/.env.local
 
 # OS files
 .DS_Store
@@ -73,3 +78,5 @@ docker-compose.override.yml
 
 # Misc
 replay_pid*
+scripts/
+client_secret*

@@ -36,8 +36,12 @@ If `java -version` is not 17.x, update JAVA_HOME before running Maven commands.
 ## Run Locally (macOS/Linux)
 
 ```bash
-./mvnw spring-boot:run
+./scripts/run-local.sh
 ```
+
+The app also loads `.env` automatically when started from the project root, so
+`./mvnw spring-boot:run` still works. The script exports `.env` first for tools
+or libraries that read process environment variables directly.
 
 ## Run Locally (Windows PowerShell)
 
@@ -48,6 +52,22 @@ If `java -version` is not 17.x, update JAVA_HOME before running Maven commands.
 Application URL: http://localhost:8080
 
 H2 Console URL: http://localhost:8080/h2-console
+
+## Run Next.js Frontend
+
+The migrated UI lives in `frontend/` and calls the Spring Boot API through
+Next.js rewrites.
+
+```bash
+cd frontend
+corepack enable
+pnpm install
+SPRING_API_BASE_URL=http://localhost:8080 pnpm dev
+```
+
+Frontend URL: http://localhost:3000
+
+Spring Boot remains the API, OAuth, session, database, and FSRS backend.
 
 ## Build And Test
 
@@ -70,6 +90,11 @@ Build and run with Docker Compose:
 ```bash
 docker compose up --build
 ```
+
+Docker Compose starts:
+
+- Next.js frontend: http://localhost:3000
+- Spring Boot API/classic UI: http://localhost:8080
 
 Stop containers:
 

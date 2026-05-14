@@ -22,6 +22,7 @@ public class DatamuseApiService {
 
     private static final String BASE_URL = "https://api.datamuse.com/words";
     private static final int MAX_RESULTS = 10;
+    private static final int MAX_TOPIC_RESULTS = 50;
 
     private final RestTemplate restTemplate;
 
@@ -38,6 +39,18 @@ public class DatamuseApiService {
     @Cacheable(value = "datamuse-topic", key = "#topic.toLowerCase()")
     public List<DatamuseWordDto> getWordsByTopic(String topic) {
         return fetchWordDtos("topics=" + encode(topic) + "&max=" + MAX_RESULTS);
+    }
+
+    @Cacheable(value = "datamuse-topic", key = "#topic.toLowerCase() + ':' + #limit")
+    public List<DatamuseWordDto> getWordsByTopic(String topic, int limit) {
+        int safeLimit = Math.max(1, Math.min(limit, MAX_TOPIC_RESULTS));
+        return fetchWordDtos("topics=" + encode(topic) + "&max=" + safeLimit);
+    }
+
+    @Cacheable(value = "datamuse-meaning", key = "#word.toLowerCase() + ':' + #limit")
+    public List<DatamuseWordDto> getWordsMeaningLike(String word, int limit) {
+        int safeLimit = Math.max(1, Math.min(limit, MAX_TOPIC_RESULTS));
+        return fetchWordDtos("ml=" + encode(word) + "&max=" + safeLimit);
     }
 
     private List<String> fetchWords(String query) {

@@ -1,15 +1,18 @@
 package com.fsrspring.vocab.repository;
 
 import com.fsrspring.vocab.model.CefrLevel;
+import com.fsrspring.vocab.model.AppUser;
 import com.fsrspring.vocab.model.Word;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface WordRepository extends JpaRepository<Word, Long> {
+public interface WordRepository extends JpaRepository<Word, Long>, JpaSpecificationExecutor<Word> {
 
     List<Word> findByCategory(String category);
 
@@ -31,11 +34,16 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     @Query("SELECT DISTINCT w.partOfSpeech FROM Word w WHERE w.partOfSpeech IS NOT NULL AND w.partOfSpeech <> ''")
     List<String> findAllPartsOfSpeech();
 
-    @Query("SELECT w FROM Word w ORDER BY RANDOM() LIMIT :limit")
+    @Query(value = "SELECT * FROM words ORDER BY RAND() LIMIT :limit", nativeQuery = true)
     List<Word> findRandomWords(int limit);
 
     @Query("SELECT w FROM Word w WHERE LOWER(w.word) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(w.translation) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Word> searchByKeyword(String keyword);
+
+    @Query("SELECT w FROM Word w WHERE NOT EXISTS (SELECT up.id FROM UserProgress up WHERE up.word = w AND up.user = :user) ORDER BY w.createdAt ASC")
+    List<Word> findWordsWithoutProgressForUser(AppUser user);
+
+    Optional<Word> findByWordIgnoreCase(String word);
 
     boolean existsByWordIgnoreCase(String word);
 }
