@@ -53,7 +53,7 @@ public class ApiIntegrationTest {
     @Test
     public void testUnauthenticatedAccess_ShouldReturnUnauthorizedOrRedirect() throws Exception {
         // Hitting an API without authentication should result in 302 Redirect (to /login) or 401
-        mockMvc.perform(get("/api/words")
+        mockMvc.perform(get("/api/progress")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(result -> assertThat(result.getResponse().getStatus()).isIn(302, 401));
     }
