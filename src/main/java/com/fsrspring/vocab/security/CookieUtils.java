@@ -40,6 +40,8 @@ public class CookieUtils {
                     cookie.setValue("");
                     cookie.setPath("/");
                     cookie.setMaxAge(0);
+                    cookie.setSecure(true);
+                    cookie.setAttribute("SameSite", "None");
                     response.addCookie(cookie);
                 }
             }
@@ -47,7 +49,7 @@ public class CookieUtils {
     }
 
     public static String serialize(Object object) {
-        return Base64.getUrlEncoder()
+        return Base64.getUrlEncoder().withoutPadding()
                 .encodeToString(SerializationUtils.serialize(object));
     }
 
