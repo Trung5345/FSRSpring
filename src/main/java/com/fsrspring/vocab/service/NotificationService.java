@@ -1,8 +1,10 @@
 package com.fsrspring.vocab.service;
 
 import com.fsrspring.vocab.model.AppNotification;
+import com.fsrspring.vocab.model.AppUser;
 import com.fsrspring.vocab.model.UserProgress;
 import com.fsrspring.vocab.repository.AppNotificationRepository;
+import com.fsrspring.vocab.repository.UserProgressRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -13,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +24,7 @@ import java.util.List;
 public class NotificationService {
 
     private final AppNotificationRepository notificationRepository;
-    private final FsrsService fsrsService;
+    private final UserProgressRepository progressRepository;
     private final JavaMailSender mailSender;
 
     @Value("${app.reminder.default-email}")
@@ -43,28 +47,35 @@ public class NotificationService {
 
     @Scheduled(cron = "${app.reminder.cron}")
     public void dispatchReviewReminders() {
-        List<UserProgress> dueWords = fsrsService.getDueWords(20);
-        if (dueWords.isEmpty()) {
+        Map<AppUser, List<UserProgress>> dueWordsByUser = progressRepository.findDueWordsForAllUsers(LocalDateTime.now())
+                .stream()
+                .collect(Collectors.groupingBy(UserProgress::getUser));
+
+        if (dueWordsByUser.isEmpty()) {
             return;
         }
 
-        String message = "You have " + dueWords.size() + " vocabulary cards due for review.";
+        LocalDateTime scheduledAt = LocalDateTime.now();
+        dueWordsByUser.forEach((user, dueWords) -> {
+            String message = "You have " + dueWords.size() + " vocabulary cards due for review.";
 
-        notificationRepository.save(AppNotification.builder()
-                .title("Time to review")
-                .message(message)
-                .deepLink("/learn?mode=fsrs")
-                .scheduledAt(LocalDateTime.now())
-                .type(AppNotification.NotificationType.REVIEW_REMINDER)
-                .build());
+            notificationRepository.save(AppNotification.builder()
+                    .user(user)
+                    .title("Time to review")
+                    .message(message)
+                    .deepLink("/learn?mode=fsrs")
+                    .scheduledAt(scheduledAt)
+                    .type(AppNotification.NotificationType.REVIEW_REMINDER)
+                    .build());
 
-        sendReminderEmail(message);
+            sendReminderEmail(user, message);
+        });
     }
 
-    private void sendReminderEmail(String reminderMessage) {
+    private void sendReminderEmail(AppUser user, String reminderMessage) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(defaultReminderEmail);
+            message.setTo(user.getEmail() == null || user.getEmail().isBlank() ? defaultReminderEmail : user.getEmail());
             message.setSubject("FSRS review reminder");
             message.setText(reminderMessage + "\n\nOpen: http://localhost:8080/learn?mode=fsrs");
             mailSender.send(message);
