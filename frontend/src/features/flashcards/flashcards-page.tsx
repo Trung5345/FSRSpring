@@ -66,6 +66,7 @@ export function FlashcardsPage() {
     if (!current?.word?.id) return;
     try {
       await api.reviewWord(current.word.id, rating, 0);
+      api.checkInStreak().catch(() => undefined);
       toast(`Saved rating: ${rating}`, "success");
       setFlipped(false);
       setIndex((value) => Math.min(value + 1, due.length));

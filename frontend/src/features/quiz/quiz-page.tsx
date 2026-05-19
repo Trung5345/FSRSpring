@@ -130,6 +130,7 @@ export function QuizPage() {
     timerRef.current = setTimeout(async () => {
       if (nextIndex >= words.length) {
         await api.completeQuiz(sessionId).catch(() => undefined);
+        api.checkInStreak().catch(() => undefined);
         setScreen("done");
       } else {
         setIndex(nextIndex);
@@ -143,6 +144,7 @@ export function QuizPage() {
     const nextIndex = index + 1;
     if (nextIndex >= words.length) {
       if (sessionId) await api.completeQuiz(sessionId).catch(() => undefined);
+      api.checkInStreak().catch(() => undefined);
       setScreen("done");
       return;
     }

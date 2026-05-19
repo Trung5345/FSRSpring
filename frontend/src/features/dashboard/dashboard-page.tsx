@@ -135,20 +135,28 @@ export function DashboardPage() {
               ) : <p className="text-sm font-semibold text-muted-foreground">No word available yet.</p>}
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader>
+          <Card className="flex flex-col">
+            <CardHeader className="shrink-0">
               <CardTitle>Review Queue</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {review.length ? review.map((item) => (
-                <div key={item.id} className="flex items-center justify-between gap-3 rounded-xl bg-muted p-3">
-                  <div>
-                    <p className="font-display font-bold">{item.word?.word}</p>
-                    <p className="text-sm font-semibold text-muted-foreground">{item.word?.translation}</p>
+            <CardContent className="min-h-0 flex-1 p-0 pb-4">
+              {review.length ? (
+                <div className="overflow-y-auto px-6" style={{ maxHeight: "calc(3 * 64px + 2 * 12px)" }}>
+                  <div className="space-y-3">
+                    {review.map((item) => (
+                      <div key={item.id} className="flex items-center justify-between gap-3 rounded-xl bg-muted p-3">
+                        <div>
+                          <p className="font-display font-bold">{item.word?.word}</p>
+                          <p className="text-sm font-semibold text-muted-foreground">{item.word?.translation}</p>
+                        </div>
+                        <Badge>{masteryLabel(item.mastery)}</Badge>
+                      </div>
+                    ))}
                   </div>
-                  <Badge>{masteryLabel(item.mastery)}</Badge>
                 </div>
-              )) : <p className="text-sm font-semibold text-muted-foreground">No review due.</p>}
+              ) : (
+                <p className="px-6 text-sm font-semibold text-muted-foreground">No review due.</p>
+              )}
             </CardContent>
           </Card>
           <Card>

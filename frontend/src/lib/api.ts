@@ -98,6 +98,7 @@ export const api = {
   completeQuiz: (sessionId: number) =>
     request<QuizSession>(`/api/quiz/session/${sessionId}/complete`, { method: "POST" }),
   streak: () => request<Record<string, number>>("/api/streak"),
+  checkInStreak: () => request<Record<string, number>>("/api/streak/check-in", { method: "POST" }),
   notifications: () => request<NotificationItem[]>("/api/notifications"),
   unreadNotifications: () => request<{ unread: number }>("/api/notifications/unread-count"),
   markNotificationRead: (id: number) => request<void>(`/api/notifications/${id}/read`, { method: "POST" }),
