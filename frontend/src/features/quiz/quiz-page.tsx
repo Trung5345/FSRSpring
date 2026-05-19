@@ -341,6 +341,7 @@ export function QuizPage() {
   if (loading) return <AppShellLoading label="Loading quiz..." />;
 
   return (
+    <>
     <div className="mx-auto mt-6 max-w-xl space-y-4">
         {/* Progress Row */}
         <div className="flex items-center gap-3">
@@ -508,5 +509,6 @@ export function QuizPage() {
           </button>
         </div>
       </Dialog>
+    </>
   );
 }

@@ -63,7 +63,7 @@ public class NotificationService {
                     .user(user)
                     .title("Time to review")
                     .message(message)
-                    .deepLink("/learn?mode=fsrs")
+                    .deepLink("/flashcards")
                     .scheduledAt(scheduledAt)
                     .type(AppNotification.NotificationType.REVIEW_REMINDER)
                     .build());
@@ -77,7 +77,7 @@ public class NotificationService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(user.getEmail() == null || user.getEmail().isBlank() ? defaultReminderEmail : user.getEmail());
             message.setSubject("FSRS review reminder");
-            message.setText(reminderMessage + "\n\nOpen: http://localhost:8080/learn?mode=fsrs");
+            message.setText(reminderMessage + "\n\nOpen: http://localhost:8080/flashcards");
             mailSender.send(message);
         } catch (Exception ignored) {
             // Mail is optional in local/dev environments.
