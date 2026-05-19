@@ -49,6 +49,7 @@ export function QuizPage() {
   const [screen, setScreen] = useState<Screen>("setup");
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [words, setWords] = useState<Word[]>([]);
+  const [distractors, setDistractors] = useState<Word[]>([]);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
@@ -79,13 +80,20 @@ export function QuizPage() {
 
   const choices = useMemo(() => {
     if (!current) return [];
-    const pool = words
+    const extract = (w: Word) => (quizType === "en-vi" ? w.translation : w.word);
+    const sessionPool = words
       .filter((w) => w.id !== current.id)
-      .map((w) => (quizType === "en-vi" ? w.translation : w.word))
+      .map(extract)
       .filter((v): v is string => Boolean(v));
-    const unique = [...new Set(pool)].filter((v) => v !== correctAnswer);
+    const distractorPool = distractors
+      .filter((w) => w.id !== current.id)
+      .map(extract)
+      .filter((v): v is string => Boolean(v));
+    const unique = [...new Set([...sessionPool, ...distractorPool])].filter(
+      (v) => v !== correctAnswer
+    );
     return shuffled([correctAnswer, ...shuffled(unique).slice(0, 3)]);
-  }, [current, words, quizType, correctAnswer]);
+  }, [current, words, distractors, quizType, correctAnswer]);
 
   async function start() {
     if (starting) return;
@@ -105,6 +113,7 @@ export function QuizPage() {
 
       setSessionId(data.sessionId);
       setWords(validWords);
+      setDistractors(data.distractors ?? []);
       setIndex(0);
       setSelected(null);
       setCorrectCount(0);

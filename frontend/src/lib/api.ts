@@ -87,7 +87,7 @@ export const api = {
   quizStats: () => request<Record<string, number>>("/api/quiz/stats"),
   recentQuizSessions: () => request<QuizSession[]>("/api/quiz/sessions/recent"),
   startQuiz: (query: Query) =>
-    request<{ sessionId: number; words: Word[]; totalQuestions: number }>(
+    request<{ sessionId: number; words: Word[]; totalQuestions: number; distractors: Word[] }>(
       `/api/quiz/start${toQuery(query)}`,
       { method: "POST" }
     ),

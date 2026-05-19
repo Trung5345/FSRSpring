@@ -58,11 +58,19 @@ public class QuizController {
         if (words.size() > count) {
             words = words.subList(0, count);
         }
+        // Fetch random words to use as distractor answer options.
+        // Exclude words already in the quiz session to avoid duplicates.
+        final List<Long> sessionIds = words.stream().map(Word::getId).toList();
+        List<Word> distractors = wordService.getRandomWords(20).stream()
+                .filter(w -> !sessionIds.contains(w.getId()))
+                .limit(15)
+                .toList();
         QuizSession session = quizService.startSession(words.size(), category, difficulty);
         return ResponseEntity.ok(Map.of(
                 "sessionId", session.getId(),
                 "words", words,
-                "totalQuestions", words.size()
+                "totalQuestions", words.size(),
+                "distractors", distractors
         ));
     }
 
