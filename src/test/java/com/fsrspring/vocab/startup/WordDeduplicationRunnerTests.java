@@ -28,7 +28,9 @@ class WordDeduplicationRunnerTests {
     @BeforeEach
     void resetDatabase() {
         jdbcTemplate.execute("DROP INDEX IF EXISTS uk_words_word");
+        jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE");
         wordRepository.deleteAll();
+        jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY TRUE");
     }
 
     @Test

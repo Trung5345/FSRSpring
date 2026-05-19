@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { IconChevronRight, IconPlayerPlayFilled, IconSchool, IconTrophy } from "@tabler/icons-react";
+import { IconChevronRight, IconPlayerPlayFilled, IconPresentation, IconTrophy } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { AppFlameIcon, navigationIcons } from "@/components/icons/app-icons";
 import { AppShellLoading } from "@/components/layout/app-shell";
@@ -72,7 +72,7 @@ export function DashboardPage() {
           </div>
           <div className="absolute -right-12 -top-20 h-56 w-56 rounded-full bg-sky-300/20" />
           <div className="absolute right-14 top-12 flex h-40 w-40 items-center justify-center rounded-full bg-sky-200/20 text-white">
-            <IconSchool className="h-20 w-20" stroke={1.6} fill="currentColor" />
+            <IconPresentation className="h-20 w-20" stroke={1.6} />
           </div>
           <div className="absolute bottom-[-70px] right-20 h-36 w-36 rounded-full bg-sky-400/20" />
         </section>

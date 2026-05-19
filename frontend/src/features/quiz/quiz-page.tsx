@@ -3,6 +3,7 @@
 import { IconArrowLeft, IconCircleCheck, IconCircleX, IconPlayerPlay, IconPuzzle } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppShellLoading } from "@/components/layout/app-shell";
+import { Dialog } from "@/components/ui/dialog";
 import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { api } from "@/lib/api";
@@ -56,6 +57,7 @@ export function QuizPage() {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
   const { toast } = useToast();
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -344,7 +346,7 @@ export function QuizPage() {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => { clearTimeout(timerRef.current); setScreen("setup"); }}
+            onClick={() => setShowExitConfirm(true)}
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-border bg-white text-muted-foreground transition hover:bg-muted"
             aria-label="Back to settings"
           >
@@ -479,5 +481,32 @@ export function QuizPage() {
           </button>
         ) : null}
     </div>
+
+      <Dialog
+        open={showExitConfirm}
+        title="Thoát quiz?"
+        onClose={() => setShowExitConfirm(false)}
+        className="max-w-sm"
+      >
+        <p className="font-body text-[17px] text-muted-foreground">
+          Tiến trình hiện tại sẽ bị mất. Bạn có chắc muốn thoát không?
+        </p>
+        <div className="mt-5 flex gap-3">
+          <button
+            type="button"
+            onClick={() => setShowExitConfirm(false)}
+            className="flex-1 rounded-xl border-2 border-border bg-white py-2.5 font-display text-[15px] font-bold uppercase tracking-widest text-foreground transition hover:bg-muted"
+          >
+            Tiếp tục
+          </button>
+          <button
+            type="button"
+            onClick={() => { clearTimeout(timerRef.current); setShowExitConfirm(false); setScreen("setup"); }}
+            className="flex-1 rounded-xl bg-destructive py-2.5 font-display text-[15px] font-bold uppercase tracking-widest text-white transition hover:opacity-90"
+          >
+            Thoát
+          </button>
+        </div>
+      </Dialog>
   );
 }
