@@ -45,6 +45,19 @@ public class WordEnrichmentService {
     private WordEnrichmentService self;
 
     /**
+     * Resets any jobs stuck in RUNNING state (e.g. from a previous container crash)
+     * back to PENDING so the scheduler can retry them.
+     */
+    @Transactional
+    public int resetStuckJobs() {
+        int count = enrichmentJobRepository.resetRunningJobsToPending(LocalDateTime.now());
+        if (count > 0) {
+            log.info("Reset {} stuck RUNNING enrichment jobs back to PENDING", count);
+        }
+        return count;
+    }
+
+    /**
      * Compatibility method for older callers. It creates or reuses an enrichment
      * job, processes it immediately, and returns the updated word.
      */

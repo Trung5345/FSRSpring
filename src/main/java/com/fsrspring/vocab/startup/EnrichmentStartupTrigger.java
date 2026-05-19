@@ -34,6 +34,7 @@ public class EnrichmentStartupTrigger {
         }
 
         try {
+            enrichmentService.resetStuckJobs();
             int queued = enrichmentService.enrichAllMissing();
             if (queued > 0) {
                 log.info("Startup enrichment: queued {} words for background enrichment", queued);
