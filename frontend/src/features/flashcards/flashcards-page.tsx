@@ -162,7 +162,7 @@ export function FlashcardsPage() {
                     aria-expanded={flipped}
                     aria-label="Flip flashcard"
                   >
-                    <span className={`relative block min-h-80 rounded-xl transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(4deg)] ${flipped ? "[transform:rotateY(180deg)] group-hover:[transform:rotateY(180deg)]" : ""}`}>
+                    <span className={`relative block min-h-80 rounded-xl transition-transform duration-500 [transform-style:preserve-3d] ${flipped ? "[transform:rotateY(180deg)]" : ""}`}>
                       <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 bg-card p-8 text-center shadow-lifted [backface-visibility:hidden] transition-colors group-hover:border-primary">
                         <p className="font-display text-3xl font-bold text-primary">{current.word.word}</p>
                         {current.word.pronunciation ? <p className="mt-4 font-mono text-muted-foreground">{current.word.pronunciation}</p> : null}
