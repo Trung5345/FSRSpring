@@ -78,9 +78,9 @@ INSERT IGNORE INTO words (word, translation, example, pronunciation, category, d
 ('immunity',    'miễn dịch',    'Regular exercise can boost your immunity.',             '/ɪˈmjuːnɪti/', 'Health', 'ADVANCED',     CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='health'), 'C1', 'noun',      'resistance, defense',     'susceptibility'),
 
 -- Education (A2-C1)
-('curriculum',  'chuong trinh hoc', 'The school updated its science curriculum.',        '/kəˈrɪkjʊləm/', 'Education', 'ADVANCED',   CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='education'), 'C1', 'noun',   'syllabus, program',       null),
-('scholarship', 'hoc bong',         'She received a full scholarship to university.',   '/ˈskɒlərʃɪp/', 'Education', 'INTERMEDIATE', CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='education'), 'B2', 'noun',  'grant, fellowship, award',null),
-('thesis',      'luan van',         'He spent two years writing his doctoral thesis.',  '/ˈθiːsɪs/',    'Education', 'ADVANCED',     CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='education'), 'C1', 'noun',   'dissertation, paper',     null);
+('curriculum',  'chương trình học', 'The school updated its science curriculum.',        '/kəˈrɪkjʊləm/', 'Education', 'ADVANCED',   CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='education'), 'C1', 'noun',   'syllabus, program',       null),
+('scholarship', 'học bổng',         'She received a full scholarship to university.',   '/ˈskɒlərʃɪp/', 'Education', 'INTERMEDIATE', CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='education'), 'B2', 'noun',  'grant, fellowship, award',null),
+('thesis',      'luận văn',         'He spent two years writing his doctoral thesis.',  '/ˈθiːsɪs/',    'Education', 'ADVANCED',     CURRENT_TIMESTAMP, (SELECT id FROM topic WHERE slug='education'), 'C1', 'noun',   'dissertation, paper',     null);
 
 -- ──────────────────────────────────────────────
 -- 3. Extended vocabulary (enrichment pipeline fills translation/pronunciation)

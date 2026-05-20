@@ -90,4 +90,35 @@ class WordEnrichmentServiceTests {
         assertThat(enriched.getEnrichmentStatus()).isEqualTo(Word.EnrichmentStatus.COMPLETED);
         assertThat(jobRepository.findById(job.getId()).orElseThrow().getStatus()).isEqualTo(WordEnrichmentJob.Status.COMPLETED);
     }
+
+    @Test
+    void processJobReplacesBrokenLocalImageUrl() {
+        when(wiktApiClient.lookupEnglish("cat")).thenReturn(ProviderWordData.builder().build());
+        when(dictionaryApiService.lookup(anyString())).thenReturn(Optional.empty());
+        when(wordImageService.findAndStoreImage("cat")).thenReturn(Optional.of(
+                new WordImageService.ImageResult("/generated-images/cat.jpg", "{\"provider\":\"PIXABAY\"}")
+        ));
+
+        Word saved = wordRepository.save(Word.builder()
+                .word("cat")
+                .translation("con meo")
+                .pronunciation("/kat/")
+                .audioUrl("https://audio.example.test/cat.mp3")
+                .partOfSpeech("noun")
+                .example("The cat is sleeping.")
+                .synonyms("feline")
+                .antonyms("dog")
+                .difficulty(Word.DifficultyLevel.BEGINNER)
+                .imageUrl("/generated-images/missing-from-volume.jpg")
+                .build());
+        WordEnrichmentJob job = enrichmentService.retryWord(saved.getId());
+
+        enrichmentService.processJobNow(job.getId());
+
+        Word enriched = wordRepository.findById(saved.getId()).orElseThrow();
+        assertThat(enriched.getImageUrl()).isEqualTo("/generated-images/cat.jpg");
+        assertThat(enriched.getImageMetadataJson()).isEqualTo("{\"provider\":\"PIXABAY\"}");
+        assertThat(enriched.getEnrichmentStatus()).isEqualTo(Word.EnrichmentStatus.COMPLETED);
+        assertThat(jobRepository.findById(job.getId()).orElseThrow().getStatus()).isEqualTo(WordEnrichmentJob.Status.COMPLETED);
+    }
 }

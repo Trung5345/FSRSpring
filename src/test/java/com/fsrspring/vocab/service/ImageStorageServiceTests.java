@@ -44,6 +44,9 @@ class ImageStorageServiceTests {
         assertThat(storedFile.getFileName().toString()).endsWith(".jpg");
         BufferedImage image = ImageIO.read(storedFile.toFile());
         assertThat(image.getWidth()).isLessThanOrEqualTo(960);
+        assertThat(service.canServe(stored.publicUrl())).isTrue();
+        assertThat(service.canServe("/generated-images/missing.jpg")).isFalse();
+        assertThat(service.canServe("https://images.example.test/meticulous.jpg")).isTrue();
     }
 
     private byte[] sourcePng() throws Exception {

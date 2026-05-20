@@ -25,6 +25,7 @@ public class UserProgress {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private AppUser user;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -101,17 +102,31 @@ public class UserProgress {
     @Builder.Default
     private Integer sequenceStep = 0;
 
+    public Double getFsrsStability() { return fsrsStability != null ? fsrsStability : 0.2; }
+    public Double getFsrsDifficulty() { return fsrsDifficulty != null ? fsrsDifficulty : 5.0; }
+    public Integer getFsrsRepetition() { return fsrsRepetition != null ? fsrsRepetition : 0; }
+    public Integer getFsrsLapseCount() { return fsrsLapseCount != null ? fsrsLapseCount : 0; }
+    public Double getFsrsRetrievability() { return fsrsRetrievability != null ? fsrsRetrievability : 0.0; }
+    public Double getLastIntervalHours() { return lastIntervalHours != null ? lastIntervalHours : 0.0; }
+    public Double getSequenceAccuracyEMA() { return sequenceAccuracyEMA != null ? sequenceAccuracyEMA : 0.0; }
+    public Double getSequenceResponseMsEMA() { return sequenceResponseMsEMA != null ? sequenceResponseMsEMA : 0.0; }
+    public Double getSequenceConsistency() { return sequenceConsistency != null ? sequenceConsistency : 0.0; }
+    public Double getSequenceDifficultyTrend() { return sequenceDifficultyTrend != null ? sequenceDifficultyTrend : 0.0; }
+    public Integer getSequenceStep() { return sequenceStep != null ? sequenceStep : 0; }
+    public Integer getCorrectCount() { return correctCount != null ? correctCount : 0; }
+    public Integer getIncorrectCount() { return incorrectCount != null ? incorrectCount : 0; }
+
     public enum MasteryLevel {
         NEW, LEARNING, REVIEWING, MASTERED
     }
 
     public int getTotalAttempts() {
-        return correctCount + incorrectCount;
+        return getCorrectCount() + getIncorrectCount();
     }
 
     public double getAccuracy() {
         int total = getTotalAttempts();
         if (total == 0) return 0.0;
-        return (double) correctCount / total * 100;
+        return (double) getCorrectCount() / total * 100;
     }
 }

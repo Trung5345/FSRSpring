@@ -123,6 +123,36 @@ class ImportControllerTests {
     }
 
     @Test
+    void duplicateWordsInsideSameBatchAreSkipped() throws Exception {
+        mockMvc.perform(post("/api/import/words/commit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of(
+                                "sourceType", "CSV",
+                                "rows", List.of(
+                                        Map.of(
+                                                "clientRowId", "r1",
+                                                "word", "tiger",
+                                                "translation", "con ho",
+                                                "difficulty", "BEGINNER"
+                                        ),
+                                        Map.of(
+                                                "clientRowId", "r2",
+                                                "word", "TIGER",
+                                                "translation", "ho",
+                                                "difficulty", "BEGINNER"
+                                        )
+                                )
+                        ))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.created").value(1))
+                .andExpect(jsonPath("$.skipped").value(1))
+                .andExpect(jsonPath("$.rows[0].status").value("CREATED"))
+                .andExpect(jsonPath("$.rows[1].status").value("SKIPPED"));
+
+        assertThat(wordRepository.findAll()).hasSize(1);
+    }
+
+    @Test
     void invalidRowsFailButValidRowsStillSave() throws Exception {
         mockMvc.perform(post("/api/import/words/commit")
                         .contentType(MediaType.APPLICATION_JSON)

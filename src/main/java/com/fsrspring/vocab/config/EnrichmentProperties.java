@@ -36,5 +36,6 @@ public class EnrichmentProperties {
         private String imageStorageDir = "data/enrichment-images";
         private String imagePublicPrefix = "/generated-images/";
         private long pollDelayMs = 10000L;
+        private boolean storeImagesLocally = true;
     }
 }

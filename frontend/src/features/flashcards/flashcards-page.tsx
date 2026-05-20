@@ -1,7 +1,7 @@
 "use client";
 
 import { IconReload, IconSearch, IconSparkles } from "@tabler/icons-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppShellLoading } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,9 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/toast";
 import { ApiError, api } from "@/lib/api";
 import type { TrustedFlashcard, UserProgress } from "@/types/api";
+
+const TRUSTED_INITIAL = 3;
+const TRUSTED_BATCH = 3;
 
 const ratings = [
   { value: 1, label: "Again", hint: "< 1 ngày", className: "bg-red-500 hover:bg-red-600" },
@@ -34,16 +37,19 @@ export function FlashcardsPage() {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [trusted, setTrusted] = useState<TrustedFlashcard[]>([]);
+  const [visibleCount, setVisibleCount] = useState(TRUSTED_INITIAL);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [savingId, setSavingId] = useState<number | null>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const load = useCallback(async () => {
     const [dueWords, cards] = await Promise.all([api.dueWords(30).catch(() => []), api.flashcards(search).catch(() => [])]);
     setDue(dueWords);
     setTrusted(uniqueTrustedCards(cards));
+    setVisibleCount(TRUSTED_INITIAL);
     setIndex(0);
     setFlipped(false);
     setLoading(false);
@@ -60,6 +66,7 @@ export function FlashcardsPage() {
     if (!current?.word?.id) return;
     try {
       await api.reviewWord(current.word.id, rating, 0);
+      api.checkInStreak().catch(() => undefined);
       toast(`Saved rating: ${rating}`, "success");
       setFlipped(false);
       setIndex((value) => Math.min(value + 1, due.length));
@@ -72,6 +79,7 @@ export function FlashcardsPage() {
     if (importing) return;
     setImporting(true);
     setTrusted([]);
+    setVisibleCount(TRUSTED_INITIAL);
     try {
       const cards = uniqueTrustedCards(await api.importFlashcards("Datamuse + Free Dictionary", search || "vocabulary"));
       setTrusted(cards);
@@ -105,7 +113,23 @@ export function FlashcardsPage() {
   }
 
   const sessionDone = due.length > 0 && index >= due.length;
-  const filteredTrusted = useMemo(() => trusted.slice(0, 12), [trusted]);
+  const filteredTrusted = useMemo(() => trusted.slice(0, visibleCount), [trusted, visibleCount]);
+  const hasMoreTrusted = visibleCount < trusted.length;
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMoreTrusted) {
+          setVisibleCount((prev) => Math.min(prev + TRUSTED_BATCH, trusted.length));
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMoreTrusted, trusted.length]);
 
   if (loading) return <AppShellLoading label="Loading flashcards..." />;
 
@@ -138,7 +162,7 @@ export function FlashcardsPage() {
                     aria-expanded={flipped}
                     aria-label="Flip flashcard"
                   >
-                    <span className={`relative block min-h-80 rounded-xl transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(4deg)] ${flipped ? "[transform:rotateY(180deg)] group-hover:[transform:rotateY(180deg)]" : ""}`}>
+                    <span className={`relative block min-h-80 rounded-xl transition-transform duration-500 [transform-style:preserve-3d] ${flipped ? "[transform:rotateY(180deg)]" : ""}`}>
                       <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 bg-card p-8 text-center shadow-lifted [backface-visibility:hidden] transition-colors group-hover:border-primary">
                         <p className="font-display text-3xl font-bold text-primary">{current.word.word}</p>
                         {current.word.pronunciation ? <p className="mt-4 font-mono text-muted-foreground">{current.word.pronunciation}</p> : null}
@@ -175,7 +199,7 @@ export function FlashcardsPage() {
         </section>
 
         <section className="space-y-5">
-          <Card>
+          <Card className="sticky top-6">
             <CardHeader>
               <CardTitle>Trusted Flashcards</CardTitle>
             </CardHeader>
@@ -190,19 +214,33 @@ export function FlashcardsPage() {
               <Button className="w-full" variant="secondary" onClick={importTrusted} disabled={importing}>
                 <IconSparkles className="h-4 w-4" /> {importing ? "Importing..." : "Import Trusted Set"}
               </Button>
-              <div className="space-y-3">
-                {filteredTrusted.map((card) => (
-                  <div key={card.id} className="rounded-xl border-2 bg-card p-4">
-                    <p className="font-display font-bold">{card.word || card.front}</p>
-                    <p className="text-sm font-semibold text-muted-foreground">{card.translation || card.definition || card.back}</p>
-                    {card.example ? <p className="mt-2 text-sm italic text-muted-foreground">&quot;{card.example}&quot;</p> : null}
-                    <Button className="mt-3" size="sm" variant="outline" onClick={() => saveTrusted(card.id)} disabled={savingId === card.id}>
-                      {savingId === card.id ? "Saving..." : "Save to vocab"}
-                    </Button>
-                  </div>
-                ))}
-                {!filteredTrusted.length ? <p className="font-semibold text-muted-foreground">No trusted flashcards loaded.</p> : null}
+              <div className="relative overflow-hidden rounded-xl border border-border" style={{ maxHeight: "calc(3 * 136px + 2 * 12px)" }}>
+                <div className="overflow-y-auto space-y-3 p-1" style={{ maxHeight: "calc(3 * 136px + 2 * 12px)" }}>
+                  {filteredTrusted.map((card) => (
+                    <div key={card.id} className="rounded-xl border-2 bg-card p-4">
+                      <p className="font-display font-bold">{card.word || card.front}</p>
+                      <p className="text-sm font-semibold text-muted-foreground">{card.translation || card.definition || card.back}</p>
+                      {card.example ? <p className="mt-2 text-sm italic text-muted-foreground">&quot;{card.example}&quot;</p> : null}
+                      <Button className="mt-3" size="sm" variant="outline" onClick={() => saveTrusted(card.id)} disabled={savingId === card.id}>
+                        {savingId === card.id ? "Saving..." : "Save to vocab"}
+                      </Button>
+                    </div>
+                  ))}
+                  {hasMoreTrusted ? (
+                    <div ref={sentinelRef} className="py-2 text-center">
+                      <span className="text-xs font-semibold text-muted-foreground">Loading more...</span>
+                    </div>
+                  ) : (
+                    <div ref={sentinelRef} />
+                  )}
+                  {!filteredTrusted.length ? <p className="p-2 font-semibold text-muted-foreground">No trusted flashcards loaded.</p> : null}
+                </div>
               </div>
+              {trusted.length > 0 && (
+                <p className="text-center text-xs font-semibold text-muted-foreground">
+                  {Math.min(visibleCount, trusted.length)} / {trusted.length} cards
+                </p>
+              )}
             </CardContent>
           </Card>
         </section>

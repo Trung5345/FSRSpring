@@ -140,22 +140,95 @@ function normalizeWordPage(
   };
 }
 
+function WordDetail3DModal({ word, onClose }: { word: Word | null, onClose: () => void }) {
+  if (!word) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 p-4 xl:p-8 backdrop-blur-sm transition-opacity" onClick={onClose}>
+      <div 
+        className="group relative w-full max-w-[380px] animate-in fade-in zoom-in-95 duration-300"
+        style={{ perspective: "1000px" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div 
+          className="relative transition-all duration-300 ease-out"
+          style={{ transformStyle: "preserve-3d" }}
+          onMouseMove={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -10;
+            const rotateY = ((x - centerX) / centerX) * 10;
+            e.currentTarget.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
+          }}
+        >
+          {/* Shadow layer behind */}
+          <div className="absolute inset-0 rounded-2xl bg-black/20 blur-xl transition-all duration-300" style={{ transform: "translateZ(-30px) translateY(10px)" }}></div>
+          
+          <div className="relative flex flex-col gap-4 overflow-hidden rounded-2xl border-4 border-white bg-white p-6 shadow-2xl transition-colors" style={{ transform: "translateZ(20px)" }}>
+            <WordImage word={word} />
+            <div className="flex flex-col gap-1">
+              <div className="flex items-start justify-between gap-2">
+                <h2 className="font-display text-2xl font-bold text-foreground">{word.word}</h2>
+                <DifficultyPill difficulty={word.difficulty} />
+              </div>
+              {word.pronunciation && (
+                <p className="font-mono text-[0.85rem] text-primary">{word.pronunciation}</p>
+              )}
+            </div>
+
+            <p className="font-body text-lg font-semibold text-muted-foreground">{word.translation}</p>
+
+            {word.example && (
+              <div className="rounded-xl bg-muted/50 p-4">
+                <p className="font-body text-[0.9rem] italic text-muted-foreground/80">&ldquo;{word.example}&rdquo;</p>
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {word.category && <span className="rounded-full border border-border bg-muted px-2.5 py-1 font-display text-[0.7rem] font-semibold text-muted-foreground">{word.category}</span>}
+              {word.topic && <span className="rounded-full bg-accent px-2.5 py-1 font-display text-[0.7rem] font-semibold text-accent-foreground">{word.topic.name}</span>}
+              {word.cefrLevel && <span className="rounded-full bg-secondary/40 px-2.5 py-1 font-display text-[0.7rem] font-semibold text-secondary-foreground">{word.cefrLevel}</span>}
+              {word.partOfSpeech && <span className="rounded-full border border-border px-2.5 py-1 font-display text-[0.7rem] text-muted-foreground">{word.partOfSpeech}</span>}
+            </div>
+
+            <div className="mt-2 flex justify-end">
+               <button type="button" onClick={onClose} className="btn-press rounded-xl bg-primary px-6 py-2.5 font-display text-[14px] font-bold uppercase tracking-[0.02em] text-primary-foreground">
+                 Close
+               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function VocabularyPage() {
   const params = useSearchParams();
   const [words, setWords] = useState<Word[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [search, setSearch] = useState("");
+  const [querySearch, setQuerySearch] = useState("");
+  const [suggestedWords, setSuggestedWords] = useState<Word[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  
   const [category, setCategory] = useState(params.get("category") || "");
   const [difficulty, setDifficulty] = useState("");
   const [topicId, setTopicId] = useState("");
   const [cefr, setCefr] = useState("");
   const [editing, setEditing] = useState<Partial<Word> | null>(null);
   const [deleting, setDeleting] = useState<Word | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [viewingWord, setViewingWord] = useState<Word | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);
   const [totalWords, setTotalWords] = useState(0);
-  const deferredSearch = useDeferredValue(search);
+
   const requestSeqRef = useRef(0);
   const replacingRef = useRef(false);
   const loadingMoreRef = useRef(false);
@@ -163,7 +236,36 @@ export function VocabularyPage() {
   const loadedCountRef = useRef(0);
   const { toast } = useToast();
 
-  const querySearch = deferredSearch.trim();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setQuerySearch(search.trim());
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    if (!search.trim()) {
+      setSuggestedWords([]);
+      setShowSuggestions(false);
+      return;
+    }
+    let ignore = false;
+    const t = setTimeout(() => {
+      api.wordsPage({ search: search.trim(), size: 5 })
+        .then((res) => {
+          if (!ignore) {
+            const normalized = normalizeWordPage(res, 0, 5);
+            setSuggestedWords(normalized.content);
+            setShowSuggestions(true);
+          }
+        })
+        .catch(() => {});
+    }, 300);
+    return () => {
+      ignore = true;
+      clearTimeout(t);
+    };
+  }, [search]);
 
   useEffect(() => {
     Promise.all([
@@ -180,7 +282,6 @@ export function VocabularyPage() {
     if (mode === "append") {
       loadingMoreRef.current = true;
     } else {
-      setLoading(true);
       replacingRef.current = true;
       loadingMoreRef.current = false;
     }
@@ -212,7 +313,7 @@ export function VocabularyPage() {
       }
     } finally {
       if (requestSeq === requestSeqRef.current) {
-        setLoading(false);
+        setInitialLoading(false);
         replacingRef.current = false;
         loadingMoreRef.current = false;
       }
@@ -298,7 +399,7 @@ export function VocabularyPage() {
     }
   }
 
-  if (loading) return <AppShellLoading label="Loading vocabulary..." />;
+  if (initialLoading) return <AppShellLoading label="Loading vocabulary..." />;
 
   return (
     <>
@@ -312,16 +413,45 @@ export function VocabularyPage() {
             </p>
           </div>
           <div className="flex gap-3">
-            <label className="relative flex-1 md:w-72">
+            <div className="relative flex-1 md:w-72">
               <IconSearch className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="search"
                 placeholder="Search words..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                onFocus={() => {
+                  if (suggestedWords.length > 0) setShowSuggestions(true);
+                }}
                 className="h-11 w-full rounded-full border-2 border-transparent bg-white pl-10 pr-4 font-body text-[17px] font-medium text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-primary"
               />
-            </label>
+              {showSuggestions && suggestedWords.length > 0 && (
+                <div className="absolute left-0 mt-2 w-full overflow-hidden rounded-xl border border-border bg-white shadow-xl z-50">
+                  <div className="max-h-60 overflow-y-auto py-2">
+                    {suggestedWords.map((word) => (
+                      <button
+                        key={word.id}
+                        type="button"
+                        className="flex w-full flex-col px-4 py-2 text-left hover:bg-muted focus:bg-muted focus:outline-none"
+                        onClick={() => {
+                          setSearch(word.word);
+                          setQuerySearch(word.word);
+                          setShowSuggestions(false);
+                        }}
+                      >
+                        <span className="font-display font-bold text-foreground">{word.word}</span>
+                        {word.translation && (
+                          <span className="truncate font-body text-[13px] text-muted-foreground">
+                            {word.translation}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             <button
               type="button"
               onClick={() => setEditing(emptyWord)}
@@ -403,7 +533,8 @@ export function VocabularyPage() {
           {words.map((word) => (
             <div
               key={word.id}
-              className="flex flex-col gap-2 rounded-xl border-2 border-border bg-white p-5 transition-[border-color,box-shadow] hover:border-primary hover:shadow-[0_2px_8px_rgba(0,101,144,0.12)]"
+              onClick={() => setViewingWord(word)}
+              className="flex cursor-pointer flex-col gap-2 rounded-xl border-2 border-border bg-white p-5 transition-[border-color,box-shadow,transform] hover:-translate-y-1 hover:border-primary hover:shadow-[0_8px_20px_rgba(0,101,144,0.12)]"
             >
               <WordImage word={word} />
 
@@ -456,7 +587,7 @@ export function VocabularyPage() {
               <div className="mt-auto flex gap-2 border-t border-border pt-3">
                 <button
                   type="button"
-                  onClick={() => setEditing(word)}
+                  onClick={(e) => { e.stopPropagation(); setEditing(word); }}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border-2 border-border bg-white px-3 py-2 font-display text-[0.75rem] font-bold uppercase tracking-[0.05em] text-primary transition hover:bg-accent"
                 >
                   <IconEdit className="h-[15px] w-[15px]" /> Edit
@@ -468,7 +599,7 @@ export function VocabularyPage() {
                 word.enrichmentStatus === "FAILED" ? (
                   <button
                     type="button"
-                    onClick={() => enrich(word.id)}
+                    onClick={(e) => { e.stopPropagation(); enrich(word.id); }}
                     className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border-2 border-border bg-white px-3 py-2 font-display text-[0.75rem] font-bold uppercase tracking-[0.05em] text-secondary-foreground transition hover:bg-secondary/30"
                   >
                     <IconSparkles className="h-[15px] w-[15px]" /> Enrich
@@ -476,7 +607,7 @@ export function VocabularyPage() {
                 ) : null}
                 <button
                   type="button"
-                  onClick={() => setDeleting(word)}
+                  onClick={(e) => { e.stopPropagation(); setDeleting(word); }}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border-2 border-border bg-white px-3 py-2 font-display text-[0.75rem] font-bold uppercase tracking-[0.05em] text-destructive transition hover:bg-destructive/10"
                 >
                   <IconTrash className="h-[15px] w-[15px]" /> Delete
@@ -634,6 +765,8 @@ export function VocabularyPage() {
           </div>
         </div>
       </Dialog>
+
+      <WordDetail3DModal word={viewingWord} onClose={() => setViewingWord(null)} />
     </>
   );
 }

@@ -3,6 +3,7 @@
 import { IconArrowLeft, IconCircleCheck, IconCircleX, IconPlayerPlay, IconPuzzle } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppShellLoading } from "@/components/layout/app-shell";
+import { Dialog } from "@/components/ui/dialog";
 import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { api } from "@/lib/api";
@@ -49,12 +50,14 @@ export function QuizPage() {
   const [screen, setScreen] = useState<Screen>("setup");
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [words, setWords] = useState<Word[]>([]);
+  const [distractors, setDistractors] = useState<Word[]>([]);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
   const { toast } = useToast();
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -79,25 +82,40 @@ export function QuizPage() {
 
   const choices = useMemo(() => {
     if (!current) return [];
-    const pool = words
+    const extract = (w: Word) => (quizType === "en-vi" ? w.translation : w.word);
+    const sessionPool = words
       .filter((w) => w.id !== current.id)
-      .map((w) => (quizType === "en-vi" ? w.translation : w.word))
+      .map(extract)
       .filter((v): v is string => Boolean(v));
-    const unique = [...new Set(pool)].filter((v) => v !== correctAnswer);
+    const distractorPool = distractors
+      .filter((w) => w.id !== current.id)
+      .map(extract)
+      .filter((v): v is string => Boolean(v));
+    const unique = [...new Set([...sessionPool, ...distractorPool])].filter(
+      (v) => v !== correctAnswer
+    );
     return shuffled([correctAnswer, ...shuffled(unique).slice(0, 3)]);
-  }, [current, words, quizType, correctAnswer]);
+  }, [current, words, distractors, quizType, correctAnswer]);
 
   async function start() {
     if (starting) return;
     setStarting(true);
     try {
       const data = await api.startQuiz({ count, category, difficulty, topicId: topicId ?? undefined, cefrLevel: cefr || undefined });
-      if (!data.words.length) {
+      // Filter out words that don't have enough data for the chosen type
+      const validWords = data.words.filter((w: Word) => {
+        if (quizType === "en-vi") return w.translation && w.translation.trim().length > 0;
+        return w.word && w.word.trim().length > 0;
+      });
+
+      if (!validWords.length) {
         toast("Không có từ phù hợp với bộ lọc quiz này.", "warning");
         return;
       }
+
       setSessionId(data.sessionId);
-      setWords(data.words);
+      setWords(validWords);
+      setDistractors(data.distractors ?? []);
       setIndex(0);
       setSelected(null);
       setCorrectCount(0);
@@ -117,12 +135,13 @@ export function QuizPage() {
     if (isCorrect) setCorrectCount((v) => v + 1);
     else setIncorrectCount((v) => v + 1);
     await api.submitQuizAnswer(sessionId, current.id, isCorrect);
-    await api.reviewWord(current.id, isCorrect ? 3 : 1, 0).catch(() => undefined);
+    // Removed duplicate api.reviewWord call as backend does it implicitly.
 
     const nextIndex = index + 1;
     timerRef.current = setTimeout(async () => {
       if (nextIndex >= words.length) {
         await api.completeQuiz(sessionId).catch(() => undefined);
+        api.checkInStreak().catch(() => undefined);
         setScreen("done");
       } else {
         setIndex(nextIndex);
@@ -136,6 +155,7 @@ export function QuizPage() {
     const nextIndex = index + 1;
     if (nextIndex >= words.length) {
       if (sessionId) await api.completeQuiz(sessionId).catch(() => undefined);
+      api.checkInStreak().catch(() => undefined);
       setScreen("done");
       return;
     }
@@ -321,12 +341,13 @@ export function QuizPage() {
   if (loading) return <AppShellLoading label="Loading quiz..." />;
 
   return (
+    <>
     <div className="mx-auto mt-6 max-w-xl space-y-4">
         {/* Progress Row */}
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => { clearTimeout(timerRef.current); setScreen("setup"); }}
+            onClick={() => setShowExitConfirm(true)}
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-border bg-white text-muted-foreground transition hover:bg-muted"
             aria-label="Back to settings"
           >
@@ -437,7 +458,7 @@ export function QuizPage() {
                   isCorrectAnswer ? "text-accent-foreground" : "text-destructive"
                 }`}
               >
-                {isCorrectAnswer ? "Correct!" : `Correct answer: ${correctAnswer}`}
+                {isCorrectAnswer ? "Correct!" : `Incorrect. Answer: ${correctAnswer}`}
               </p>
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/10">
@@ -461,5 +482,33 @@ export function QuizPage() {
           </button>
         ) : null}
     </div>
+
+      <Dialog
+        open={showExitConfirm}
+        title="Thoát quiz?"
+        onClose={() => setShowExitConfirm(false)}
+        className="max-w-sm"
+      >
+        <p className="font-body text-[17px] text-muted-foreground">
+          Tiến trình hiện tại sẽ bị mất. Bạn có chắc muốn thoát không?
+        </p>
+        <div className="mt-5 flex gap-3">
+          <button
+            type="button"
+            onClick={() => setShowExitConfirm(false)}
+            className="flex-1 rounded-xl border-2 border-border bg-white py-2.5 font-display text-[15px] font-bold uppercase tracking-widest text-foreground transition hover:bg-muted"
+          >
+            Tiếp tục
+          </button>
+          <button
+            type="button"
+            onClick={() => { clearTimeout(timerRef.current); setShowExitConfirm(false); setScreen("setup"); }}
+            className="flex-1 rounded-xl bg-destructive py-2.5 font-display text-[15px] font-bold uppercase tracking-widest text-white transition hover:opacity-90"
+          >
+            Thoát
+          </button>
+        </div>
+      </Dialog>
+    </>
   );
 }

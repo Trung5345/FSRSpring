@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -145,12 +146,14 @@ public class WordService {
     }
 
     public Word getWordByText(String word) {
-        return wordRepository.findByWordIgnoreCase(word)
+        return wordRepository.findByWordIgnoreCase(normalizeWord(word))
                 .orElseThrow(() -> new NoSuchElementException("Word not found: " + word));
     }
 
     public Word getOrCreateWord(Word word) {
-        return wordRepository.findByWordIgnoreCase(word.getWord())
+        String normalizedWord = normalizeWord(word.getWord());
+        word.setWord(normalizedWord);
+        return wordRepository.findByWordIgnoreCase(normalizedWord)
                 .orElseGet(() -> createWord(word));
     }
 
@@ -179,10 +182,17 @@ public class WordService {
     }
 
     public Word createWord(Word word) {
-        if (wordRepository.existsByWordIgnoreCase(word.getWord())) {
-            throw new IllegalArgumentException("Word already exists: " + word.getWord());
+        String normalizedWord = normalizeWord(word.getWord());
+        word.setWord(normalizedWord);
+        if (wordRepository.existsByWordIgnoreCase(normalizedWord)) {
+            throw new IllegalArgumentException("Word already exists: " + normalizedWord);
         }
-        Word saved = wordRepository.save(word);
+        Word saved;
+        try {
+            saved = wordRepository.saveAndFlush(word);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("Word already exists: " + normalizedWord);
+        }
         wordEnrichmentService.enqueueWord(saved.getId());
         return saved;
     }
@@ -209,7 +219,13 @@ public class WordService {
 
     public Word updateWord(Long id, Word updatedWord) {
         Word existing = getWordById(id);
-        existing.setWord(updatedWord.getWord());
+        String normalizedWord = normalizeWord(updatedWord.getWord());
+        wordRepository.findByWordIgnoreCase(normalizedWord)
+                .filter(word -> !word.getId().equals(id))
+                .ifPresent(word -> {
+                    throw new IllegalArgumentException("Word already exists: " + normalizedWord);
+                });
+        existing.setWord(normalizedWord);
         existing.setTranslation(updatedWord.getTranslation());
         existing.setExample(updatedWord.getExample());
         existing.setPronunciation(updatedWord.getPronunciation());
@@ -235,5 +251,12 @@ public class WordService {
 
     public long countWords() {
         return wordRepository.count();
+    }
+
+    private String normalizeWord(String word) {
+        if (word == null) {
+            return null;
+        }
+        return word.trim();
     }
 }

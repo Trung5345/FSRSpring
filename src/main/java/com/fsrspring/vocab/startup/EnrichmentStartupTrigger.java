@@ -1,5 +1,6 @@
 package com.fsrspring.vocab.startup;
 
+import com.fsrspring.vocab.config.EnrichmentProperties;
 import com.fsrspring.vocab.service.WordEnrichmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,11 +23,18 @@ import org.springframework.stereotype.Component;
 public class EnrichmentStartupTrigger {
 
     private final WordEnrichmentService enrichmentService;
+    private final EnrichmentProperties enrichmentProperties;
 
     @Async
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
+        if (!enrichmentProperties.getEnrichment().isEnabled()) {
+            log.debug("Startup enrichment disabled");
+            return;
+        }
+
         try {
+            enrichmentService.resetStuckJobs();
             int queued = enrichmentService.enrichAllMissing();
             if (queued > 0) {
                 log.info("Startup enrichment: queued {} words for background enrichment", queued);

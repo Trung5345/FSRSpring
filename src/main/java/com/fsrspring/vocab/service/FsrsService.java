@@ -44,7 +44,8 @@ public class FsrsService {
         UserProgress progress = getOrCreateProgress(word);
         LocalDateTime now = LocalDateTime.now();
 
-        boolean correct = boundedRating >= 3;
+        // In FSRS: Again(1)=forgot(lapse), Hard(2)/Good(3)/Easy(4)=correct
+        boolean correct = boundedRating >= 2;
         if (correct) {
             progress.setCorrectCount(progress.getCorrectCount() + 1);
             progress.setFsrsRepetition(progress.getFsrsRepetition() + 1);

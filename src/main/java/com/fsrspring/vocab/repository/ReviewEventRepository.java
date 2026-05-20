@@ -11,4 +11,6 @@ import java.util.List;
 public interface ReviewEventRepository extends JpaRepository<ReviewEvent, Long> {
 
     List<ReviewEvent> findTop20ByWordOrderByReviewedAtDesc(Word word);
+
+    List<ReviewEvent> findByWord(Word word);
 }

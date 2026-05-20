@@ -20,6 +20,7 @@ public class QuizService {
     private final WordService wordService;
     private final ProgressService progressService;
     private final CurrentUserService currentUserService;
+    private final StreakService streakService;
 
     public QuizSession startSession(int questionCount, String category, Word.DifficultyLevel difficulty) {
         QuizSession session = QuizSession.builder()
@@ -48,6 +49,9 @@ public class QuizService {
         QuizSession session = quizSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("Quiz session not found: " + sessionId));
         session.setCompletedAt(LocalDateTime.now());
+        
+        currentUserService.getCurrentUserOptional().ifPresent(user -> streakService.checkIn());
+
         return quizSessionRepository.save(session);
     }
 
