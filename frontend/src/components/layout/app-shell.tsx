@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import {
   IconDoorEnter,
   IconLogout2,
-  IconUserFilled
+  IconUserFilled,
+  IconMenu2
 } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppDiamondIcon, AppFlameIcon, navigationIcons } from "@/components/icons/app-icons";
@@ -41,6 +42,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [authChecked, setAuthChecked] = useState(false);
   const [streak, setStreak] = useState(0);
   const [xp] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const pageTitle = useMemo(() => titles[pathname] || "FSRSpring", [pathname]);
 
@@ -133,7 +135,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <header className="sticky top-0 z-30 border-b-2 border-border bg-card px-4 py-4 lg:fixed lg:left-64 lg:right-0 lg:flex lg:h-20 lg:items-center lg:justify-between lg:px-12 lg:py-0">
         <div className="flex items-center justify-between gap-4 lg:contents">
-          <h1 className="font-display text-2xl font-bold text-foreground">{pageTitle}</h1>
+          <div className="flex items-center gap-3 lg:contents">
+            <button
+              className="lg:hidden p-1 text-[#404a52] hover:text-primary transition"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle mobile menu"
+            >
+              <IconMenu2 className="h-6 w-6" stroke={2} />
+            </button>
+            <h1 className="font-display text-2xl font-bold text-foreground">{pageTitle}</h1>
+          </div>
           <div className="flex items-center gap-6">
             <button className="flex items-center gap-2 transition hover:opacity-80" aria-label="Daily streak">
               <AppFlameIcon className="text-[34px] text-[#f4bf00]" />
@@ -148,16 +159,30 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <NotificationWidget />
           </div>
         </div>
-        <nav className="mt-4 flex gap-2 overflow-x-auto lg:hidden">
-          {nav.map((item) => {
-            const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-            return (
-              <Link key={item.href} href={item.href} className={cn("rounded-full px-3 py-2 font-display text-xs font-bold uppercase tracking-wide", active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+        {isMobileMenuOpen && (
+          <nav className="mt-4 flex flex-col gap-2 rounded-xl border-2 border-border bg-card p-4 shadow-sm lg:hidden">
+            {nav.map((item) => {
+              const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={cn(
+                    "flex items-center gap-4 rounded-xl px-4 py-3 font-display text-[15px] font-bold uppercase tracking-[0.05em] transition",
+                    active
+                      ? "border-2 border-primary bg-accent text-primary"
+                      : "text-[#404a52] hover:bg-muted hover:text-primary"
+                  )}
+                >
+                  <Icon className="h-6 w-6 shrink-0" stroke={2} fill="none" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
       </header>
 
       <main className="px-4 py-6 lg:ml-64 lg:pt-28 xl:px-12">{children}</main>
