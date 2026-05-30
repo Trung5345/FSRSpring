@@ -48,6 +48,9 @@ public interface UserProgressRepository extends JpaRepository<UserProgress, Long
     @Query("SELECT COUNT(up) FROM UserProgress up WHERE up.user = :user AND (up.nextReview <= :now OR up.nextReview IS NULL)")
     long countDueWords(AppUser user, LocalDateTime now);
 
+    @Query("SELECT COUNT(up) FROM UserProgress up WHERE up.user = :user AND up.nextReview < :startOfDay")
+    long countOverdueWords(AppUser user, LocalDateTime startOfDay);
+
     @Query("SELECT COUNT(up) FROM UserProgress up WHERE up.user = :user AND up.mastery = 'MASTERED'")
     long countMastered(AppUser user);
 

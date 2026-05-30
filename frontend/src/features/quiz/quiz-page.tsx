@@ -101,12 +101,16 @@ export function QuizPage() {
     if (starting) return;
     setStarting(true);
     try {
-      const data = await api.startQuiz({ count, category, difficulty, topicId: topicId ?? undefined, cefrLevel: cefr || undefined });
-      // Filter out words that don't have enough data for the chosen type
-      const validWords = data.words.filter((w: Word) => {
-        if (quizType === "en-vi") return w.translation && w.translation.trim().length > 0;
-        return w.word && w.word.trim().length > 0;
+      const data = await api.startQuiz({
+        count,
+        category,
+        difficulty,
+        topicId: topicId ?? undefined,
+        cefrLevel: cefr || undefined,
+        type: quizType
       });
+      // The backend already filtered for valid words matching the type
+      const validWords = data.words;
 
       if (!validWords.length) {
         toast("Không có từ phù hợp với bộ lọc quiz này.", "warning");
@@ -362,7 +366,7 @@ export function QuizPage() {
             </div>
           </div>
           <span className="font-display text-[15px] font-bold text-muted-foreground">
-            {index} / {words.length}
+            {index + 1} / {words.length}
           </span>
         </div>
 
@@ -434,7 +438,9 @@ export function QuizPage() {
                 >
                   {LETTERS[i]}
                 </span>
-                {choice}
+                <span className="line-clamp-3 break-words text-left">
+                  {choice}
+                </span>
               </button>
             );
           })}

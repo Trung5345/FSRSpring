@@ -9,7 +9,7 @@ type Notification = {
   id: number;
   title: string;
   message: string;
-  type: "REVIEW_REMINDER" | "STREAK_ALERT" | "ACHIEVEMENT" | "SYSTEM";
+  type: "REVIEW_REMINDER" | "DAILY_DUE_REMINDER" | "EVENING_REVIEW_REMINDER" | "OVERDUE_REMINDER" | "STREAK_ALERT" | "ACHIEVEMENT" | "SYSTEM";
   deepLink?: string;
   isRead: boolean;
   createdAt: string;

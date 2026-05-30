@@ -5,6 +5,7 @@ import type {
   NotificationItem,
   PageResponse,
   QuizSession,
+  ReminderSettings,
   Topic,
   TrustedFlashcard,
   UserProgress,
@@ -86,7 +87,7 @@ export const api = {
   reviewQueue: () => request<UserProgress[]>("/api/progress/review"),
   quizStats: () => request<Record<string, number>>("/api/quiz/stats"),
   recentQuizSessions: () => request<QuizSession[]>("/api/quiz/sessions/recent"),
-  startQuiz: (query: Query) =>
+  startQuiz: (query: { count?: number; category?: string; difficulty?: string; topicId?: number; cefrLevel?: string; type?: string }) =>
     request<{ sessionId: number; words: Word[]; totalQuestions: number; distractors: Word[] }>(
       `/api/quiz/start${toQuery(query)}`,
       { method: "POST" }
@@ -102,6 +103,12 @@ export const api = {
   notifications: () => request<NotificationItem[]>("/api/notifications"),
   unreadNotifications: () => request<{ unread: number }>("/api/notifications/unread-count"),
   markNotificationRead: (id: number) => request<void>(`/api/notifications/${id}/read`, { method: "POST" }),
+  reminderSettings: () => request<ReminderSettings>("/api/notifications/settings"),
+  updateReminderSettings: (settings: Partial<ReminderSettings>) =>
+    request<ReminderSettings>("/api/notifications/settings", {
+      method: "PUT",
+      body: JSON.stringify(settings)
+    }),
   flashcards: (search?: string) => request<TrustedFlashcard[]>(`/api/flashcards${toQuery({ search })}`),
   importFlashcards: (source: string, topic: string) =>
     request<TrustedFlashcard[]>(`/api/flashcards/import${toQuery({ source, topic })}`, {

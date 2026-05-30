@@ -56,6 +56,9 @@ public class AppNotification {
 
     public enum NotificationType {
         REVIEW_REMINDER,
+        DAILY_DUE_REMINDER,
+        EVENING_REVIEW_REMINDER,
+        OVERDUE_REMINDER,
         CONTENT_RECOMMENDATION,
         STREAK_ALERT
     }

@@ -65,6 +65,16 @@ export interface AppUser {
   lastLoginAt?: string;
 }
 
+export interface ReminderSettings {
+  reviewRemindersEnabled: boolean;
+  preferredReminderTime: string;
+  eveningReminderEnabled: boolean;
+  eveningReminderTime: string;
+  comebackReminderEnabled: boolean;
+  comebackReminderIntervalDays: number;
+  eveningRemainingThreshold: number;
+}
+
 export interface TrustedFlashcard {
   id: number;
   front?: string;
@@ -111,6 +121,9 @@ export interface NotificationItem {
   id: number;
   title: string;
   message: string;
+  type?: "REVIEW_REMINDER" | "DAILY_DUE_REMINDER" | "EVENING_REVIEW_REMINDER" | "OVERDUE_REMINDER" | "STREAK_ALERT" | "ACHIEVEMENT" | "SYSTEM";
   deepLink?: string;
+  isRead?: boolean;
   read?: boolean;
+  createdAt?: string;
 }

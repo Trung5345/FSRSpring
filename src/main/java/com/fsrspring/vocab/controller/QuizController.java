@@ -27,7 +27,8 @@ public class QuizController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false) Word.DifficultyLevel difficulty,
             @RequestParam(required = false) Long topicId,
-            @RequestParam(required = false) CefrLevel cefrLevel) {
+            @RequestParam(required = false) CefrLevel cefrLevel,
+            @RequestParam(required = false) String type) {
         List<Word> words;
         if (topicId != null && cefrLevel != null) {
             words = new ArrayList<>(wordService.getWordsByTopicAndCefr(topicId, cefrLevel));
@@ -42,8 +43,21 @@ public class QuizController {
         } else if (difficulty != null) {
             words = new ArrayList<>(wordService.getWordsByDifficulty(difficulty));
         } else {
-            words = new ArrayList<>(wordService.getRandomWords(count));
+            // we request more initially to account for filtering down below
+            words = new ArrayList<>(wordService.getRandomWords(count * 3));
         }
+        
+        // Filter out words based on quiz type requirements
+        if ("en-vi".equals(type)) {
+            words.removeIf(w -> w.getTranslation() == null || w.getTranslation().trim().isEmpty());
+        } else if ("vi-en".equals(type)) {
+            words.removeIf(w -> w.getWord() == null || w.getWord().trim().isEmpty());
+        } else {
+            // Default: Both must be present to be safe
+            words.removeIf(w -> w.getWord() == null || w.getWord().trim().isEmpty() ||
+                                w.getTranslation() == null || w.getTranslation().trim().isEmpty());
+        }
+
         // Apply category/difficulty filter on top of topic/cefr if both are specified
         if (topicId != null || cefrLevel != null) {
             if (category != null) {
@@ -55,6 +69,9 @@ public class QuizController {
                 words.removeIf(w -> !diff.equals(w.getDifficulty()));
             }
         }
+        
+        Collections.shuffle(words);
+        
         if (words.size() > count) {
             words = words.subList(0, count);
         }

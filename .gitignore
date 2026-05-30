@@ -78,8 +78,5 @@ docker-compose.override.yml
 
 # Misc
 replay_pid*
-scripts/*
-!scripts/*mvnw
-!scripts/*mvnw.cmd
 client_secret*
 .vercel
