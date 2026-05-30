@@ -33,6 +33,9 @@ public class AppUser {
     @Column(unique = true)
     private String googleId;
 
+    @Column(name = "password_hash")
+    private String passwordHash;
+
     public enum Role {
         USER, ADMIN
     }

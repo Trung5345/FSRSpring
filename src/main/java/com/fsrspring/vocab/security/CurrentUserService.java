@@ -5,6 +5,7 @@ import com.fsrspring.vocab.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -27,12 +28,24 @@ public class CurrentUserService {
             return Optional.empty();
         }
 
-        if (!(authentication.getPrincipal() instanceof OAuth2User oauth2User)) {
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof AppUser appUser) {
+            return Optional.of(appUser);
+        }
+
+        String email = null;
+        if (principal instanceof OAuth2User oauth2User) {
+            email = oauth2User.getAttribute("email");
+        } else if (principal instanceof UserDetails userDetails) {
+            email = userDetails.getUsername();
+        } else if (principal instanceof String value) {
+            email = value;
+        }
+
+        if (email == null || email.isBlank() || "anonymousUser".equals(email)) {
             return Optional.empty();
         }
 
-        String email = oauth2User.getAttribute("email");
-        
         return appUserRepository.findByEmail(email);
     }
 }
