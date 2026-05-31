@@ -50,7 +50,12 @@ export default function NotificationsPage() {
       const val = n.value as unknown;
       setNotifList(Array.isArray(val) ? (val as Notification[]) : []);
     }
-    if (u.status === 'fulfilled') setUnreadCount(u.value as number);
+    if (u.status === 'fulfilled') {
+      const val = u.value as unknown;
+      if (typeof val === 'number') setUnreadCount(val);
+      else if (val && typeof val === 'object' && (val as any).unread != null) setUnreadCount((val as any).unread as number);
+      else setUnreadCount(0);
+    }
     if (s.status === 'fulfilled') setSettings(s.value as NotifSettings);
     setLoading(false);
   }, []);

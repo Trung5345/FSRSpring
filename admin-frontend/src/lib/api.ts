@@ -90,7 +90,12 @@ export const streak = {
 // Notifications
 export const notifications = {
   list: () => request('/api/notifications'),
-  unreadCount: () => request<number>('/api/notifications/unread-count'),
+  unreadCount: async () => {
+    const res = await request('/api/notifications/unread-count');
+    if (typeof res === 'number') return res;
+    if (res && typeof res === 'object' && (res as any).unread != null) return (res as any).unread as number;
+    return 0;
+  },
   markRead: (id: number) =>
     request(`/api/notifications/${id}/read`, { method: 'POST' }),
   settings: () => request('/api/notifications/settings'),
