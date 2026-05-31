@@ -25,11 +25,18 @@ services:
       - .env
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      MYSQL_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-fsrspring}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8&useUnicode=true
+      # MySQL — override .env MYSQLHOST to use Docker service name
+      MYSQLHOST: mysql
+      MYSQLPORT: "3306"
+      MYSQLDATABASE: ${MYSQL_DATABASE:-fsrspring}
+      MYSQLUSER: ${MYSQL_USER:-fsr_user}
+      MYSQLPASSWORD: ${MYSQL_PASSWORD:-fsr_pass}
+      # Redis — override .env REDISHOST to use Docker service name
       SPRING_DATA_REDIS_HOST: redis
-      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PORT: "6379"
       SPRING_DATA_REDIS_PASSWORD: ${REDISPASSWORD:-fsr_redis_pass_123}
       REDIS_URL: ""
+      # App-specific overrides for Docker network
       APP_API_LIBRETRANSLATE_BASE_URL: http://libretranslate:5000
       APP_FRONTEND_BASE_URL: http://localhost:3000
       JAVA_OPTS: -Xms128m -Xmx512m
