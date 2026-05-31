@@ -65,6 +65,6 @@ echo [dev] Press Ctrl+C to stop Spring Boot.
 echo [dev] Close the other two windows to stop frontends.
 echo.
 
-:: Run Spring Boot in this window (foreground)
+:: Run Spring Boot in this window (foreground, clean first to avoid stale class files)
 cd /d "%ROOT_DIR%"
-call mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local %*
+call mvnw.cmd clean spring-boot:run -Dspring-boot.run.profiles=local %*

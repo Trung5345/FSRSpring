@@ -70,7 +70,7 @@ echo "[dev]   Admin UI → http://localhost:$ADMIN_PORT"
 echo "[dev]   API      → http://localhost:$BACKEND_PORT"
 echo "[dev] ─────────────────────────────────────────"
 
-# Start Spring Boot in foreground
+# Start Spring Boot in foreground (clean first to avoid stale class files)
 echo "[dev] Starting Spring Boot (local profile)..."
 cd "$ROOT_DIR"
-./mvnw spring-boot:run -Dspring-boot.run.profiles=local "$@"
+./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local "$@"
