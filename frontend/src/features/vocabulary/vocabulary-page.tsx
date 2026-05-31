@@ -3,20 +3,23 @@
 import { useSearchParams } from "next/navigation";
 import {
   IconBooks,
+  IconCheck,
   IconEdit,
+  IconLoader2,
   IconPhotoOff,
   IconPlus,
   IconSearch,
   IconSparkles,
-  IconTrash
+  IconTrash,
+  IconX
 } from "@tabler/icons-react";
-import { FormEvent, useCallback, useDeferredValue, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { AppShellLoading } from "@/components/layout/app-shell";
 import { Dialog } from "@/components/ui/dialog";
 import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { api } from "@/lib/api";
-import type { DifficultyLevel, PageResponse, Topic, Word } from "@/types/api";
+import type { DictionaryLookup, DifficultyLevel, PageResponse, Topic, Word } from "@/types/api";
 
 const INITIAL_WORD_COUNT = 20;
 const SCROLL_WORD_BATCH_SIZE = 16;
@@ -27,7 +30,8 @@ const emptyWord: Partial<Word> = {
   pronunciation: "",
   category: "",
   difficulty: "INTERMEDIATE",
-  example: ""
+  example: "",
+  imageUrl: ""
 };
 
 function DifficultyPill({ difficulty }: { difficulty?: string }) {
@@ -228,6 +232,8 @@ export function VocabularyPage() {
   const [initialLoading, setInitialLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);
   const [totalWords, setTotalWords] = useState(0);
+  const [enrichStatus, setEnrichStatus] = useState<"idle" | "loading" | "found" | "not-found">("idle");
+  const [lookupData, setLookupData] = useState<DictionaryLookup | null>(null);
 
   const requestSeqRef = useRef(0);
   const replacingRef = useRef(false);
@@ -359,6 +365,43 @@ export function VocabularyPage() {
     };
   }, [loadNextBatch]);
 
+  // Auto-lookup dictionary when typing a new word (debounced 800ms).
+  // Only runs for new words (no id) and fills empty pronunciation/example fields.
+  useEffect(() => {
+    const isNewWord = !!editing && !editing.id;
+    const w = editing?.word?.trim() ?? "";
+    if (!isNewWord || w.length < 2) {
+      if (!isNewWord) { setEnrichStatus("idle"); setLookupData(null); }
+      return;
+    }
+
+    setEnrichStatus("loading");
+    let cancelled = false;
+
+    const t = setTimeout(() => {
+      api.lookupDictionary(w)
+        .then((data) => {
+          if (cancelled) return;
+          setLookupData(data);
+          setEditing((prev) => {
+            if (!prev || prev.word?.trim() !== w) return prev;
+            return {
+              ...prev,
+              pronunciation: prev.pronunciation?.trim() ? prev.pronunciation : (data.bestPhonetic ?? ""),
+              example: prev.example?.trim() ? prev.example : (data.firstExample ?? ""),
+            };
+          });
+          setEnrichStatus("found");
+        })
+        .catch(() => {
+          if (!cancelled) { setLookupData(null); setEnrichStatus("not-found"); }
+        });
+    }, 800);
+
+    return () => { cancelled = true; clearTimeout(t); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editing?.word, editing?.id]);
+
   async function saveWord(event: FormEvent) {
     event.preventDefault();
     if (!editing?.word) return;
@@ -367,10 +410,13 @@ export function VocabularyPage() {
         await api.updateWord(editing.id, editing);
         toast("Đã cập nhật từ vựng.", "success");
       } else {
-        await api.createWord(editing);
-        toast("Đã thêm từ mới.", "success");
+        const created = await api.createWord(editing);
+        toast("Đã thêm từ mới. Đang enrich dữ liệu...", "success");
+        api.enrichWord(created.id).catch(() => {});
       }
       setEditing(null);
+      setEnrichStatus("idle");
+      setLookupData(null);
       await loadWords(0, INITIAL_WORD_COUNT, "replace");
     } catch {
       toast("Không thể lưu từ vựng. Vui lòng thử lại.", "error");
@@ -454,7 +500,7 @@ export function VocabularyPage() {
             </div>
             <button
               type="button"
-              onClick={() => setEditing(emptyWord)}
+              onClick={() => { setEditing(emptyWord); setEnrichStatus("idle"); setLookupData(null); }}
               className="btn-press flex items-center gap-2 whitespace-nowrap rounded-full border-2 border-white bg-white px-5 font-display text-[15px] font-bold uppercase tracking-[0.05em] text-primary"
             >
               <IconPlus className="h-5 w-5" /> Add Word
@@ -519,7 +565,7 @@ export function VocabularyPage() {
           <p className="font-body text-[17px]">Try adjusting your filters or add new words.</p>
           <button
             type="button"
-            onClick={() => setEditing(emptyWord)}
+            onClick={() => { setEditing(emptyWord); setEnrichStatus("idle"); setLookupData(null); }}
             className="btn-press flex items-center gap-2 rounded-xl bg-primary px-6 py-3 font-display text-[15px] font-bold uppercase tracking-[0.02em] text-primary-foreground"
           >
             <IconPlus className="h-5 w-5" /> Add First Word
@@ -587,7 +633,7 @@ export function VocabularyPage() {
               <div className="mt-auto flex gap-2 border-t border-border pt-3">
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); setEditing(word); }}
+                  onClick={(e) => { e.stopPropagation(); setEditing(word); setEnrichStatus("idle"); setLookupData(null); }}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border-2 border-border bg-white px-3 py-2 font-display text-[0.75rem] font-bold uppercase tracking-[0.05em] text-primary transition hover:bg-accent"
                 >
                   <IconEdit className="h-[15px] w-[15px]" /> Edit
@@ -630,29 +676,49 @@ export function VocabularyPage() {
       <Dialog
         open={!!editing}
         title={editing?.id ? "Edit Word" : "Add New Word"}
-        onClose={() => setEditing(null)}
+        onClose={() => { setEditing(null); setEnrichStatus("idle"); setLookupData(null); }}
         className="max-w-lg"
       >
         <form className="flex flex-col gap-5" onSubmit={saveWord}>
+
+          {/* Row 1: Word + Translation */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="font-display text-[13px] font-bold uppercase tracking-widest text-muted-foreground">
                 Word *
               </label>
-              <input
-                required
-                placeholder="apple"
-                value={editing?.word || ""}
-                onChange={(e) => setEditing({ ...editing, word: e.target.value })}
-                className="rounded-xl border-2 border-border bg-muted px-3 py-2.5 font-body text-[17px] text-foreground outline-none focus:border-primary"
-              />
+              <div className="relative">
+                <input
+                  required
+                  placeholder="apple"
+                  value={editing?.word || ""}
+                  onChange={(e) => setEditing({ ...editing, word: e.target.value })}
+                  className="w-full rounded-xl border-2 border-border bg-muted py-2.5 pl-3 pr-9 font-body text-[17px] text-foreground outline-none focus:border-primary"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                  {enrichStatus === "loading" && (
+                    <IconLoader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  )}
+                  {enrichStatus === "found" && (
+                    <IconCheck className="h-4 w-4 text-emerald-500" />
+                  )}
+                  {enrichStatus === "not-found" && (
+                    <IconX className="h-4 w-4 text-muted-foreground/50" />
+                  )}
+                </span>
+              </div>
+              {enrichStatus === "found" && lookupData?.firstDefinition && (
+                <p className="truncate font-body text-[0.7rem] italic text-muted-foreground">
+                  {lookupData.firstDefinition}
+                </p>
+              )}
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="font-display text-[13px] font-bold uppercase tracking-widest text-muted-foreground">
                 Translation
               </label>
               <input
-                placeholder="Auto-enriched after save"
+                placeholder="Auto-translated after save"
                 value={editing?.translation || ""}
                 onChange={(e) => setEditing({ ...editing, translation: e.target.value })}
                 className="rounded-xl border-2 border-border bg-muted px-3 py-2.5 font-body text-[17px] text-foreground outline-none focus:border-primary"
@@ -660,11 +726,19 @@ export function VocabularyPage() {
             </div>
           </div>
 
+          {/* Row 2: Pronunciation + Category */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="font-display text-[13px] font-bold uppercase tracking-widest text-muted-foreground">
-                Pronunciation
-              </label>
+              <div className="flex items-center gap-1.5">
+                <label className="font-display text-[13px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Pronunciation
+                </label>
+                {enrichStatus === "found" && lookupData?.bestPhonetic && !editing?.id && (
+                  <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 font-display text-[0.6rem] font-bold text-emerald-700">
+                    Auto
+                  </span>
+                )}
+              </div>
               <input
                 placeholder="/ˈæp.əl/"
                 value={editing?.pronunciation || ""}
@@ -685,6 +759,7 @@ export function VocabularyPage() {
             </div>
           </div>
 
+          {/* Row 3: Difficulty */}
           <div className="flex flex-col gap-1.5">
             <label className="font-display text-[13px] font-bold uppercase tracking-widest text-muted-foreground">
               Difficulty
@@ -700,10 +775,44 @@ export function VocabularyPage() {
             </select>
           </div>
 
+          {/* Row 4: Image URL */}
           <div className="flex flex-col gap-1.5">
             <label className="font-display text-[13px] font-bold uppercase tracking-widest text-muted-foreground">
-              Example Sentence
+              Image URL
             </label>
+            <input
+              type="url"
+              placeholder="https://... (để trống — tự fetch sau khi save)"
+              value={editing?.imageUrl || ""}
+              onChange={(e) => setEditing({ ...editing, imageUrl: e.target.value })}
+              className="rounded-xl border-2 border-border bg-muted px-3 py-2.5 font-body text-[15px] text-foreground outline-none focus:border-primary"
+            />
+            {editing?.imageUrl ? (
+              <img
+                src={editing.imageUrl}
+                alt="preview"
+                className="h-28 w-full rounded-lg border border-border object-cover"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+              />
+            ) : (
+              <p className="font-body text-[0.7rem] text-muted-foreground">
+                Để trống — ảnh sẽ được tự động tìm kiếm khi enrich sau khi lưu.
+              </p>
+            )}
+          </div>
+
+          {/* Row 5: Example Sentence */}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-1.5">
+              <label className="font-display text-[13px] font-bold uppercase tracking-widest text-muted-foreground">
+                Example Sentence
+              </label>
+              {enrichStatus === "found" && lookupData?.firstExample && !editing?.id && (
+                <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 font-display text-[0.6rem] font-bold text-emerald-700">
+                  Auto
+                </span>
+              )}
+            </div>
             <input
               placeholder="I eat an apple every day."
               value={editing?.example || ""}
@@ -712,10 +821,20 @@ export function VocabularyPage() {
             />
           </div>
 
+          {/* Auto-enrich hint */}
+          {!editing?.id && (
+            <div className="flex items-center gap-2 rounded-xl bg-secondary/20 px-3 py-2.5">
+              <IconSparkles className="h-4 w-4 shrink-0 text-secondary-foreground/70" />
+              <p className="font-body text-[0.75rem] text-muted-foreground">
+                Sau khi lưu, từ sẽ được tự động enrich: dịch nghĩa, IPA, ảnh, từ loại.
+              </p>
+            </div>
+          )}
+
           <div className="flex justify-end gap-3 pt-1">
             <button
               type="button"
-              onClick={() => setEditing(null)}
+              onClick={() => { setEditing(null); setEnrichStatus("idle"); setLookupData(null); }}
               className="rounded-xl border-2 border-border px-6 py-2.5 font-display text-[15px] font-bold uppercase tracking-[0.02em] text-muted-foreground transition hover:bg-muted"
             >
               Cancel

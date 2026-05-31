@@ -1,6 +1,17 @@
 export type DifficultyLevel = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
 export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 
+export interface DictionaryLookup {
+  word?: string;
+  bestPhonetic?: string;
+  firstDefinition?: string;
+  firstExample?: string;
+  primaryPartOfSpeech?: string;
+  bestAudioUrl?: string;
+  allSynonyms?: string;
+  allAntonyms?: string;
+}
+
 export interface Topic {
   id: number;
   name: string;

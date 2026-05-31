@@ -7,6 +7,7 @@ ADMIN_PORT=3001
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
+BACKEND_PID=""
 FRONTEND_PID=""
 ADMIN_PID=""
 
@@ -36,7 +37,8 @@ free_port() {
 
 cleanup() {
   echo ""
-  echo "[dev] Shutting down frontends..."
+  echo "[dev] Shutting down..."
+  [[ -n "$BACKEND_PID" ]] && kill "$BACKEND_PID" 2>/dev/null || true
   [[ -n "$FRONTEND_PID" ]] && kill "$FRONTEND_PID" 2>/dev/null || true
   [[ -n "$ADMIN_PID" ]] && kill "$ADMIN_PID" 2>/dev/null || true
 }
@@ -54,12 +56,39 @@ for port in $BACKEND_PORT $FRONTEND_PORT $ADMIN_PORT; do
   fi
 done
 
-# Start user frontend on port 3000
+# Start Spring Boot in background FIRST (clean to avoid stale class files)
+echo "[dev] Starting Spring Boot (local profile) — compiling..."
+cd "$ROOT_DIR"
+./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local "$@" &
+BACKEND_PID=$!
+
+# Wait for Spring Boot to be healthy before starting frontends.
+# This prevents the Next.js proxy from returning 500 while the backend is still starting.
+echo "[dev] Waiting for Spring Boot on :$BACKEND_PORT (this may take ~60s on first run)..."
+elapsed=0
+until curl -sf "http://localhost:$BACKEND_PORT/api/words/count" >/dev/null 2>&1; do
+  if ! kill -0 "$BACKEND_PID" 2>/dev/null; then
+    echo ""
+    echo "[dev] ERROR: Spring Boot exited unexpectedly. Check logs above."
+    exit 1
+  fi
+  if [[ $elapsed -ge 300 ]]; then
+    echo ""
+    echo "[dev] ERROR: Spring Boot did not become ready within 5 minutes."
+    exit 1
+  fi
+  printf "."
+  sleep 3
+  elapsed=$((elapsed + 3))
+done
+echo ""
+echo "[dev] Spring Boot is ready!"
+
+# Start frontends only after backend is healthy
 echo "[dev] Starting user frontend  → http://localhost:$FRONTEND_PORT"
 (cd "$ROOT_DIR/frontend" && pnpm dev -p "$FRONTEND_PORT") &
 FRONTEND_PID=$!
 
-# Start admin frontend on port 3001
 echo "[dev] Starting admin frontend → http://localhost:$ADMIN_PORT"
 (cd "$ROOT_DIR/admin-frontend" && npm run dev -- -p "$ADMIN_PORT") &
 ADMIN_PID=$!
@@ -70,7 +99,5 @@ echo "[dev]   Admin UI → http://localhost:$ADMIN_PORT"
 echo "[dev]   API      → http://localhost:$BACKEND_PORT"
 echo "[dev] ─────────────────────────────────────────"
 
-# Start Spring Boot in foreground (clean first to avoid stale class files)
-echo "[dev] Starting Spring Boot (local profile)..."
-cd "$ROOT_DIR"
-./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local "$@"
+# Keep script alive — exit only when Spring Boot exits
+wait "$BACKEND_PID" || true

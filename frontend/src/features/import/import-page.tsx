@@ -13,17 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toast";
 import { api } from "@/lib/api";
 import { formatDateTime } from "@/lib/utils";
-import type { CefrLevel, DifficultyLevel, ImportJob, ImportRow, Topic } from "@/types/api";
+import type { CefrLevel, DictionaryLookup, DifficultyLevel, ImportJob, ImportRow, Topic } from "@/types/api";
 
 type Source = "paste" | "file";
-type DictionaryLookup = {
-  firstDefinition?: string;
-  firstExample?: string;
-  bestPhonetic?: string;
-  primaryPartOfSpeech?: string;
-  bestAudioUrl?: string;
-  word?: string;
-};
 
 export function ImportPage() {
   const [source, setSource] = useState<Source>("paste");

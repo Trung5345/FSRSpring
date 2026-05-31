@@ -1,5 +1,6 @@
 import type {
   AppUser,
+  DictionaryLookup,
   ImportJob,
   ImportRow,
   NotificationItem,
@@ -124,7 +125,7 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ rows })
     }),
-  lookupDictionary: (word: string) => request<Record<string, unknown>>(`/api/dictionary/lookup/${encodeURIComponent(word)}`),
+  lookupDictionary: (word: string) => request<DictionaryLookup>(`/api/dictionary/lookup/${encodeURIComponent(word)}`),
   commitImport: (payload: Record<string, unknown>) =>
     request<Record<string, unknown>>("/api/import/words/commit", {
       method: "POST",
