@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>vocabAI Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#6e5400",
+                    "on-error": "#ffffff",
+                    "outline": "#6e7881",
+                    "surface-container-highest": "#e3e2e2",
+                    "surface-container-high": "#e9e8e7",
+                    "tertiary-fixed-dim": "#e4b5ff",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#c8e6ff",
+                    "on-primary-container": "#00405d",
+                    "on-secondary-fixed-variant": "#594400",
+                    "secondary": "#755b00",
+                    "surface-bright": "#fbf9f9",
+                    "surface-container-low": "#f5f3f3",
+                    "secondary-fixed": "#ffdf92",
+                    "on-secondary-fixed": "#241a00",
+                    "primary-container": "#1cb0f6",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-container": "#fec700",
+                    "surface-tint": "#006590",
+                    "background": "#fbf9f9",
+                    "surface": "#fbf9f9",
+                    "on-primary-fixed-variant": "#004c6e",
+                    "primary": "#006590",
+                    "on-tertiary-fixed-variant": "#6a1c9a",
+                    "tertiary": "#843ab4",
+                    "tertiary-container": "#d087ff",
+                    "on-tertiary-fixed": "#2f004b",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#bdc8d2",
+                    "surface-container": "#efeded",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#001e2e",
+                    "on-background": "#1b1c1c",
+                    "tertiary-fixed": "#f4d9ff",
+                    "on-surface": "#1b1c1c",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#88ceff",
+                    "surface-variant": "#e3e2e2",
+                    "on-surface-variant": "#3e4850",
+                    "primary-fixed-dim": "#88ceff",
+                    "inverse-on-surface": "#f2f0f0",
+                    "secondary-fixed-dim": "#f4bf00",
+                    "surface-dim": "#dbdad9",
+                    "on-primary": "#ffffff",
+                    "inverse-surface": "#303031",
+                    "on-tertiary-container": "#5d068e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-sm": "12px",
+                    "stack-lg": "40px",
+                    "stack-md": "24px",
+                    "margin-mobile": "20px",
+                    "base": "8px",
+                    "margin-desktop": "48px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "label-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.5", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                    "label-lg": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .flat-tactile {
+            box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.05);
+        }
+        .active-nav-btn {
+            transform: translateY(4px);
+            border-bottom-width: 0 !important;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #bdc8d2;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+<!-- Predicted SideNavBar -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col bg-surface-container-low dark:bg-inverse-surface border-r-2 border-outline-variant w-72">
+<div class="p-8">
+<h1 class="font-headline-lg text-headline-lg font-black text-primary">vocabAI</h1>
+<p class="text-label-lg font-label-lg text-on-surface-variant opacity-70">Admin Dashboard</p>
+</div>
+<nav class="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
+<!-- Active State: Dashboard -->
+<a class="bg-primary text-on-primary rounded-xl border-b-4 border-on-primary-fixed-variant flex items-center gap-3 px-4 py-3 mx-2 my-1 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-lg text-label-lg">Dashboard</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-xl flex items-center gap-3 px-4 py-3 mx-2 my-1 transition-all hover:-translate-y-0.5 active:translate-y-1" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-lg text-label-lg">Users</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-xl flex items-center gap-3 px-4 py-3 mx-2 my-1 transition-all hover:-translate-y-0.5 active:translate-y-1" href="#">
+<span class="material-symbols-outlined" data-icon="translate">translate</span>
+<span class="font-label-lg text-label-lg">Vocabulary</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-xl flex items-center gap-3 px-4 py-3 mx-2 my-1 transition-all hover:-translate-y-0.5 active:translate-y-1" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-label-lg text-label-lg">Lessons</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-xl flex items-center gap-3 px-4 py-3 mx-2 my-1 transition-all hover:-translate-y-0.5 active:translate-y-1" href="#">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+<span class="font-label-lg text-label-lg">AI Engine</span>
+</a>
+</nav>
+<div class="px-4 mb-8">
+<button class="w-full bg-primary-container text-on-primary-container font-bold py-4 px-4 rounded-xl border-b-4 border-on-primary-fixed-variant transition-all hover:-translate-y-0.5 active:translate-y-1 active:border-b-0">
+            Create New Lesson
+        </button>
+</div>
+<div class="border-t-2 border-outline-variant p-4 space-y-1">
+<a class="text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-xl flex items-center gap-3 px-4 py-3 mx-2 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-lg text-label-lg">Settings</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-xl flex items-center gap-3 px-4 py-3 mx-2 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span class="font-label-lg text-label-lg">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Wrapper -->
+<main class="ml-72 min-h-screen">
+<!-- Predicted TopAppBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-18rem)] z-30 flex justify-between items-center px-12 h-20 bg-surface-bright/90 backdrop-blur-sm border-b-2 border-outline-variant">
+<div class="flex items-center gap-8 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-12 pr-4 py-2 rounded-xl border-2 border-outline-variant bg-surface focus:outline-none focus:border-primary transition-colors text-body-md font-body-md" placeholder="Search analytics or users..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-transform active:scale-95">
+<span class="material-symbols-outlined" data-icon="local_fire_department">local_fire_department</span>
+</button>
+<button class="p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-transform active:scale-95">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+</button>
+<button class="p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-transform active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="h-8 w-px bg-outline-variant mx-2"></div>
+<button class="bg-primary text-on-primary font-bold px-4 py-2 rounded-xl border-b-4 border-on-primary-fixed-variant transition-all hover:-translate-y-0.5 active:translate-y-1 active:border-b-0 text-label-lg">
+                Quick Start AI
+            </button>
+<div class="ml-4 flex items-center gap-3 cursor-pointer group">
+<div class="w-10 h-10 rounded-full bg-primary-fixed border-2 border-outline-variant overflow-hidden">
+<img alt="Admin Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2wB0_oxtOzaoehX3oNekHCqK_yIHusiLq7ZzFAF37S-c05D5UxNeJScRQ5lIepfrIK8C1IdBJSKdIgmaXc6EIZsoqVDr2PNhKZKHleOdjXesiF4gJqMag6Hu5zMY9Y-y2ArUgpm0oj1MNlUGgLP35PndjE7Qd-MBX327mB-i5SCDOPRG6LzK77OYiRE9h2SM-zKcCVcy4rhGNajcGT8EdDqcjZBbeS9QLhoBMvV4ugHspExFuTEBdi2qiTCPXtzn7tuh6VQcQcYta"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="mt-20 p-8 max-w-7xl mx-auto space-y-8">
+<!-- Hero Section -->
+<section class="bg-primary-container/20 rounded-3xl p-12 flex flex-col md:flex-row items-center justify-between border-2 border-primary-container overflow-hidden">
+<div class="space-y-8 text-center md:text-left">
+<h2 class="font-headline-lg text-4xl text-on-primary-container max-w-md font-extrabold">teach smarter. learn faster.</h2>
+<div class="flex flex-wrap gap-4 justify-center md:justify-start">
+<button class="bg-primary text-on-primary px-8 py-4 rounded-2xl border-b-4 border-on-primary-fixed-variant font-bold text-body-lg uppercase tracking-wider transition-all hover:-translate-y-1 active:translate-y-1 active:border-b-0">
+                        CREATE LESSON
+                    </button>
+<button class="bg-white text-primary px-8 py-4 rounded-2xl border-2 border-primary border-b-4 font-bold text-body-lg uppercase tracking-wider transition-all hover:-translate-y-1 active:translate-y-1 active:border-b-0">
+                        GENERATE AI QUIZ
+                    </button>
+</div>
+</div>
+<div class="relative mt-8 md:mt-0">
+<div class="w-64 h-64 bg-primary rounded-full flex items-center justify-center border-b-8 border-on-primary-fixed-variant relative group cursor-pointer transition-transform hover:rotate-3">
+<span class="material-symbols-outlined text-[120px] text-on-primary select-none" style="font-variation-settings: 'FILL' 1;">eco</span>
+<div class="absolute -top-4 -right-4 bg-secondary-container text-on-secondary-container p-3 rounded-xl border-b-4 border-on-secondary-fixed-variant font-bold animate-bounce">
+                        New!
+                    </div>
+</div>
+</div>
+</section>
+<!-- Stats Grid -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="bg-white p-6 rounded-2xl border-2 border-outline-variant border-b-4 hover:border-primary transition-colors flex items-center gap-4">
+<div class="text-4xl">🔥</div>
+<div>
+<p class="text-label-lg font-label-lg text-on-surface-variant">Active Users</p>
+<p class="font-headline-md text-headline-md text-on-surface">12,430</p>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl border-2 border-outline-variant border-b-4 hover:border-primary transition-colors flex items-center gap-4">
+<div class="text-4xl">📚</div>
+<div>
+<p class="text-label-lg font-label-lg text-on-surface-variant">Words Learned</p>
+<p class="font-headline-md text-headline-md text-on-surface">94,201</p>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl border-2 border-outline-variant border-b-4 hover:border-primary transition-colors flex items-center gap-4">
+<div class="text-4xl">🤖</div>
+<div>
+<p class="text-label-lg font-label-lg text-on-surface-variant">AI Quizzes</p>
+<p class="font-headline-md text-headline-md text-on-surface">5,201</p>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl border-2 border-outline-variant border-b-4 hover:border-primary transition-colors flex items-center gap-4">
+<div class="text-4xl">🚀</div>
+<div>
+<p class="text-label-lg font-label-lg text-on-surface-variant">Retention Rate</p>
+<p class="font-headline-md text-headline-md text-on-surface">87%</p>
+</div>
+</div>
+</section>
+<!-- Main Content Split -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Learners Table -->
+<div class="lg:col-span-2 bg-white rounded-3xl border-2 border-outline-variant border-b-4 overflow-hidden">
+<div class="p-6 border-b-2 border-outline-variant flex justify-between items-center bg-surface-container-low">
+<h3 class="font-headline-md text-headline-md text-on-surface">smart learners</h3>
+<button class="text-primary font-bold text-label-lg hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface">
+<th class="p-4 text-label-lg font-label-lg text-on-surface-variant uppercase">User</th>
+<th class="p-4 text-label-lg font-label-lg text-on-surface-variant uppercase">Level</th>
+<th class="p-4 text-label-lg font-label-lg text-on-surface-variant uppercase">XP</th>
+<th class="p-4 text-label-lg font-label-lg text-on-surface-variant uppercase">Streak</th>
+<th class="p-4 text-label-lg font-label-lg text-on-surface-variant uppercase">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y-2 divide-outline-variant/30">
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-fixed border-2 border-outline-variant"></div>
+<span class="font-bold text-on-surface">Sophia</span>
+</div>
+</td>
+<td class="p-4"><span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-label-lg font-bold">Gold III</span></td>
+<td class="p-4 font-bold">12,450</td>
+<td class="p-4"><div class="flex items-center gap-1 font-bold text-tertiary">🔥 42</div></td>
+<td class="p-4"><span class="w-3 h-3 bg-primary rounded-full inline-block"></span></td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed border-2 border-outline-variant"></div>
+<span class="font-bold text-on-surface">Daniel</span>
+</div>
+</td>
+<td class="p-4"><span class="bg-outline-variant text-on-surface-variant px-3 py-1 rounded-full text-label-lg font-bold">Silver I</span></td>
+<td class="p-4 font-bold">8,920</td>
+<td class="p-4"><div class="flex items-center gap-1 font-bold text-tertiary">🔥 15</div></td>
+<td class="p-4"><span class="w-3 h-3 bg-primary rounded-full inline-block"></span></td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed border-2 border-outline-variant"></div>
+<span class="font-bold text-on-surface">Emma</span>
+</div>
+</td>
+<td class="p-4"><span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-label-lg font-bold">Emerald V</span></td>
+<td class="p-4 font-bold">25,100</td>
+<td class="p-4"><div class="flex items-center gap-1 font-bold text-tertiary">🔥 128</div></td>
+<td class="p-4"><span class="w-3 h-3 bg-outline-variant rounded-full inline-block"></span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- AI Teacher Card -->
+<div class="bg-primary-container/10 rounded-3xl border-2 border-primary border-b-8 p-6 space-y-8 relative overflow-hidden group">
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-primary/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center border-b-4 border-on-primary-fixed-variant">
+<span class="material-symbols-outlined text-on-primary" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-primary-container">AI Teacher</h3>
+</div>
+<div class="space-y-4 relative z-10">
+<div class="flex justify-between items-center p-3 bg-white/50 rounded-xl border-2 border-outline-variant">
+<span class="font-bold text-on-surface">AI Quiz Generation</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex justify-between items-center p-3 bg-white/50 rounded-xl border-2 border-outline-variant">
+<span class="font-bold text-on-surface">Adaptive Learning</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex justify-between items-center p-3 bg-white/50 rounded-xl border-2 border-outline-variant">
+<span class="font-bold text-on-surface">Voice Recognition</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-3 rounded-xl border-b-4 border-on-primary-fixed-variant font-bold transition-all hover:brightness-110 active:translate-y-1 active:border-b-0">
+                    REFINE AI MODEL
+                </button>
+</div>
+</div>
+<!-- Lesson Builder Grid -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-md text-headline-md text-on-surface">Lesson Builder</h3>
+<div class="flex gap-2">
+<button class="p-2 border-2 border-outline-variant rounded-xl hover:bg-surface-container transition-colors"><span class="material-symbols-outlined">filter_list</span></button>
+<button class="p-2 border-2 border-outline-variant rounded-xl hover:bg-surface-container transition-colors"><span class="material-symbols-outlined">add</span></button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Lesson Card 1 -->
+<div class="bg-white p-6 rounded-3xl border-2 border-outline-variant border-b-8 hover:-translate-y-1 transition-all group">
+<div class="w-full h-32 bg-primary-fixed-dim rounded-2xl mb-4 flex items-center justify-center overflow-hidden border-2 border-outline-variant">
+<img alt="Basic Vocabulary" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2G4BMWk2k8ituX0o5vAOMnwJbZkM9Jgqk6imjML-cgUa6nYoY-9UjdwLcQ6mLXkpZ_WHZLATRLcz3hr81dWXAeXtA6io_ShG5jf_9E5ii0KX9lBSjJnHMqf9qTVEpaF8WPUjsLtoSPKuClu4KAywsQQdGG4GvIK2HSeh1U-tSzZBchkaqy99rj3RPB3FhQ7AahUOW-34vk3kcvWB2xUMUqRpj1P2AEAZgzbM5vaNFMwQg4vjz1Wogf8sln5KTWkF1d3xLTdvSVILH"/>
+</div>
+<h4 class="font-bold text-body-lg text-on-surface mb-1">Basic Vocabulary</h4>
+<div class="flex items-center gap-4 text-label-lg font-bold text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-sm">bolt</span> 200 XP</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-secondary text-sm">schedule</span> 10 min</span>
+</div>
+<div class="mt-8 pt-4 border-t-2 border-outline-variant flex justify-between items-center">
+<span class="text-xs bg-surface-container p-1 px-2 rounded font-bold text-on-surface-variant">Active</span>
+<button class="text-primary font-black hover:scale-125 transition-transform"><span class="material-symbols-outlined">edit</span></button>
+</div>
+</div>
+<!-- Lesson Card 2 -->
+<div class="bg-white p-6 rounded-3xl border-2 border-outline-variant border-b-8 hover:-translate-y-1 transition-all group">
+<div class="w-full h-32 bg-primary-fixed-dim rounded-2xl mb-4 flex items-center justify-center overflow-hidden border-2 border-outline-variant">
+<img alt="Listening Challenge" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2-ZsDhomTARrb7CF69qamd0uhatHt5QwqpSmOOO6HMs6_BNQtXIHhEGd7iDtxH4SKAtjGvFWpkJ8XLfmGniyyi1Gr4Qr3CGmY-Jzyvx2da9TBvdEjIPVWqobgTyT5XJ3ortby_9qvqtf8PxdXHecjPy0scjc5rOqmPrnn2Zjc6-l-fosMVZS1XCaKmIZ4yN5LL9ZY_XSlaHZ9Itj8moq0zNXV499xtws-j9ueKwvFc-nX0keQ7Uoo-VMed59bi69oZtBr5sNixDfD"/>
+</div>
+<h4 class="font-bold text-body-lg text-on-surface mb-1">Listening Challenge</h4>
+<div class="flex items-center gap-4 text-label-lg font-bold text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-sm">bolt</span> 350 XP</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-secondary text-sm">schedule</span> 15 min</span>
+</div>
+<div class="mt-8 pt-4 border-t-2 border-outline-variant flex justify-between items-center">
+<span class="text-xs bg-surface-container p-1 px-2 rounded font-bold text-on-surface-variant">Draft</span>
+<button class="text-primary font-black hover:scale-125 transition-transform"><span class="material-symbols-outlined">edit</span></button>
+</div>
+</div>
+<!-- Lesson Card 3 -->
+<div class="bg-white p-6 rounded-3xl border-2 border-outline-variant border-b-8 hover:-translate-y-1 transition-all group">
+<div class="w-full h-32 bg-primary-fixed-dim rounded-2xl mb-4 flex items-center justify-center overflow-hidden border-2 border-outline-variant">
+<img alt="AI Speaking" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYFDMSPDhZchQgF6uUnsC_f1aBaqHk1PbV-rE0SyFCOYKuDvlzKo_rKkicW-S0LIik5RlBhjWjE7VP6hdslnQaTLT3uR6a7_DNGm7MI2IHdagzxgDhYxUL59PY46C6PkVeeEpnwlafe2h_4jHQ5ZfudnLXJMifkfDDA1oC8CbDoU0bOm3m0gk2SR_h82oNARa91QUCwKz2ct6o0pugOfhvpxkuIksofhoMhQ4OgrdRuD04ytcdHVlC7Pu5kiDR6DjF2lAyssQOAWQU"/>
+</div>
+<h4 class="font-bold text-body-lg text-on-surface mb-1">AI Speaking</h4>
+<div class="flex items-center gap-4 text-label-lg font-bold text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-sm">bolt</span> 500 XP</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-secondary text-sm">schedule</span> 20 min</span>
+</div>
+<div class="mt-8 pt-4 border-t-2 border-outline-variant flex justify-between items-center">
+<span class="text-xs bg-primary-container p-1 px-2 rounded font-bold text-on-primary-container">Premium</span>
+<button class="text-primary font-black hover:scale-125 transition-transform"><span class="material-symbols-outlined">edit</span></button>
+</div>
+</div>
+</div>
+</section>
+<!-- Vocabulary & Gamification -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-12">
+<!-- Word Editor Form -->
+<div class="bg-white p-6 rounded-3xl border-2 border-outline-variant border-b-4">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-8">Vocabulary Editor</h3>
+<form class="space-y-6">
+<div>
+<label class="block font-bold text-label-lg text-on-surface-variant mb-2">Word / Phrase</label>
+<input class="w-full p-4 rounded-xl border-2 border-outline-variant focus:border-primary focus:outline-none text-body-md transition-all" placeholder="e.g. Ephemeral" type="text"/>
+</div>
+<div>
+<label class="block font-bold text-label-lg text-on-surface-variant mb-2">Translation / Definition</label>
+<textarea class="w-full p-4 rounded-xl border-2 border-outline-variant focus:border-primary focus:outline-none text-body-md transition-all" placeholder="Enter meaning..." rows="3"></textarea>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div>
+<label class="block font-bold text-label-lg text-on-surface-variant mb-2">Difficulty</label>
+<select class="w-full p-4 rounded-xl border-2 border-outline-variant focus:border-primary focus:outline-none text-body-md transition-all bg-white">
+<option>Beginner</option>
+<option>Intermediate</option>
+<option>Advanced</option>
+</select>
+</div>
+<div>
+<label class="block font-bold text-label-lg text-on-surface-variant mb-2">Category</label>
+<input class="w-full p-4 rounded-xl border-2 border-outline-variant focus:border-primary focus:outline-none text-body-md transition-all" placeholder="e.g. Travel" type="text"/>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-4 rounded-2xl border-b-4 border-on-primary-fixed-variant font-bold text-body-md transition-all hover:-translate-y-0.5 active:translate-y-1 active:border-b-0" type="button">
+                        ADD TO DICTIONARY
+                    </button>
+</form>
+</div>
+<!-- Gamification Settings -->
+<div class="bg-white p-6 rounded-3xl border-2 border-outline-variant border-b-4">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-8">Gamification Settings</h3>
+<div class="space-y-6">
+<div class="flex items-center justify-between p-4 bg-surface rounded-2xl border-2 border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<div>
+<p class="font-bold text-on-surface">Rewards System</p>
+<p class="text-label-lg text-on-surface-variant">Enable daily check-in rewards</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-14 h-7 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface rounded-2xl border-2 border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<div>
+<p class="font-bold text-on-surface">XP Multipliers</p>
+<p class="text-label-lg text-on-surface-variant">Weekend bonus (2x XP)</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-14 h-7 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface rounded-2xl border-2 border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+<div>
+<p class="font-bold text-on-surface">Leagues</p>
+<p class="text-label-lg text-on-surface-variant">Competitive weekly leaderboards</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-14 h-7 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="pt-4">
+<label class="block font-bold text-label-lg text-on-surface-variant mb-4">Streak Sensitivity</label>
+<input class="w-full h-3 bg-surface-container-highest rounded-full appearance-none cursor-pointer accent-primary border-2 border-outline-variant" type="range"/>
+<div class="flex justify-between text-xs font-bold text-on-surface-variant mt-2">
+<span>Forgiving</span>
+<span>Normal</span>
+<span>Strict</span>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-4 rounded-2xl border-b-4 border-on-primary-fixed-variant font-bold text-body-md transition-all hover:brightness-110 active:translate-y-1 active:border-b-0" type="button">
+                        UPDATE SYSTEM
+                    </button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<script>
+    // Micro-interactions and effects
+    document.querySelectorAll('button').forEach(button => {
+        button.addEventListener('mousedown', function() {
+            this.classList.add('active-nav-btn');
+        });
+        button.addEventListener('mouseup', function() {
+            this.classList.remove('active-nav-btn');
+        });
+        button.addEventListener('mouseleave', function() {
+            this.classList.remove('active-nav-btn');
+        });
+    });
+
+    // Simple tab/nav simulation
+    const navItems = document.querySelectorAll('aside nav a');
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            navItems.forEach(i => {
+                i.className = "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-xl flex items-center gap-3 px-4 py-3 mx-2 my-1 transition-all hover:-translate-y-0.5 active:translate-y-1";
+            });
+            item.className = "bg-primary text-on-primary rounded-xl border-b-4 border-on-primary-fixed-variant flex items-center gap-3 px-4 py-3 mx-2 my-1 transition-all";
+        });
+    });
+</script>
+</body></html>

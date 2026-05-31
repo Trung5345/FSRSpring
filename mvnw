@@ -146,6 +146,22 @@ MAVEN_USER_HOME="${MAVEN_USER_HOME:-${HOME}/.m2}"
 MAVEN_HOME="${MAVEN_USER_HOME}/wrapper/dists/${distributionUrlNameMain-}/$(hash_string "$distributionUrl")"
 
 exec_maven() {
+  # Auto-free port 8080 when running spring-boot:run
+  case " $* " in *" spring-boot:run "*)
+    _port="${SERVER_PORT:-8080}"
+    _pids="$(lsof -ti tcp:"$_port" 2>/dev/null || true)"
+    if [ -n "$_pids" ]; then
+      printf '[mvnw] Port %s in use — freeing...\n' "$_port" >&2
+      docker ps --format '{{.Names}} {{.Ports}}' 2>/dev/null \
+        | while IFS= read -r _line; do
+            case "$_line" in *":${_port}->"*) docker stop "${_line%% *}" >/dev/null 2>&1 || true ;; esac
+          done || true
+      printf '%s\n' "$_pids" | while IFS= read -r _pid; do
+        kill "$_pid" 2>/dev/null || true
+      done
+      sleep 1
+    fi
+  ;; esac
   unset MVNW_VERBOSE MVNW_USERNAME MVNW_PASSWORD MVNW_REPOURL || :
   exec "$MAVEN_HOME/bin/$MVN_CMD" "$@" || die "cannot exec $MAVEN_HOME/bin/$MVN_CMD"
 }

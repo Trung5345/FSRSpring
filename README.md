@@ -49,7 +49,7 @@ This project adheres to a **Modular Monolith** architectural style. Inter-module
 ### Core Stack
 <ul>
   <li><b>Backend:</b> Java 17, Spring Boot 3, Spring Data JPA, Spring Security</li>
-  <li><b>Database:</b> H2 Database (Dev), scalable to PostgreSQL/MySQL via JPA</li>
+  <li><b>Database:</b> MySQL 8.4, Redis 7 (session store)</li>
   <li><b>Frontend (Modern):</b> Next.js 15, React, Tailwind CSS</li>
   <li><b>Frontend (Legacy):</b> Vanilla HTML/CSS/JavaScript with Tailwind CSS</li>
 </ul>
@@ -66,73 +66,101 @@ This project adheres to a **Modular Monolith** architectural style. Inter-module
 
 ### Prerequisites
 
-Ensure you have the following installed on your local development environment:
-- <a href="https://adoptium.net/">Java 17</a> (Strictly required for build)
-- <a href="https://nodejs.org/">Node.js / Corepack</a> (Required for modern Next.js frontend)
-- <a href="https://www.docker.com/products/docker-desktop">Docker Desktop</a> (Optional, for containerized deployments)
-- Git version control
+- <a href="https://adoptium.net/">Java 17</a>
+- <a href="https://www.docker.com/products/docker-desktop">Docker Desktop</a> (required — MySQL, Redis, LibreTranslate run in containers)
+- <a href="https://nodejs.org/">Node.js / Corepack</a> (required for Next.js frontend only)
 
-### 1. Backend Setup (Spring Boot)
+### Option A — Docker Compose (recommended)
 
-Ensure the <code>JAVA_HOME</code> environment variable is pointing to a Java 17 JDK installation.
+Spins up the full stack: Spring Boot API, Next.js frontend, MySQL, Redis, and LibreTranslate.
 
-<b>macOS / Linux:</b>
 ```bash
-export JAVA_HOME=$(/usr/libexec/java_home -v 17)
-export PATH="$JAVA_HOME/bin:$PATH"
-./scripts/run-local.sh
+cp .env.example .env   # edit credentials if needed
+docker compose up --build
 ```
 
-<b>Windows (PowerShell):</b>
+| Service | URL |
+|---|---|
+| Legacy UI / API | http://localhost:8080 |
+| Next.js Frontend | http://localhost:3000 |
+
+```bash
+docker compose down        # stop containers
+docker compose down -v     # stop and delete volumes (wipes database)
+```
+
+### Option B — Run backend locally (dev mode)
+
+Use this when you want fast iteration on the backend without rebuilding Docker images. The infrastructure services (MySQL, Redis) still run in Docker.
+
+**Step 1 — Start infrastructure:**
+```bash
+docker compose up -d mysql redis libretranslate
+```
+
+**Step 2 — Copy and configure environment:**
+```bash
+cp .env.example .env   # edit credentials if needed
+```
+
+**Step 3 — Run Spring Boot with the `local` profile:**
+
+macOS / Linux (recommended — auto-frees port 8080 if occupied):
+```bash
+./scripts/dev.sh
+```
+
+Or manually:
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+Windows (PowerShell):
 ```powershell
-.\mvnw.cmd spring-boot:run
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=local"
 ```
-<ul>
-  <li><b>API Base URL:</b> <code>http://localhost:8080</code></li>
-  <li><b>H2 DB Console:</b> <code>http://localhost:8080/h2-console</code></li>
-</ul>
 
-### 2. Frontend Setup (Next.js)
+The `local` profile (`src/main/resources/application-local.properties`) connects to:
+- MySQL on `localhost:3307`
+- Redis on `localhost:6380`
 
-The modern user interface resides within the <code>frontend/</code> directory. It requires the Spring Boot backend to be running as it handles API communication, OAuth, and data fetching locally via Next.js rewrites.
+> `scripts/dev.sh` also starts infrastructure services automatically and stops any Docker container or process occupying port 8080 before launching.
 
+**Step 4 — Start the frontend (optional):**
 ```bash
 cd frontend
 corepack enable
 pnpm install
 SPRING_API_BASE_URL=http://localhost:8080 pnpm dev
 ```
-<ul>
-  <li><b>Frontend URL:</b> <code>http://localhost:3000</code></li>
-</ul>
 
-## Deployment with Docker
+| Service | URL |
+|---|---|
+| Spring Boot API / Legacy UI | http://localhost:8080 |
+| Next.js Frontend | http://localhost:3000 |
 
-You can easily spin up the entire application stack (Next.js client and Spring Boot API) using Docker Compose:
+### Environment variables
 
-```bash
-docker compose up --build
-```
-<ul>
-  <li>Next.js Frontend: <code>http://localhost:3000</code></li>
-  <li>Spring Boot API / Legacy UI: <code>http://localhost:8080</code></li>
-</ul>
+Copy `.env.example` to `.env` and fill in the required values:
 
-To stop and remove the containers, use:
-```bash
-docker compose down
-```
+| Variable | Description | Default |
+|---|---|---|
+| `MYSQL_USER` / `MYSQL_PASSWORD` | MySQL credentials | `fsr_user` / `fsr_pass` |
+| `REDISPASSWORD` | Redis password | `fsr_redis_pass_123` |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | OAuth2 Google login | — |
+| `JWT_SECRET` | 32+ byte secret to enable local JWT login | — |
+| `YOUTUBE_API_KEY` / `NEWS_API_KEY` | External content APIs | — |
 
 ## Testing & Quality Assurance
 
 The project includes isolated unit tests for FSRS state transitions, contract tests for scheduler interfaces, and comprehensive integration tests for APIs.
 
-<b>macOS / Linux:</b>
+macOS / Linux:
 ```bash
 ./mvnw clean test
 ```
 
-<b>Windows:</b>
+Windows:
 ```powershell
 .\mvnw.cmd clean test
 ```

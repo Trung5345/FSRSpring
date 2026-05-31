@@ -80,3 +80,6 @@ docker-compose.override.yml
 replay_pid*
 client_secret*
 .vercel
+
+# Database files
+data/

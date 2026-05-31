@@ -27,6 +27,9 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       MYSQL_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-fsrspring}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8&useUnicode=true
       SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: ${REDISPASSWORD:-fsr_redis_pass_123}
+      REDIS_URL: ""
       APP_API_LIBRETRANSLATE_BASE_URL: http://libretranslate:5000
       APP_FRONTEND_BASE_URL: http://localhost:3000
       JAVA_OPTS: -Xms128m -Xmx512m
@@ -64,7 +67,7 @@ services:
     image: redis:7-alpine
     container_name: fsrspring-redis
     ports:
-      - "6379:6379"
+      - "6380:6379"
     command: redis-server --requirepass ${REDISPASSWORD:-fsr_redis_pass_123}
     restart: unless-stopped
     volumes:
