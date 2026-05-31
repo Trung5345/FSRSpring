@@ -35,7 +35,6 @@ services:
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: "6379"
       SPRING_DATA_REDIS_PASSWORD: ${REDISPASSWORD:-fsr_redis_pass_123}
-      REDIS_URL: ""
       # App-specific overrides for Docker network
       APP_API_LIBRETRANSLATE_BASE_URL: http://libretranslate:5000
       APP_FRONTEND_BASE_URL: http://localhost:3000
