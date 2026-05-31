@@ -38,6 +38,7 @@ services:
       # App-specific overrides for Docker network
       APP_API_LIBRETRANSLATE_BASE_URL: http://libretranslate:5000
       APP_FRONTEND_BASE_URL: http://localhost:3000
+      APP_BACKEND_BASE_URL: http://localhost:8080
       JAVA_OPTS: -Xms128m -Xmx512m
     depends_on:
       mysql:
