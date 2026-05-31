@@ -509,7 +509,7 @@ export function QuizPage() {
           <button
             type="button"
             onClick={() => { clearTimeout(timerRef.current); setShowExitConfirm(false); setScreen("setup"); }}
-            className="flex-1 rounded-xl bg-destructive py-2.5 font-display text-[15px] font-bold uppercase tracking-widest text-white transition hover:opacity-90"
+            className="flex-1 rounded-xl bg-destructive py-2.5 font-display text-[15px] font-bold uppercase tracking-widest text-white transition hover:opacity-90 btn-press-error"
           >
             Thoát
           </button>

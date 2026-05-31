@@ -1,5 +1,6 @@
 package com.fsrspring.vocab.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,9 +47,11 @@ public class UserProgress {
     @Builder.Default
     private MasteryLevel mastery = MasteryLevel.NEW;
 
+    @JsonProperty("lastReviewed")
     @Column
     private LocalDateTime lastStudied;
 
+    @JsonProperty("nextReviewAt")
     @Column
     private LocalDateTime nextReview;
 
@@ -57,10 +60,12 @@ public class UserProgress {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     // FSRS core state
+    @JsonProperty("stability")
     @Column(nullable = false)
     @Builder.Default
     private Double fsrsStability = 0.2;
 
+    @JsonProperty("difficulty")
     @Column(nullable = false)
     @Builder.Default
     private Double fsrsDifficulty = 5.0;

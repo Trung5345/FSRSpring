@@ -1,5 +1,7 @@
 package com.fsrspring.vocab.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +22,7 @@ public class QuizSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private AppUser user;
@@ -35,6 +38,7 @@ public class QuizSession {
     @Builder.Default
     private Integer incorrectAnswers = 0;
 
+    @JsonProperty("createdAt")
     @Column(nullable = false)
     @Builder.Default
     private LocalDateTime startedAt = LocalDateTime.now();

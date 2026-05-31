@@ -130,6 +130,12 @@ export const content = {
 export const topics = {
   list: () => request('/api/topics'),
   get: (id: number) => request(`/api/topics/${id}`),
+  create: (data: unknown) =>
+    request('/api/topics', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: unknown) =>
+    request(`/api/topics/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: number) =>
+    request(`/api/topics/${id}`, { method: 'DELETE' }),
 };
 
 // Word of the day
@@ -141,4 +147,27 @@ export const wordOfDay = {
 export const flashcards = {
   list: () => request('/api/flashcards'),
   sources: () => request('/api/flashcards/sources'),
+};
+
+// Admin – User Management
+export const adminUsers = {
+  list: (params?: { email?: string; status?: string; role?: string; from?: string; to?: string; page?: number; size?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.email) q.set('email', params.email);
+    if (params?.status) q.set('status', params.status);
+    if (params?.role) q.set('role', params.role);
+    if (params?.from) q.set('from', params.from);
+    if (params?.to) q.set('to', params.to);
+    if (params?.page != null) q.set('page', String(params.page));
+    if (params?.size != null) q.set('size', String(params.size));
+    return request(`/api/admin/users?${q}`);
+  },
+  get: (id: number) => request(`/api/admin/users/${id}`),
+  history: (id: number, limit = 20) => request(`/api/admin/users/${id}/history?limit=${limit}`),
+  lock: (id: number) => request(`/api/admin/users/${id}/lock`, { method: 'PUT' }),
+  unlock: (id: number) => request(`/api/admin/users/${id}/unlock`, { method: 'PUT' }),
+  resetPassword: (id: number) =>
+    request(`/api/admin/users/${id}/reset-password`, { method: 'POST' }),
+  assignRole: (id: number, role: string) =>
+    request(`/api/admin/users/${id}/role`, { method: 'PUT', body: JSON.stringify({ role }) }),
 };

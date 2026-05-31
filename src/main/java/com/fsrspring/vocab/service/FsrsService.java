@@ -119,19 +119,31 @@ public class FsrsService {
         long learning = progressRepository.countLearning(user);
 
         double retentionEstimate = 0.0;
+        double avgStability = 0.0;
+        double avgDifficulty = 0.0;
         List<UserProgress> all = progressRepository.findByUser(user);
         if (!all.isEmpty()) {
             retentionEstimate = all.stream()
                     .mapToDouble(UserProgress::getFsrsRetrievability)
                     .average()
                     .orElse(0.0) * 100.0;
+            avgStability = all.stream()
+                    .mapToDouble(UserProgress::getFsrsStability)
+                    .average()
+                    .orElse(0.0);
+            avgDifficulty = all.stream()
+                    .mapToDouble(UserProgress::getFsrsDifficulty)
+                    .average()
+                    .orElse(0.0);
         }
 
         return Map.of(
                 "dueNow", dueNow,
                 "mastered", mastered,
                 "learning", learning,
-                "retentionEstimate", Math.round(retentionEstimate * 10.0) / 10.0
+                "retentionEstimate", Math.round(retentionEstimate * 10.0) / 10.0,
+                "averageStability", Math.round(avgStability * 10.0) / 10.0,
+                "averageDifficulty", Math.round(avgDifficulty * 100.0) / 100.0
         );
     }
 

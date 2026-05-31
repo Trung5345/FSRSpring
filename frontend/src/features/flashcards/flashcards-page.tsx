@@ -16,10 +16,10 @@ const TRUSTED_INITIAL = 3;
 const TRUSTED_BATCH = 3;
 
 const ratings = [
-  { value: 1, label: "Again", hint: "< 1 ngày", className: "bg-red-500 hover:bg-red-600" },
-  { value: 2, label: "Hard", hint: "~2 ngày", className: "bg-orange-500 hover:bg-orange-600" },
-  { value: 3, label: "Good", hint: "~5 ngày", className: "bg-emerald-500 hover:bg-emerald-600" },
-  { value: 4, label: "Easy", hint: "~2 tuần", className: "bg-blue-500 hover:bg-blue-600" }
+  { value: 1, label: "Again", hint: "< 1 ngày", className: "bg-red-500 hover:bg-red-600 btn-press-red" },
+  { value: 2, label: "Hard", hint: "~2 ngày", className: "bg-orange-500 hover:bg-orange-600 btn-press-orange" },
+  { value: 3, label: "Good", hint: "~5 ngày", className: "bg-emerald-500 hover:bg-emerald-600 btn-press-green" },
+  { value: 4, label: "Easy", hint: "~2 tuần", className: "bg-blue-500 hover:bg-blue-600 btn-press-sky" }
 ];
 
 function uniqueTrustedCards(cards: TrustedFlashcard[]) {
@@ -182,7 +182,7 @@ export function FlashcardsPage() {
                     {ratings.map((rating) => (
                       <button
                         key={rating.value}
-                        className={`rounded-xl px-3 py-4 text-white transition hover:-translate-y-0.5 ${rating.className}`}
+                        className={`rounded-xl px-3 py-4 text-white transition ${rating.className}`}
                         onClick={() => review(rating.value)}
                       >
                         <span className="block font-display text-lg font-bold">{rating.label}</span>

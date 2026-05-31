@@ -64,7 +64,7 @@ export function DashboardPage() {
             <p className="mt-3 text-[17px] font-bold text-sky-100">You have <strong className="text-white">{stats.dueNow}</strong> cards due today.</p>
             <Link
               href="/flashcards"
-              className="mt-10 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-8 font-display text-sm font-bold uppercase tracking-[0.05em] text-primary shadow-button transition hover:bg-sky-50 active:translate-y-0.5"
+              className="mt-10 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-8 font-display text-sm font-bold uppercase tracking-[0.05em] text-primary btn-press transition hover:bg-sky-50"
             >
               <IconPlayerPlayFilled className="h-5 w-5" />
               Start Review

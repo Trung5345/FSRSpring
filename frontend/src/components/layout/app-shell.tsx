@@ -213,6 +213,7 @@ function Avatar({ user, size }: { user: AppUser; size: "sm" | "lg" }) {
       <img
         src={user.avatarUrl}
         alt={user.name || user.email}
+        referrerPolicy="no-referrer"
         className={cn(box, "shrink-0 rounded-full border-primary object-cover")}
       />
     );

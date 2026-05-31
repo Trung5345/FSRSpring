@@ -135,6 +135,7 @@ export function ProfilePage() {
                       <img
                         src={user.avatarUrl}
                         alt={user.name || user.email}
+                        referrerPolicy="no-referrer"
                         className="h-28 w-28 rounded-full border-4 border-primary object-cover"
                       />
                     ) : (

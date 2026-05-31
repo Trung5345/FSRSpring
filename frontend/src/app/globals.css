@@ -138,6 +138,51 @@ textarea {
   box-shadow: 0 2px 0 #93000a;
 }
 
+.btn-press-outline {
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.12);
+}
+
+.btn-press-outline:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.btn-press-red {
+  box-shadow: 0 4px 0 rgba(185, 28, 28, 0.5);
+}
+
+.btn-press-red:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(185, 28, 28, 0.5);
+}
+
+.btn-press-orange {
+  box-shadow: 0 4px 0 rgba(154, 52, 18, 0.5);
+}
+
+.btn-press-orange:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(154, 52, 18, 0.5);
+}
+
+.btn-press-green {
+  box-shadow: 0 4px 0 rgba(4, 120, 87, 0.5);
+}
+
+.btn-press-green:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(4, 120, 87, 0.5);
+}
+
+.btn-press-sky {
+  box-shadow: 0 4px 0 rgba(29, 78, 216, 0.45);
+}
+
+.btn-press-sky:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(29, 78, 216, 0.45);
+}
+
 @keyframes drainBar {
   from { width: 100%; }
   to { width: 0%; }

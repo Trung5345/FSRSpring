@@ -7,7 +7,7 @@ type ButtonSize = "sm" | "md" | "lg" | "icon";
 const variants: Record<ButtonVariant, string> = {
   default: "bg-primary text-primary-foreground hover:bg-primary/90 btn-press",
   secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/90",
-  outline: "border-2 border-border bg-card text-foreground hover:border-primary hover:bg-accent",
+  outline: "border-2 border-border bg-card text-foreground hover:border-primary hover:bg-accent btn-press-outline",
   ghost: "text-muted-foreground hover:bg-muted hover:text-foreground",
   destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90"
 };

@@ -7,18 +7,18 @@ import { fsrs, words, quiz, streak } from '@/lib/api';
 import Link from 'next/link';
 
 interface FsrsStats {
-  dueCount?: number;
-  totalReviewed?: number;
+  dueNow?: number;
+  mastered?: number;
+  learning?: number;
+  retentionEstimate?: number;
   averageStability?: number;
   averageDifficulty?: number;
-  retentionRate?: number;
   [key: string]: unknown;
 }
 
 interface QuizStats {
-  totalSessions?: number;
-  correctAnswers?: number;
-  accuracy?: number;
+  completedSessions?: number;
+  averageScore?: number;
   [key: string]: unknown;
 }
 
@@ -47,7 +47,10 @@ export default function DashboardPage() {
           quiz.recentSessions(),
         ]);
         if (f.status === 'fulfilled') setFsrsStats(f.value as FsrsStats);
-        if (w.status === 'fulfilled') setWordCount(w.value as number);
+        if (w.status === 'fulfilled') {
+          const wVal = w.value as { count?: number } | number;
+          setWordCount(typeof wVal === 'number' ? wVal : ((wVal as { count?: number }).count ?? 0));
+        }
         if (q.status === 'fulfilled') setQuizStats(q.value as QuizStats);
         if (s.status === 'fulfilled') setStreakData(s.value as StreakData);
         if (rs.status === 'fulfilled') setRecentSessions(rs.value as unknown[]);
@@ -77,7 +80,7 @@ export default function DashboardPage() {
                 style={{ backgroundColor: '#006590', color: '#ffffff', borderBottom: '4px solid #004c6e' }}>
                 + Add Word
               </Link>
-              <Link href="/progress"
+              <Link href="/spaced-repetition"
                 className="btn-tactile px-8 py-3 rounded-2xl font-bold text-sm uppercase tracking-wider"
                 style={{ backgroundColor: '#ffffff', color: '#006590', border: '2px solid #006590', borderBottom: '4px solid #006590' }}>
                 View FSRS Stats
@@ -96,8 +99,8 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard icon="menu_book" label="Total Words" value={loading ? '...' : wordCount.toLocaleString()} />
-          <StatsCard icon="replay" label="Due for Review" value={loading ? '...' : (fsrsStats?.dueCount ?? 0)} color="#843ab4" />
-          <StatsCard icon="target" label="Quiz Accuracy" value={loading ? '...' : quizStats?.accuracy != null ? `${Math.round(quizStats.accuracy as number)}%` : 'N/A'} color="#755b00" />
+          <StatsCard icon="replay" label="Due for Review" value={loading ? '...' : (fsrsStats?.dueNow ?? 0)} color="#843ab4" />
+          <StatsCard icon="target" label="Quiz Accuracy" value={loading ? '...' : quizStats?.averageScore != null ? `${Math.round(quizStats.averageScore as number)}%` : 'N/A'} color="#755b00" />
           <StatsCard icon="local_fire_department" label="Current Streak" value={loading ? '...' : (streakData?.currentStreak ?? 0) + ' days'} color="#ba1a1a" />
         </section>
 
@@ -121,7 +124,7 @@ export default function DashboardPage() {
             <div className="p-6 rounded-2xl" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
               <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#3e4850' }}>Retention Rate</p>
               <p className="text-3xl font-extrabold" style={{ color: '#755b00' }}>
-                {fsrsStats.retentionRate != null ? `${Math.round(fsrsStats.retentionRate as number)}%` : 'N/A'}
+                {fsrsStats.retentionEstimate != null ? `${Math.round(fsrsStats.retentionEstimate as number)}%` : 'N/A'}
               </p>
               <p className="text-xs mt-1" style={{ color: '#3e4850' }}>target ≥ 90%</p>
             </div>
@@ -135,7 +138,7 @@ export default function DashboardPage() {
             <div className="p-5 flex justify-between items-center"
               style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
               <h3 className="text-lg font-extrabold" style={{ color: '#1b1c1c' }}>Recent Quiz Sessions</h3>
-              <Link href="/quiz" className="text-sm font-bold" style={{ color: '#006590' }}>View All →</Link>
+              <Link href="/quizzes" className="text-sm font-bold" style={{ color: '#006590' }}>View All →</Link>
             </div>
             {loading ? (
               <div className="p-8 text-center text-sm" style={{ color: '#3e4850' }}>Loading...</div>
@@ -213,10 +216,10 @@ export default function DashboardPage() {
         {/* Quick Nav */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-8">
           {[
-            { href: '/vocabulary', icon: 'translate', label: 'Manage Words', color: '#006590' },
-            { href: '/vocabulary-sets', icon: 'collections_bookmark', label: 'Vocab Sets', color: '#843ab4' },
-            { href: '/import', icon: 'upload_file', label: 'Import Words', color: '#755b00' },
-            { href: '/content', icon: 'movie', label: 'Content Feed', color: '#006590' },
+            { href: '/flashcards', icon: 'style', label: 'Flashcards', color: '#006590' },
+            { href: '/decks', icon: 'collections_bookmark', label: 'Decks', color: '#843ab4' },
+            { href: '/users', icon: 'group', label: 'Users', color: '#755b00' },
+            { href: '/analytics', icon: 'analytics', label: 'Analytics', color: '#006590' },
           ].map((item) => (
             <Link key={item.href} href={item.href}
               className="btn-tactile p-5 rounded-2xl flex items-center gap-3 group"

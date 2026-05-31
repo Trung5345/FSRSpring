@@ -37,13 +37,17 @@ public class AppUser {
     private String passwordHash;
 
     public enum Role {
-        USER, ADMIN
+        USER, MODERATOR, ADMIN
     }
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
     private Role role = Role.USER;
+
+    @Column
+    @Builder.Default
+    private Boolean locked = false;
 
     @Column
     @Builder.Default

@@ -48,22 +48,35 @@ export function ProgressPage() {
   const [sessions, setSessions] = useState<QuizSession[]>([]);
   const [masteryFilter, setMasteryFilter] = useState("");
   const [loading, setLoading] = useState(true);
+  const [progressError, setProgressError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([
-      api.progressStats().catch(() => ({} as Record<string, number>)),
-      api.quizStats().catch(() => ({} as Record<string, number>)),
-      api.wordCount().catch(() => ({ count: 0 })),
-      api.progress().catch(() => [] as UserProgress[]),
-      api.recentQuizSessions().catch(() => [] as QuizSession[]),
-    ]).then(([a, b, c, d, e]) => {
-      setStats(a);
-      setQuizStats(b);
-      setWordCount(c.count);
-      setProgress(d);
-      setSessions(e);
+    const loadAll = async () => {
+      const [statsRes, quizStatsRes, countRes, progressRes, sessionsRes] = await Promise.allSettled([
+        api.progressStats(),
+        api.quizStats(),
+        api.wordCount(),
+        api.progress(),
+        api.recentQuizSessions(),
+      ]);
+
+      if (statsRes.status === "fulfilled") setStats(statsRes.value as Record<string, number>);
+      if (quizStatsRes.status === "fulfilled") setQuizStats(quizStatsRes.value as Record<string, number>);
+      if (countRes.status === "fulfilled") setWordCount((countRes.value as { count: number }).count ?? 0);
+
+      if (progressRes.status === "fulfilled") {
+        setProgress(progressRes.value as UserProgress[]);
+        setProgressError(null);
+      } else {
+        setProgressError((progressRes.reason as Error)?.message ?? "Failed to load word progress");
+        setProgress([]);
+      }
+
+      if (sessionsRes.status === "fulfilled") setSessions(sessionsRes.value as QuizSession[]);
+
       setLoading(false);
-    }).catch(() => setLoading(false));
+    };
+    loadAll();
   }, []);
 
   // Mastery distribution
@@ -257,13 +270,20 @@ export function ProgressPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredProgress.length === 0 ? (
+                {progressError ? (
+                  <tr>
+                    <td colSpan={6} className="px-5 py-8 text-center">
+                      <p className="font-body text-[14px] text-destructive font-semibold">⚠ {progressError}</p>
+                      <p className="font-body text-[12px] text-muted-foreground mt-1">Check that you are logged in and the server is running.</p>
+                    </td>
+                  </tr>
+                ) : filteredProgress.length === 0 ? (
                   <tr>
                     <td
                       colSpan={6}
                       className="px-5 py-8 text-center font-body text-[15px] text-muted-foreground"
                     >
-                      No words found.
+                      No words found. Complete a quiz or review session to track progress.
                     </td>
                   </tr>
                 ) : (
