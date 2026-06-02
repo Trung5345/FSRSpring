@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 @Slf4j
@@ -22,7 +21,6 @@ public class WordOfTheDayService {
 
     private final WordOfTheDayRepository wotdRepository;
     private final WordRepository wordRepository;
-    private final Random random = new Random();
 
     /**
      * Returns today's word of the day, creating one if it doesn't exist yet.
@@ -51,11 +49,11 @@ public class WordOfTheDayService {
     }
 
     private WordOfTheDay pickNewWordForDate(LocalDate date) {
-        List<Word> allWords = wordRepository.findAll();
-        if (allWords.isEmpty()) {
+        List<Word> candidates = wordRepository.findRandomWords(1);
+        if (candidates.isEmpty()) {
             throw new IllegalStateException("No words available to pick as Word of the Day");
         }
-        Word chosen = allWords.get(random.nextInt(allWords.size()));
+        Word chosen = candidates.get(0);
         WordOfTheDay wotd = WordOfTheDay.builder()
                 .word(chosen)
                 .date(date)

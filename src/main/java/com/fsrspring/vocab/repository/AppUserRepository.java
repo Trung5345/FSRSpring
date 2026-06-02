@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -20,6 +21,9 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long>, JpaSpec
     Optional<AppUser> findByGoogleId(String googleId);
 
     boolean existsByEmail(String email);
+
+    @Query("SELECT u FROM AppUser u WHERE u.reviewRemindersEnabled = true OR u.reviewRemindersEnabled IS NULL")
+    List<AppUser> findUsersWithRemindersEnabled();
 
     @Query("""
         SELECT u FROM AppUser u

@@ -52,7 +52,7 @@ public class Word {
 
     // ── Enriched fields (Free Dictionary API + Datamuse) ──
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id")
     @JsonIgnoreProperties({"words"})
     private Topic topic;

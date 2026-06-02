@@ -25,7 +25,8 @@ public class WordService {
     private final WordEnrichmentService wordEnrichmentService;
 
     public List<Word> getAllWords() {
-        return wordRepository.findAll();
+        return wordRepository.findAll(org.springframework.data.domain.PageRequest.of(0, 200,
+                org.springframework.data.domain.Sort.by("id").ascending())).getContent();
     }
 
     public Page<Word> getWordsPage(

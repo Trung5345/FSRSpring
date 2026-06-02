@@ -11,6 +11,7 @@ import com.fsrspring.vocab.repository.ReviewEventRepository;
 import com.fsrspring.vocab.repository.UserProgressRepository;
 import com.fsrspring.vocab.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -28,6 +29,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class NotificationService {
 
     private final AppNotificationRepository notificationRepository;
@@ -42,6 +44,9 @@ public class NotificationService {
 
     @Value("${app.reminder.default-email}")
     private String defaultReminderEmail;
+
+    @Value("${app.frontend.base-url:http://localhost:3000}")
+    private String frontendBaseUrl;
 
     @Value("${app.reminder.evening-remaining-threshold:10}")
     private int eveningRemainingThreshold;
@@ -89,15 +94,20 @@ public class NotificationService {
             user.setComebackReminderEnabled(request.comebackReminderEnabled());
         }
         if (request.comebackReminderIntervalDays() != null) {
-            user.setComebackReminderIntervalDays(clamp(request.comebackReminderIntervalDays(), 2, 3));
+            user.setComebackReminderIntervalDays(clamp(request.comebackReminderIntervalDays(), 1, 30));
         }
 
         return toReminderSettingsResponse(appUserRepository.save(user));
     }
 
+
     @Scheduled(cron = "${app.reminder.cron}")
     public void dispatchReviewReminders() {
-        dispatchReviewReminders(LocalDateTime.now());
+        try {
+            dispatchReviewReminders(LocalDateTime.now());
+        } catch (Exception e) {
+            log.error("Scheduled reminder dispatch failed: {}", e.getMessage(), e);
+        }
     }
 
     void dispatchReviewReminders(LocalDateTime now) {
@@ -105,10 +115,7 @@ public class NotificationService {
         LocalDateTime dayStart = today.atStartOfDay();
         LocalDateTime dayEnd = today.atTime(LocalTime.MAX);
 
-        appUserRepository.findAll().forEach(user -> {
-            if (!Boolean.TRUE.equals(user.getReviewRemindersEnabled())) {
-                return;
-            }
+        appUserRepository.findUsersWithRemindersEnabled().forEach(user -> {
 
             boolean dailyReminderMinute = isReminderMinute(now, user.getPreferredReminderTime());
             boolean eveningReminderMinute = Boolean.TRUE.equals(user.getEveningReminderEnabled())
@@ -122,9 +129,9 @@ public class NotificationService {
             int dueCardsToday = 0;
 
             if (dailyReminderMinute) {
-                dueCardsToday = Math.toIntExact(progressRepository.countDueWords(user, dayEnd));
+                dueCardsToday = (int) Math.min(progressRepository.countDueWords(user, dayEnd), Integer.MAX_VALUE);
                 if (daysInactive >= 2) {
-                    int overdueCards = Math.toIntExact(progressRepository.countOverdueWords(user, dayStart));
+                    int overdueCards = (int) Math.min(progressRepository.countOverdueWords(user, dayStart), Integer.MAX_VALUE);
                     if (overdueCards > 0) {
                         dispatchComebackReminderIfNeeded(user, overdueCards, now);
                     } else {
@@ -137,7 +144,7 @@ public class NotificationService {
 
             if (daysInactive < 2 && eveningReminderMinute) {
                 if (dueCardsToday == 0) {
-                    dueCardsToday = Math.toIntExact(progressRepository.countDueWords(user, dayEnd));
+                    dueCardsToday = (int) Math.min(progressRepository.countDueWords(user, dayEnd), Integer.MAX_VALUE);
                 }
                 dispatchEveningReminderIfNeeded(user, dueCardsToday, now, dayStart, dayEnd);
             }
@@ -194,7 +201,7 @@ public class NotificationService {
             return;
         }
 
-        int intervalDays = clamp(user.getComebackReminderIntervalDays(), 2, 3);
+        int intervalDays = clamp(user.getComebackReminderIntervalDays(), 1, 30);
         if (notificationRepository.existsByUserAndTypeAndScheduledAtAfter(
                 user,
                 AppNotification.NotificationType.OVERDUE_REMINDER,
@@ -264,7 +271,7 @@ public class NotificationService {
                 Boolean.TRUE.equals(user.getEveningReminderEnabled()),
                 formatReminderTime(user.getEveningReminderTime(), DEFAULT_EVENING_REMINDER_TIME),
                 Boolean.TRUE.equals(user.getComebackReminderEnabled()),
-                clamp(user.getComebackReminderIntervalDays(), 2, 3),
+                clamp(user.getComebackReminderIntervalDays(), 1, 30),
                 Math.max(1, eveningRemainingThreshold)
         );
     }
@@ -296,7 +303,7 @@ public class NotificationService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(user.getEmail() == null || user.getEmail().isBlank() ? defaultReminderEmail : user.getEmail());
             message.setSubject(subject);
-            message.setText(reminderMessage + "\n\nOpen: http://localhost:8080/flashcards");
+            message.setText(reminderMessage + "\n\nOpen: " + frontendBaseUrl + "/flashcards");
             mailSender.send(message);
         } catch (Exception ignored) {
             // Mail is optional in local/dev environments.

@@ -3,11 +3,13 @@ package com.fsrspring.vocab.security;
 import com.fsrspring.vocab.model.AppUser;
 import com.fsrspring.vocab.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -19,7 +21,7 @@ public class CurrentUserService {
 
     public AppUser getCurrentUser() {
         return getCurrentUserOptional()
-            .orElseThrow(() -> new RuntimeException("No authenticated user found in context"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required"));
     }
 
     public Optional<AppUser> getCurrentUserOptional() {

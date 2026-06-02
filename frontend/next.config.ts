@@ -3,9 +3,6 @@ import type { NextConfig } from "next";
 const springApiBaseUrl = process.env.SPRING_API_BASE_URL || "http://localhost:8080";
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: __dirname
-  },
   async rewrites() {
     return [
       {

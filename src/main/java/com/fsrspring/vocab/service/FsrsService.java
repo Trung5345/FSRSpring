@@ -121,20 +121,13 @@ public class FsrsService {
         double retentionEstimate = 0.0;
         double avgStability = 0.0;
         double avgDifficulty = 0.0;
-        List<UserProgress> all = progressRepository.findByUser(user);
-        if (!all.isEmpty()) {
-            retentionEstimate = all.stream()
-                    .mapToDouble(UserProgress::getFsrsRetrievability)
-                    .average()
-                    .orElse(0.0) * 100.0;
-            avgStability = all.stream()
-                    .mapToDouble(UserProgress::getFsrsStability)
-                    .average()
-                    .orElse(0.0);
-            avgDifficulty = all.stream()
-                    .mapToDouble(UserProgress::getFsrsDifficulty)
-                    .average()
-                    .orElse(0.0);
+        if (progressRepository.countByUser(user) > 0) {
+            Double ret = progressRepository.avgRetrievability(user);
+            Double stab = progressRepository.avgStability(user);
+            Double diff = progressRepository.avgDifficulty(user);
+            retentionEstimate = (ret != null ? ret : 0.0) * 100.0;
+            avgStability = stab != null ? stab : 0.0;
+            avgDifficulty = diff != null ? diff : 0.0;
         }
 
         return Map.of(

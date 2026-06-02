@@ -62,4 +62,16 @@ public interface UserProgressRepository extends JpaRepository<UserProgress, Long
 
     @Query("SELECT SUM(up.incorrectCount) FROM UserProgress up WHERE up.user = :user")
     Long sumIncorrectAnswers(AppUser user);
+
+    @Query("SELECT AVG(up.fsrsRetrievability) FROM UserProgress up WHERE up.user = :user")
+    Double avgRetrievability(AppUser user);
+
+    @Query("SELECT AVG(up.fsrsStability) FROM UserProgress up WHERE up.user = :user")
+    Double avgStability(AppUser user);
+
+    @Query("SELECT AVG(up.fsrsDifficulty) FROM UserProgress up WHERE up.user = :user")
+    Double avgDifficulty(AppUser user);
+
+    @Query("SELECT COUNT(up) FROM UserProgress up WHERE up.user = :user")
+    long countByUser(AppUser user);
 }

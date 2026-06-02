@@ -46,4 +46,7 @@ public interface WordRepository extends JpaRepository<Word, Long>, JpaSpecificat
     Optional<Word> findByWordIgnoreCase(String word);
 
     boolean existsByWordIgnoreCase(String word);
+
+    @Query("SELECT w FROM Word w WHERE w.translation IS NULL OR w.translation = '' OR w.audioUrl IS NULL OR w.audioUrl = '' OR w.pronunciation IS NULL OR w.pronunciation = '' OR w.synonyms IS NULL OR w.synonyms = '' OR w.partOfSpeech IS NULL OR w.partOfSpeech = '' OR w.imageUrl IS NULL OR w.imageUrl = ''")
+    List<Word> findWordsNeedingEnrichment();
 }

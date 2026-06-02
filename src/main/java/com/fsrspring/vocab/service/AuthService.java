@@ -92,6 +92,7 @@ public class AuthService {
         if (name != null && !name.isBlank()) {
             return name.trim();
         }
-        return email.split("@")[0];
+        int at = email.indexOf('@');
+        return at > 0 ? email.substring(0, at) : email;
     }
 }

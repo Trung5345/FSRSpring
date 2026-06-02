@@ -4,7 +4,9 @@ import com.fsrspring.vocab.dto.DatamuseWordDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
@@ -55,26 +57,38 @@ public class DatamuseApiService {
 
     private List<String> fetchWords(String query) {
         String url = BASE_URL + "?" + query + "&max=" + MAX_RESULTS;
-        try {
-            DatamuseWordDto[] results = restTemplate.getForObject(url, DatamuseWordDto[].class);
-            if (results == null) return Collections.emptyList();
-            return Arrays.stream(results).map(DatamuseWordDto::getWord).toList();
-        } catch (Exception e) {
-            log.warn("Datamuse API error for query '{}': {}", query, e.getMessage());
-            return Collections.emptyList();
-        }
+        DatamuseWordDto[] results = fetchWithRetry(url, DatamuseWordDto[].class, query);
+        if (results == null) return Collections.emptyList();
+        return Arrays.stream(results).map(DatamuseWordDto::getWord).toList();
     }
 
     private List<DatamuseWordDto> fetchWordDtos(String query) {
         String url = BASE_URL + "?" + query;
-        try {
-            DatamuseWordDto[] results = restTemplate.getForObject(url, DatamuseWordDto[].class);
-            if (results == null) return Collections.emptyList();
-            return Arrays.asList(results);
-        } catch (Exception e) {
-            log.warn("Datamuse API error for query '{}': {}", query, e.getMessage());
-            return Collections.emptyList();
+        DatamuseWordDto[] results = fetchWithRetry(url, DatamuseWordDto[].class, query);
+        if (results == null) return Collections.emptyList();
+        return Arrays.asList(results);
+    }
+
+    private <T> T fetchWithRetry(String url, Class<T> responseType, String query) {
+        int maxAttempts = 3;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                return restTemplate.getForObject(url, responseType);
+            } catch (HttpServerErrorException e) {
+                // 5xx: transient — retry with backoff, but don't log full HTML body
+                String brief = e.getStatusCode() + " " + e.getStatusText();
+                if (attempt < maxAttempts) {
+                    log.debug("Datamuse transient error '{}' (attempt {}/{}): {}", query, attempt, maxAttempts, brief);
+                    try { Thread.sleep(500L * attempt); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); break; }
+                } else {
+                    log.warn("Datamuse API unavailable for query '{}' after {} attempts: {}", query, maxAttempts, brief);
+                }
+            } catch (Exception e) {
+                log.warn("Datamuse API error for query '{}': {}", query, e.getMessage());
+                break;
+            }
         }
+        return null;
     }
 
     private String encode(String value) {

@@ -210,18 +210,22 @@ public class WordEnrichmentService {
      */
     @Transactional
     public int enrichAllMissing() {
-        List<Word> words = wordRepository.findAll();
+        List<Word> words = wordRepository.findWordsNeedingEnrichment();
         int count = 0;
         for (Word word : words) {
-            boolean missing = blank(word.getTranslation()) || blank(word.getAudioUrl()) || blank(word.getPronunciation())
-                    || blank(word.getSynonyms()) || blank(word.getPartOfSpeech()) || !hasUsableImage(word);
-            if (missing) {
-                try {
-                    enqueueWord(word.getId());
-                    count++;
-                } catch (Exception e) {
-                    log.warn("Failed to enqueue enrichment for word '{}': {}", word.getWord(), e.getMessage());
-                }
+            if (hasUsableImage(word)
+                    && !blank(word.getTranslation())
+                    && !blank(word.getAudioUrl())
+                    && !blank(word.getPronunciation())
+                    && !blank(word.getSynonyms())
+                    && !blank(word.getPartOfSpeech())) {
+                continue;
+            }
+            try {
+                enqueueWord(word.getId());
+                count++;
+            } catch (Exception e) {
+                log.warn("Failed to enqueue enrichment for word '{}': {}", word.getWord(), e.getMessage());
             }
         }
         return count;
