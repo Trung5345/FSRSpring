@@ -12,6 +12,11 @@ services:
     depends_on:
       - app
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: '1.0'
 
   app:
     build:
@@ -39,6 +44,7 @@ services:
       APP_API_LIBRETRANSLATE_BASE_URL: http://libretranslate:5000
       APP_FRONTEND_BASE_URL: http://localhost:3000
       APP_BACKEND_BASE_URL: http://localhost:8080
+      # JVM heap: 128 MB initial, 512 MB max — total RSS will be ~700 MB (matches mem limit below)
       JAVA_OPTS: -Xms128m -Xmx512m
     depends_on:
       mysql:
@@ -50,6 +56,11 @@ services:
     volumes:
       - app_generated_images:/app/data/enrichment-images
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 768m
+          cpus: '1.5'
 
   mysql:
     image: mysql:8.4
@@ -61,6 +72,11 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-fsrspring}
       MYSQL_USER: ${MYSQL_USER:-fsr_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-fsr_pass}
+    # Cap InnoDB buffer pool so MySQL doesn't balloon to 1+ GB on a dev machine
+    command: >
+      --innodb-buffer-pool-size=256M
+      --innodb-log-file-size=64M
+      --max-connections=50
     volumes:
       - mysql_data:/var/lib/mysql
     restart: unless-stopped
@@ -69,23 +85,43 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: '1.0'
 
   redis:
     image: redis:7-alpine
     container_name: fsrspring-redis
     ports:
       - "6380:6379"
-    command: redis-server --requirepass ${REDISPASSWORD:-fsr_redis_pass_123}
+    command: redis-server --requirepass ${REDISPASSWORD:-fsr_redis_pass_123} --maxmemory 128mb --maxmemory-policy allkeys-lru
     restart: unless-stopped
     volumes:
       - redis_data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 192m
+          cpus: '0.5'
 
   libretranslate:
     image: libretranslate/libretranslate:latest
     container_name: fsrspring-libretranslate
     ports:
       - "${LIBRETRANSLATE_HOST_PORT:-5001}:5000"
+    environment:
+      # Only load English↔Vietnamese models — avoids downloading ~4 GB of other language packs
+      LT_LOAD_ONLY: en,vi
+      # Do not re-download/update models on every container start
+      LT_UPDATE_MODELS: "false"
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1500m
+          cpus: '1.5'
 
 volumes:
   app_generated_images:

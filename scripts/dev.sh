@@ -47,6 +47,16 @@ PREFERRED_ADMIN_PORT=3001
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
+# Parse flags — strip known flags before passing remaining args to Maven
+WITH_TRANSLATE=false
+MAVEN_ARGS=()
+for arg in "$@"; do
+  case "$arg" in
+    --translate) WITH_TRANSLATE=true ;;
+    *) MAVEN_ARGS+=("$arg") ;;
+  esac
+done
+
 # Read REDISPASSWORD from .env (Redis is started with --requirepass)
 REDIS_PASS="fsr_redis_pass_123"
 if [[ -f "$ROOT_DIR/.env" ]]; then
@@ -149,7 +159,14 @@ cleanup() {
     [[ -z "$_cpid" ]] && continue
     kill_tree "$_cpid" KILL
   done
-  # Spring Boot JVM is a child of Maven and may outlive it — force-clear port for next run
+  # The JVM (Spring Boot) runs as a child of Maven. When Maven dies, the JVM becomes
+  # an orphan (re-parented to PID 1), so kill_tree can no longer find it via pgrep -P.
+  # Additionally, Spring Boot's shutdown hook closes Tomcat first (releasing port 8080)
+  # before the JVM process actually exits, so lsof -ti tcp:8080 returns nothing while
+  # the JVM is still running. Kill it directly by main class name to be certain.
+  pkill -9 -f "com.fsrspring.vocab.VocabApplication" 2>/dev/null || true
+
+  # Belt-and-suspenders: also clear anything still bound to the backend port
   local _jvm_pids
   _jvm_pids=$(lsof -ti tcp:"$BACKEND_PORT" 2>/dev/null || true)
   if [[ -n "$_jvm_pids" ]]; then
@@ -166,8 +183,17 @@ echo "[dev] Stopping app/frontend Docker containers (if running)..."
 docker compose -f "$ROOT_DIR/docker-compose.yml" stop app frontend >/dev/null 2>&1 || true
 
 # Ensure infrastructure is up
-echo "[dev] Starting infrastructure services..."
-docker compose -f "$ROOT_DIR/docker-compose.yml" up -d mysql redis libretranslate >/dev/null 2>&1 || true
+# LibreTranslate loads ~1.5 GB of NLP models and causes heavy startup lag.
+# Only start it when enrichment/translation features are needed (pass --translate).
+if [[ "$WITH_TRANSLATE" == "true" ]]; then
+  echo "[dev] Starting infrastructure services (mysql, redis, libretranslate)..."
+  docker compose -f "$ROOT_DIR/docker-compose.yml" up -d mysql redis libretranslate >/dev/null 2>&1 || true
+else
+  echo "[dev] Starting infrastructure services (mysql, redis) — skipping libretranslate."
+  echo "[dev]   To enable translation features: ./scripts/dev.sh --translate"
+  docker compose -f "$ROOT_DIR/docker-compose.yml" up -d mysql redis >/dev/null 2>&1 || true
+  docker compose -f "$ROOT_DIR/docker-compose.yml" stop libretranslate >/dev/null 2>&1 || true
+fi
 
 # Wait for MySQL to accept connections (port 3307 mapped locally)
 echo "[dev] Waiting for MySQL on :3307..."
@@ -221,7 +247,7 @@ fi
 # Start Spring Boot in background FIRST (clean to avoid stale class files)
 echo "[dev] Starting Spring Boot (local profile) — compiling..."
 cd "$ROOT_DIR"
-./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local "$@" &
+./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local "${MAVEN_ARGS[@]+"${MAVEN_ARGS[@]}"}" &
 BACKEND_PID=$!
 
 # Wait for Spring Boot to be healthy before starting frontends.
