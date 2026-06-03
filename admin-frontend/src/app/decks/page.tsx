@@ -39,8 +39,8 @@ function DeckModal({ deck, onClose, onSave }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
-      <div className="w-full max-w-md rounded-3xl overflow-hidden" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '6px solid #bdc8d2' }}>
-        <div className="p-6 flex justify-between items-center" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
+      <div className="w-full max-w-md rounded-3xl" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '6px solid #bdc8d2' }}>
+        <div className="p-6 flex justify-between items-center rounded-t-[22px]" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
           <h3 className="text-lg font-extrabold" style={{ color: '#1b1c1c' }}>{form.id ? 'Edit Deck' : 'New Deck'}</h3>
           <button onClick={onClose} className="p-2 rounded-xl" onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#e9e8e7')} onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}>
             <span className="material-symbols-outlined">close</span>

@@ -113,7 +113,7 @@ export default function RolesPage() {
         {/* Role cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {ROLES.map(role => (
-            <div key={role.key} className="rounded-3xl overflow-hidden" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
+            <div key={role.key} className="rounded-3xl" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
               <div className="p-6">
                 <div className="flex items-center gap-4 mb-5">
                   <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ backgroundColor: role.bg }}>
@@ -141,8 +141,8 @@ export default function RolesPage() {
         </div>
 
         {/* Permission Matrix */}
-        <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
-          <div className="p-5 flex justify-between items-center" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
+        <div className="rounded-3xl" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
+          <div className="p-5 flex justify-between items-center rounded-t-[22px]" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
             <h3 className="text-base font-extrabold" style={{ color: '#1b1c1c' }}>Permission Matrix</h3>
             <p className="text-xs font-medium" style={{ color: '#6e7881' }}>Full feature access breakdown by role</p>
           </div>

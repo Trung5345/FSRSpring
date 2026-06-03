@@ -322,7 +322,7 @@ class FsrsSimulationTest {
         System.out.printf("  Good  (3): interval = %s%n", formatDuration(intervalGood));
         System.out.printf("  Easy  (4): interval = %s%n", formatDuration(intervalEasy));
 
-        // Thứ tự interval: Again <= Hard <= Good <= Easy (cả Again và Hard cùng clamp ở 1h với stability thấp)
+        // Thứ tự interval: Again (=0, immediately due) <= Hard <= Good <= Easy
         assertThat(intervalAgain).isLessThanOrEqualTo(intervalHard);
         assertThat(intervalHard).isLessThanOrEqualTo(intervalGood);
         assertThat(intervalGood).isLessThanOrEqualTo(intervalEasy);

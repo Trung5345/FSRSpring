@@ -69,9 +69,9 @@ export default function ImportPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Jobs List */}
-          <div className="lg:col-span-2 rounded-3xl overflow-hidden"
+          <div className="lg:col-span-2 rounded-3xl"
             style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
-            <div className="p-5" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
+            <div className="p-5 rounded-t-[22px]" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
               <h3 className="font-extrabold" style={{ color: '#1b1c1c' }}>Import History</h3>
             </div>
             {loading ? (
@@ -148,9 +148,9 @@ export default function ImportPage() {
           </div>
 
           {/* Job Detail */}
-          <div className="rounded-3xl overflow-hidden"
+          <div className="rounded-3xl"
             style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
-            <div className="p-5" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
+            <div className="p-5 rounded-t-[22px]" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
               <h3 className="font-extrabold" style={{ color: '#1b1c1c' }}>Job Detail</h3>
             </div>
             {!selectedJob ? (

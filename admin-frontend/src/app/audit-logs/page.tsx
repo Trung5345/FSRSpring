@@ -97,8 +97,8 @@ export default function AuditLogsPage() {
         </div>
 
         {/* Table */}
-        <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
-          <div className="p-5 flex justify-between items-center" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
+        <div className="rounded-3xl" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
+          <div className="p-5 flex justify-between items-center rounded-t-[22px]" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
             <h3 className="text-base font-extrabold" style={{ color: '#1b1c1c' }}>Event Log</h3>
             <span className="text-xs font-bold" style={{ color: '#6e7881' }}>{filtered.length} events</span>
           </div>

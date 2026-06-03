@@ -95,7 +95,7 @@ export default function ReportsPage() {
         {/* Report cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {REPORT_TYPES.map(report => (
-            <div key={report.id} className="rounded-3xl overflow-hidden" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
+            <div key={report.id} className="rounded-3xl" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
               <div className="p-6">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: report.bg }}>

@@ -87,10 +87,10 @@ function TopicModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="w-full max-w-lg rounded-3xl overflow-hidden"
+      <div className="w-full max-w-lg rounded-3xl"
         style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '6px solid #bdc8d2', boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
         {/* Header */}
-        <div className="px-8 py-6 flex items-center justify-between"
+        <div className="px-8 py-6 flex items-center justify-between rounded-t-[22px]"
           style={{ borderBottom: '2px solid #efeded', backgroundColor: '#f5f3f3' }}>
           <div>
             <h3 className="text-xl font-extrabold" style={{ color: '#1b1c1c' }}>

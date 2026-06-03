@@ -181,8 +181,12 @@ public class FsrsService {
     }
 
     private LocalDateTime calculateNextReview(LocalDateTime now, UserProgress progress, int rating) {
+        // Again (forgot): immediately due so it appears in today's review queue
+        if (rating == 1) {
+            return now;
+        }
+
         double baseHours = switch (rating) {
-            case 1 -> 0.5;
             case 2 -> 6.0;
             case 3 -> 24.0;
             default -> 72.0;

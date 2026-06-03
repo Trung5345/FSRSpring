@@ -78,6 +78,9 @@ export default function UsersPage() {
   const [resetResult, setResetResult] = useState<{ id: number; password: string } | null>(null);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [editRole, setEditRole] = useState<string>('USER');
+  const [editLoading, setEditLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -128,6 +131,24 @@ export default function UsersPage() {
     } finally {
       setActionLoading(null);
       setOpenMenuId(null);
+    }
+  };
+
+  const openEditModal = (user: User) => {
+    setEditUser(user);
+    setEditRole(user.role);
+    setOpenMenuId(null);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editUser) return;
+    setEditLoading(true);
+    try {
+      await adminUsers.assignRole(editUser.id, editRole);
+      await load();
+      setEditUser(null);
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -268,7 +289,7 @@ export default function UsersPage() {
         )}
 
         {/* Data Table */}
-        <div className="rounded-2xl overflow-hidden"
+        <div className="rounded-2xl"
           style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
           {loading ? (
             <div className="p-16 text-center">
@@ -281,7 +302,7 @@ export default function UsersPage() {
               <p className="text-sm font-bold" style={{ color: '#3e4850' }}>No users found</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto" style={{ borderRadius: '14px 14px 0 0', overflowY: 'hidden' }}>
               <table className="w-full text-left border-collapse min-w-[900px]">
                 <thead>
                   <tr style={{ backgroundColor: '#f5f3f3', borderBottom: '2px solid #bdc8d2' }}>
@@ -382,9 +403,19 @@ export default function UsersPage() {
                           </button>
 
                           {openMenuId === u.id && (
-                            <div className="absolute right-5 top-14 z-20 rounded-2xl overflow-hidden shadow-xl min-w-[190px]"
+                            <div className="absolute right-5 top-14 z-20 rounded-2xl shadow-xl min-w-[190px]"
                               style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}
                               onClick={e => e.stopPropagation()}>
+                              <div className="rounded-[14px] overflow-hidden">
+                              <button onClick={() => openEditModal(u)}
+                                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold transition-colors"
+                                style={{ color: '#1b1c1c' }}
+                                onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f5f3f3')}
+                                onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}>
+                                <span className="material-symbols-outlined text-base" style={{ color: '#843ab4' }}>edit</span>
+                                Edit User
+                              </button>
+                              <div style={{ borderTop: '1px solid #efeded' }} />
                               <Link href={`/users/${u.id}`}
                                 className="flex items-center gap-3 px-4 py-3 text-sm font-bold transition-colors"
                                 style={{ color: '#1b1c1c' }}
@@ -415,6 +446,7 @@ export default function UsersPage() {
                                 <span className="material-symbols-outlined text-base">key</span>
                                 Reset Password
                               </button>
+                              </div>
                             </div>
                           )}
                         </td>
@@ -521,6 +553,86 @@ export default function UsersPage() {
           </div>
         </div>
       </div>
+
+      {/* Edit User Modal */}
+      {editUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+          onClick={() => setEditUser(null)}>
+          <div className="w-full max-w-md rounded-3xl p-8"
+            style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '6px solid #bdc8d2' }}
+            onClick={e => e.stopPropagation()}>
+
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-extrabold" style={{ color: '#1b1c1c' }}>Edit User</h3>
+              <button onClick={() => setEditUser(null)}
+                className="p-2 rounded-xl"
+                style={{ color: '#6e7881' }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f5f3f3')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            {/* User Info (read-only) */}
+            <div className="flex items-center gap-4 p-4 rounded-2xl mb-6"
+              style={{ backgroundColor: '#f5f3f3', border: '2px solid #efeded' }}>
+              <Avatar name={editUser.name} avatarUrl={editUser.avatarUrl} />
+              <div>
+                <p className="font-extrabold" style={{ color: '#1b1c1c' }}>{editUser.name || '—'}</p>
+                <p className="text-sm font-medium" style={{ color: '#3e4850' }}>{editUser.email}</p>
+              </div>
+            </div>
+
+            {/* Role selector */}
+            <div className="mb-6">
+              <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#3e4850' }}>
+                Role
+              </label>
+              <div className="flex gap-3">
+                {(['USER', 'MODERATOR', 'ADMIN'] as const).map(r => {
+                  const badge = ROLE_BADGE[r];
+                  const isSelected = editRole === r;
+                  return (
+                    <button key={r} onClick={() => setEditRole(r)}
+                      className="flex-1 py-3 rounded-2xl text-sm font-extrabold transition-all"
+                      style={{
+                        backgroundColor: isSelected ? badge.bg : '#f5f3f3',
+                        color: isSelected ? badge.text : '#6e7881',
+                        border: isSelected ? `2px solid ${badge.border}` : '2px solid #efeded',
+                        borderBottom: isSelected ? `4px solid ${badge.border}` : '2px solid #efeded',
+                      }}>
+                      {badge.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button onClick={() => setEditUser(null)}
+                className="flex-1 py-3 rounded-2xl font-bold text-sm"
+                style={{ border: '2px solid #bdc8d2', color: '#3e4850', borderBottom: '4px solid #bdc8d2' }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f5f3f3')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}>
+                Cancel
+              </button>
+              <button onClick={handleSaveEdit} disabled={editLoading}
+                className="flex-1 py-3 rounded-2xl font-bold text-sm"
+                style={{
+                  backgroundColor: editLoading ? '#bdc8d2' : '#006590',
+                  color: '#ffffff',
+                  borderBottom: editLoading ? '4px solid #a0adb5' : '4px solid #004c6e',
+                  cursor: editLoading ? 'not-allowed' : 'pointer',
+                }}>
+                {editLoading ? 'Saving…' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }

@@ -16,7 +16,8 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      await auth.login(username, password);
+      const res = await auth.login(username, password) as { accessToken: string; refreshToken: string };
+      localStorage.setItem('admin_token', res.accessToken);
       router.push('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');

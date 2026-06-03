@@ -322,7 +322,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Content Relevance Table */}
-        <div className="rounded-3xl overflow-hidden"
+        <div className="rounded-3xl"
           style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
           <div className="p-8 flex justify-between items-center" style={{ borderBottom: '2px solid #f5f3f3' }}>
             <h3 className="text-xl font-bold" style={{ color: '#1b1c1c' }}>FSRS Module Performance</h3>

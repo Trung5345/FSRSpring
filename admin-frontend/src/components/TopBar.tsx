@@ -1,13 +1,60 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface TopBarProps {
   title?: string;
 }
 
 export default function TopBar({ title }: TopBarProps) {
+  const router = useRouter();
   const [search, setSearch] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userInitial, setUserInitial] = useState('A');
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('admin_token');
+    if (token) {
+      setIsLoggedIn(true);
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const email: string = payload.sub || payload.email || '';
+        setUserInitial(email.charAt(0).toUpperCase() || 'A');
+      } catch {
+        setUserInitial('A');
+      }
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleAvatarClick = () => {
+    if (!isLoggedIn) {
+      router.push('/login');
+    } else {
+      setShowMenu(prev => !prev);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_token');
+    setIsLoggedIn(false);
+    setShowMenu(false);
+    router.push('/login');
+  };
 
   return (
     <header
@@ -40,12 +87,8 @@ export default function TopBar({ title }: TopBarProps) {
               backgroundColor: '#fbf9f9',
               color: '#1b1c1c',
             }}
-            onFocus={(e) => {
-              (e.target as HTMLInputElement).style.borderColor = '#006590';
-            }}
-            onBlur={(e) => {
-              (e.target as HTMLInputElement).style.borderColor = '#bdc8d2';
-            }}
+            onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = '#006590'; }}
+            onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = '#bdc8d2'; }}
           />
         </div>
       </div>
@@ -84,10 +127,40 @@ export default function TopBar({ title }: TopBarProps) {
           Quick Start AI
         </button>
 
-        {/* Avatar */}
-        <div className="ml-2 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer"
-          style={{ backgroundColor: '#c8e6ff', color: '#001e2e', border: '2px solid #bdc8d2' }}>
-          A
+        {/* Avatar with dropdown */}
+        <div className="relative ml-2" ref={menuRef}>
+          <button
+            onClick={handleAvatarClick}
+            title={isLoggedIn ? 'Account' : 'Sign in'}
+            className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all"
+            style={{
+              backgroundColor: isLoggedIn ? '#006590' : '#c8e6ff',
+              color: isLoggedIn ? '#ffffff' : '#001e2e',
+              border: '2px solid #bdc8d2',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+          >
+            {userInitial}
+          </button>
+
+          {showMenu && isLoggedIn && (
+            <div
+              className="absolute right-0 top-12 rounded-2xl overflow-hidden shadow-xl min-w-[160px]"
+              style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2', zIndex: 50 }}
+            >
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold transition-colors"
+                style={{ color: '#ba1a1a' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ffdad6')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '')}
+              >
+                <span className="material-symbols-outlined text-base">logout</span>
+                Sign out
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

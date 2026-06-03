@@ -133,9 +133,9 @@ export default function DashboardPage() {
 
         {/* Recent Quiz Sessions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 rounded-3xl overflow-hidden"
+          <div className="lg:col-span-2 rounded-3xl"
             style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
-            <div className="p-5 flex justify-between items-center"
+            <div className="p-5 flex justify-between items-center rounded-t-[22px]"
               style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
               <h3 className="text-lg font-extrabold" style={{ color: '#1b1c1c' }}>Recent Quiz Sessions</h3>
               <Link href="/quizzes" className="text-sm font-bold" style={{ color: '#006590' }}>View All →</Link>

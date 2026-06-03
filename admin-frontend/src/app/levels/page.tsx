@@ -92,7 +92,7 @@ export default function LevelsPage() {
         {/* Level cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {LEVELS.map(level => (
-            <div key={level.key} className="rounded-3xl overflow-hidden" style={{ backgroundColor: '#ffffff', border: `2px solid ${level.borderColor}`, borderBottom: `5px solid ${level.borderColor}` }}>
+            <div key={level.key} className="rounded-3xl" style={{ backgroundColor: '#ffffff', border: `2px solid ${level.borderColor}`, borderBottom: `5px solid ${level.borderColor}` }}>
               <div className="p-6">
                 <div className="flex items-center gap-4 mb-5">
                   <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ backgroundColor: level.bg }}>
@@ -132,11 +132,12 @@ export default function LevelsPage() {
         </div>
 
         {/* Mapping reference */}
-        <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
-          <div className="p-5" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
-            <h3 className="text-base font-extrabold" style={{ color: '#1b1c1c' }}>FSRS Parameter Mapping</h3>
-          </div>
-          <div className="overflow-x-auto">
+        <div className="rounded-3xl" style={{ border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
+          <div className="rounded-[22px] overflow-hidden" style={{ backgroundColor: '#ffffff' }}>
+            <div className="p-5" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
+              <h3 className="text-base font-extrabold" style={{ color: '#1b1c1c' }}>FSRS Parameter Mapping</h3>
+            </div>
+            <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
                 <tr style={{ borderBottom: '2px solid #efeded' }}>
@@ -167,6 +168,7 @@ export default function LevelsPage() {
                 })}
               </tbody>
             </table>
+          </div>
           </div>
         </div>
       </div>

@@ -1,12 +1,15 @@
 package com.fsrspring.vocab.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -55,6 +58,8 @@ public class Word {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id")
     @JsonIgnoreProperties({"words"})
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Topic topic;
 
     @Enumerated(EnumType.STRING)
@@ -81,9 +86,11 @@ public class Word {
     private EnrichmentStatus enrichmentStatus = EnrichmentStatus.NOT_REQUESTED;
 
     @Column(columnDefinition = "LONGTEXT")
+    @JsonIgnore
     private String enrichmentJson;
 
     @Column(columnDefinition = "LONGTEXT")
+    @JsonIgnore
     private String imageMetadataJson;
 
     private LocalDateTime enrichedAt;

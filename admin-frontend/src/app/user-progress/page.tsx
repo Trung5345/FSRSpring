@@ -105,8 +105,8 @@ export default function UserProgressPage() {
         </div>
 
         {/* Table */}
-        <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
-          <div className="p-5 flex justify-between items-center" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
+        <div className="rounded-3xl" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
+          <div className="p-5 flex justify-between items-center rounded-t-[22px]" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
             <h3 className="text-base font-extrabold" style={{ color: '#1b1c1c' }}>Word Progress ({filtered.length})</h3>
           </div>
           <div className="overflow-x-auto">

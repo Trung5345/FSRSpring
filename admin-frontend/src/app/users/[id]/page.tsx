@@ -381,9 +381,9 @@ export default function UserDetailPage() {
           </div>
 
           {/* Middle: Decks */}
-          <div className="rounded-2xl overflow-hidden"
+          <div className="rounded-2xl"
             style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
-            <div className="px-5 py-4 flex items-center gap-2"
+            <div className="px-5 py-4 flex items-center gap-2 rounded-t-[14px]"
               style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
               <span className="material-symbols-outlined text-base" style={{ color: '#006590' }}>collections_bookmark</span>
               <h3 className="text-sm font-extrabold uppercase tracking-wider" style={{ color: '#1b1c1c' }}>
@@ -419,9 +419,9 @@ export default function UserDetailPage() {
           </div>
 
           {/* Right: Learning history */}
-          <div className="rounded-2xl overflow-hidden"
+          <div className="rounded-2xl"
             style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
-            <div className="px-5 py-4 flex items-center gap-2"
+            <div className="px-5 py-4 flex items-center gap-2 rounded-t-[14px]"
               style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
               <span className="material-symbols-outlined text-base" style={{ color: '#006590' }}>history</span>
               <h3 className="text-sm font-extrabold uppercase tracking-wider" style={{ color: '#1b1c1c' }}>

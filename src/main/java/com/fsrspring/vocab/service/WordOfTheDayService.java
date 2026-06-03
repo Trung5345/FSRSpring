@@ -6,6 +6,7 @@ import com.fsrspring.vocab.repository.WordOfTheDayRepository;
 import com.fsrspring.vocab.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +50,7 @@ public class WordOfTheDayService {
     }
 
     private WordOfTheDay pickNewWordForDate(LocalDate date) {
-        List<Word> candidates = wordRepository.findRandomWords(1);
+        List<Word> candidates = wordRepository.findRandomWords(PageRequest.of(0, 1));
         if (candidates.isEmpty()) {
             throw new IllegalStateException("No words available to pick as Word of the Day");
         }

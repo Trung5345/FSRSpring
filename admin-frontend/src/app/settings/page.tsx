@@ -36,9 +36,9 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-3xl overflow-hidden"
+    <div className="rounded-3xl"
       style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
-      <div className="p-5" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
+      <div className="p-5 rounded-t-[22px]" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
         <h3 className="font-extrabold" style={{ color: '#1b1c1c' }}>{title}</h3>
       </div>
       <div className="p-6 space-y-4">{children}</div>

@@ -1,3 +1,7 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 
@@ -7,6 +11,15 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children, title }: AdminLayoutProps) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('admin_token');
+    if (!token) {
+      router.replace('/login');
+    }
+  }, [router]);
+
   return (
     <div className="flex h-full min-h-screen" style={{ backgroundColor: '#fbf9f9' }}>
       <Sidebar />

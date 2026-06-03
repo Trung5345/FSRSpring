@@ -1,9 +1,15 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
+function getAuthHeaders(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  const token = localStorage.getItem('admin_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders(), ...options?.headers },
     ...options,
   });
   if (!res.ok) {
@@ -17,8 +23,8 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 // Auth
 export const auth = {
-  login: (username: string, password: string) =>
-    request('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
+  login: (email: string, password: string) =>
+    request('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
   me: () => request('/api/user/me'),
 };
 

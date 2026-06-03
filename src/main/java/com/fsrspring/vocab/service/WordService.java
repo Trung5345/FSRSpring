@@ -175,7 +175,8 @@ public class WordService {
     }
 
     public List<Word> getRandomWords(int limit) {
-        return wordRepository.findRandomWords(limit);
+        int safeLimit = Math.max(1, Math.min(limit, 100));
+        return wordRepository.findRandomWords(org.springframework.data.domain.PageRequest.of(0, safeLimit));
     }
 
     public List<Word> searchWords(String keyword) {

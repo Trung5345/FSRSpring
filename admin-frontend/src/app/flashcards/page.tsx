@@ -58,8 +58,8 @@ function WordModal({ word, onClose, onSave }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
-      <div className="w-full max-w-lg rounded-3xl overflow-hidden" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '6px solid #bdc8d2' }}>
-        <div className="p-6 flex justify-between items-center" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
+      <div className="w-full max-w-lg rounded-3xl" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '6px solid #bdc8d2' }}>
+        <div className="p-6 flex justify-between items-center rounded-t-[22px]" style={{ borderBottom: '2px solid #bdc8d2', backgroundColor: '#f5f3f3' }}>
           <h3 className="text-lg font-extrabold" style={{ color: '#1b1c1c' }}>
             {form.id ? 'Edit Flashcard' : 'New Flashcard'}
           </h3>
@@ -198,8 +198,8 @@ export default function FlashcardsPage() {
         </div>
 
         {/* Table */}
-        <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
-          <div className="overflow-x-auto">
+        <div className="rounded-3xl" style={{ backgroundColor: '#ffffff', border: '2px solid #bdc8d2', borderBottom: '4px solid #bdc8d2' }}>
+          <div className="overflow-x-auto" style={{ borderRadius: '22px 22px 0 0', overflowY: 'hidden' }}>
             <table className="w-full text-left">
               <thead>
                 <tr style={{ backgroundColor: '#f5f3f3', borderBottom: '2px solid #bdc8d2' }}>
