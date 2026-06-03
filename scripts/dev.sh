@@ -74,9 +74,9 @@ CLEANUP_DONE=false
 
 # Memory limits per process tree (RSS in MB) — mirrors Docker --memory semantics.
 # Includes root process + all descendants (Maven→JVM, npm→Node+Turbopack workers).
-LIMIT_BACKEND_MB=900   # Maven + Spring Boot JVM (Xmx512m heap + meta + native)
+LIMIT_BACKEND_MB=1500  # Maven + Spring Boot JVM + enrichment startup working set
 LIMIT_FRONTEND_MB=1100 # npm/pnpm + Next/Turbopack + PostCSS worker after cold route compiles
-LIMIT_ADMIN_MB=600     # npm + Next.js admin (smaller surface)
+LIMIT_ADMIN_MB=900     # npm + Next.js admin + PostCSS worker after cold compile
 
 mkdir -p "$LOG_DIR"
 
@@ -219,8 +219,7 @@ next_free_port() {
 watchdog_start() {
   local pid=$1 limit=$2 name=$3
   local wlog="$LOG_DIR/watchdog-${name}.log"
-  WATCHDOG_LOG="$wlog" bash "$SCRIPT_DIR/mem-watchdog.sh" "$pid" "$limit" "$name" \
-    >> "$wlog" 2>&1 &
+  bash "$SCRIPT_DIR/mem-watchdog.sh" "$pid" "$limit" "$name" >> "$wlog" 2>&1 &
   WATCHDOG_PIDS+=("$!")
   echo "[watchdog] $name (PID $pid) — limit: ${limit} MB — log: $wlog"
 }
@@ -365,8 +364,13 @@ echo "[dev]   Admin frontend -> $ADMIN_LOG"
 echo "[dev] Starting Spring Boot (local profile) -> http://localhost:$BACKEND_PORT"
 (
   cd "$ROOT_DIR"
-  echo "Command: ./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local ${MAVEN_ARGS[*]:-}"
-  exec ./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local "${MAVEN_ARGS[@]}"
+  if [[ ${#MAVEN_ARGS[@]} -gt 0 ]]; then
+    echo "Command: ./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local ${MAVEN_ARGS[*]}"
+    exec ./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local "${MAVEN_ARGS[@]}"
+  else
+    echo "Command: ./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local"
+    exec ./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local
+  fi
 ) >> "$BACKEND_LOG" 2>&1 &
 BACKEND_PID=$!
 
