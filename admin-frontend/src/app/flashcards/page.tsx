@@ -75,7 +75,7 @@ function WordModal({ word, onClose, onSave }: {
           </div>
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#3e4850' }}>Translation / Meaning</label>
-            <textarea value={form.meaning ?? form.translation ?? ''} onChange={e => set('meaning', e.target.value)} rows={2} className="w-full p-3.5 rounded-xl outline-none text-sm font-medium resize-none" style={{ border: '2px solid #bdc8d2', backgroundColor: '#fbf9f9', color: '#1b1c1c' }} onFocus={e => (e.target.style.borderColor = '#006590')} onBlur={e => (e.target.style.borderColor = '#bdc8d2')} placeholder="Enter meaning..." />
+            <textarea value={form.translation ?? ''} onChange={e => set('translation', e.target.value)} rows={2} className="w-full p-3.5 rounded-xl outline-none text-sm font-medium resize-none" style={{ border: '2px solid #bdc8d2', backgroundColor: '#fbf9f9', color: '#1b1c1c' }} onFocus={e => (e.target.style.borderColor = '#006590')} onBlur={e => (e.target.style.borderColor = '#bdc8d2')} placeholder="Enter meaning..." />
           </div>
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#3e4850' }}>Definition</label>
@@ -130,7 +130,7 @@ export default function FlashcardsPage() {
     setLoading(true);
     try {
       const [res, cats] = await Promise.allSettled([
-        words.list({ page, size: 15, search: search || undefined, category: categoryFilter || undefined }),
+        words.list({ page, size: 15, search: search || undefined, category: categoryFilter || undefined, difficulty: difficultyFilter || undefined }),
         words.categories(),
       ]);
       if (res.status === 'fulfilled') {
@@ -142,7 +142,7 @@ export default function FlashcardsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, categoryFilter]);
+  }, [page, search, categoryFilter, difficultyFilter]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -216,7 +216,7 @@ export default function FlashcardsPage() {
                     <span className="material-symbols-outlined text-4xl block mb-2" style={{ color: '#bdc8d2' }}>style</span>
                     <p className="text-sm font-medium">No flashcards found. Add your first one!</p>
                   </td></tr>
-                ) : wordList.filter(w => !difficultyFilter || w.difficulty === difficultyFilter).map(w => {
+                ) : wordList.map(w => {
                   const ds = difficultyStyle[w.difficulty ?? ''] ?? { bg: '#efeded', color: '#3e4850' };
                   return (
                     <tr key={w.id} style={{ borderTop: '1px solid #efeded' }} onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f5f3f3')} onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}>

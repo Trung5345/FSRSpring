@@ -1,8 +1,12 @@
 "use client";
 
-import Lottie from "lottie-react";
+import dynamic from "next/dynamic";
 import animationData from "../../../public/running-cat.json";
 import { cn } from "@/lib/utils";
+
+// Dynamic import keeps lottie-web (~300 KB) out of the main bundle.
+// It is only loaded when a loading overlay is actually shown.
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 interface CatLoaderProps {
   /** Size of the animation container in px. Default: 200 */

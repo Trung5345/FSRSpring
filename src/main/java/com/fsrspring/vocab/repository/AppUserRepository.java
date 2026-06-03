@@ -27,7 +27,8 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long>, JpaSpec
 
     @Query("""
         SELECT u FROM AppUser u
-        WHERE (:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%')))
+        WHERE (:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%'))
+                               OR LOWER(u.name)  LIKE LOWER(CONCAT('%', :email, '%')))
           AND (:locked IS NULL OR u.locked = :locked)
           AND (:role IS NULL OR u.role = :role)
           AND (:from IS NULL OR u.createdAt >= :from)

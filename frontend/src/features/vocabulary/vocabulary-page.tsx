@@ -13,7 +13,7 @@ import {
   IconTrash,
   IconX
 } from "@tabler/icons-react";
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { AppShellLoading } from "@/components/layout/app-shell";
 import { Dialog } from "@/components/ui/dialog";
 import { Select } from "@/components/ui/select";
@@ -23,6 +23,9 @@ import type { DictionaryLookup, DifficultyLevel, PageResponse, Topic, Word } fro
 
 const INITIAL_WORD_COUNT = 20;
 const SCROLL_WORD_BATCH_SIZE = 16;
+// Hard cap on DOM word nodes. Beyond this, auto-scroll stops and the user must
+// use search/filters. Prevents unbounded DOM growth with large vocabularies.
+const MAX_VISIBLE_WORDS = 120;
 
 const emptyWord: Partial<Word> = {
   word: "",
@@ -145,30 +148,43 @@ function normalizeWordPage(
 }
 
 function WordDetail3DModal({ word, onClose }: { word: Word | null, onClose: () => void }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number>(0);
+
   if (!word) return null;
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      const card = cardRef.current;
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+      const rotateX = ((clientY - rect.top - rect.height / 2) / (rect.height / 2)) * -10;
+      const rotateY = ((clientX - rect.left - rect.width / 2) / (rect.width / 2)) * 10;
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+    });
+  };
+
+  const handleMouseLeave = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (cardRef.current) cardRef.current.style.transform = "rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 p-4 xl:p-8 backdrop-blur-sm transition-opacity" onClick={onClose}>
-      <div 
+      <div
         className="group relative w-full max-w-[380px] animate-in fade-in zoom-in-95 duration-300"
         style={{ perspective: "1000px" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div 
+        <div
+          ref={cardRef}
           className="relative transition-all duration-300 ease-out"
           style={{ transformStyle: "preserve-3d" }}
-          onMouseMove={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = ((y - centerY) / centerY) * -10;
-            const rotateY = ((x - centerX) / centerX) * 10;
-            e.currentTarget.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
-          }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
         >
           {/* Shadow layer behind */}
           <div className="absolute inset-0 rounded-2xl bg-black/20 blur-xl transition-all duration-300" style={{ transform: "translateZ(-30px) translateY(10px)" }}></div>
@@ -328,6 +344,7 @@ export function VocabularyPage() {
 
   const loadNextBatch = useCallback(() => {
     if (replacingRef.current || loadingMoreRef.current || !hasMoreRef.current) return;
+    if (loadedCountRef.current >= MAX_VISIBLE_WORDS) return;
     void loadWords(loadedCountRef.current, SCROLL_WORD_BATCH_SIZE, "append");
   }, [loadWords]);
 
@@ -353,7 +370,10 @@ export function VocabularyPage() {
         frame = 0;
 
         if (isScrollingDown) {
-          loadNextBatch();
+          const distanceToBottom = document.documentElement.scrollHeight - currentY - window.innerHeight;
+          if (distanceToBottom < 400) {
+            loadNextBatch();
+          }
         }
       });
     }
@@ -665,10 +685,12 @@ export function VocabularyPage() {
       ) : null}
 
       {words.length ? (
-        <div
-          className="flex h-16 items-center justify-center font-display text-[0.78rem] font-bold uppercase tracking-[0.04em] text-muted-foreground"
-        >
-          {hasMore ? `${words.length} / ${totalWords} loaded` : "All words loaded"}
+        <div className="flex h-16 items-center justify-center font-display text-[0.78rem] font-bold uppercase tracking-[0.04em] text-muted-foreground text-center">
+          {words.length >= MAX_VISIBLE_WORDS && hasMore
+            ? `Showing ${words.length} / ${totalWords} — use search or filters to narrow results`
+            : hasMore
+              ? `${words.length} / ${totalWords} loaded`
+              : "All words loaded"}
         </div>
       ) : null}
 

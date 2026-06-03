@@ -39,6 +39,9 @@ export function FlashcardsPage() {
   const [trusted, setTrusted] = useState<TrustedFlashcard[]>([]);
   const [visibleCount, setVisibleCount] = useState(TRUSTED_INITIAL);
   const [search, setSearch] = useState("");
+  // searchQuery is the committed value used in API calls.
+  // Separating it from `search` prevents API calls on every keystroke.
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [savingId, setSavingId] = useState<number | null>(null);
@@ -46,14 +49,14 @@ export function FlashcardsPage() {
   const { toast } = useToast();
 
   const load = useCallback(async () => {
-    const [dueWords, cards] = await Promise.all([api.dueWords(30).catch(() => []), api.flashcards(search).catch(() => [])]);
+    const [dueWords, cards] = await Promise.all([api.dueWords(30).catch(() => []), api.flashcards(searchQuery).catch(() => [])]);
     setDue(dueWords);
     setTrusted(uniqueTrustedCards(cards));
     setVisibleCount(TRUSTED_INITIAL);
     setIndex(0);
     setFlipped(false);
     setLoading(false);
-  }, [search]);
+  }, [searchQuery]);
 
   useEffect(() => {
     load().catch(() => { setLoading(false); toast("Không thể tải flashcards từ backend. Đang hiển thị dữ liệu trống.", "warning"); });
@@ -81,7 +84,7 @@ export function FlashcardsPage() {
     setTrusted([]);
     setVisibleCount(TRUSTED_INITIAL);
     try {
-      const cards = uniqueTrustedCards(await api.importFlashcards("Datamuse + Free Dictionary", search || "vocabulary"));
+      const cards = uniqueTrustedCards(await api.importFlashcards("Datamuse + Free Dictionary", searchQuery || "vocabulary"));
       setTrusted(cards);
       toast(cards.length ? "Trusted flashcards imported." : "Không có flashcard mới từ API ngoài.", cards.length ? "success" : "warning");
     } catch {
@@ -207,9 +210,15 @@ export function FlashcardsPage() {
               <div className="flex gap-2">
                 <label className="relative flex-1">
                   <IconSearch className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
-                  <Input className="pl-10" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search trusted cards" />
+                  <Input
+                    className="pl-10"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") setSearchQuery(search.trim()); }}
+                    placeholder="Search trusted cards"
+                  />
                 </label>
-                <Button variant="outline" onClick={load}>Search</Button>
+                <Button variant="outline" onClick={() => setSearchQuery(search.trim())}>Search</Button>
               </div>
               <Button className="w-full" variant="secondary" onClick={importTrusted} disabled={importing}>
                 <IconSparkles className="h-4 w-4" /> {importing ? "Importing..." : "Import Trusted Set"}

@@ -46,6 +46,8 @@ PREFERRED_FRONTEND_PORT=3000
 PREFERRED_ADMIN_PORT=3001
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+LOG_DIR="$ROOT_DIR/logs/dev"
+INFRA_LOG="$LOG_DIR/infra.log"
 
 # Parse flags — strip known flags before passing remaining args to Maven
 WITH_TRANSLATE=false
@@ -67,6 +69,72 @@ fi
 BACKEND_PID=""
 FRONTEND_PID=""
 ADMIN_PID=""
+WATCHDOG_PIDS=()
+CLEANUP_DONE=false
+
+# Memory limits per process tree (RSS in MB) — mirrors Docker --memory semantics.
+# Includes root process + all descendants (Maven→JVM, npm→Node+Turbopack workers).
+LIMIT_BACKEND_MB=900   # Maven + Spring Boot JVM (Xmx512m heap + meta + native)
+LIMIT_FRONTEND_MB=1100 # npm/pnpm + Next/Turbopack + PostCSS worker after cold route compiles
+LIMIT_ADMIN_MB=600     # npm + Next.js admin (smaller surface)
+
+mkdir -p "$LOG_DIR"
+
+init_log_file() {
+  local logfile=$1
+  local name=$2
+  local port=${3:-}
+  {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S %z')] $name"
+    echo "Root: $ROOT_DIR"
+    [[ -n "$port" ]] && echo "Port: $port"
+    echo "Log: $logfile"
+    echo "------------------------------------------------------------"
+  } > "$logfile"
+}
+
+tail_log() {
+  local logfile=$1
+  local lines=${2:-80}
+  if [[ -f "$logfile" ]]; then
+    echo "[dev] Last $lines lines from $logfile:"
+    tail -n "$lines" "$logfile" | sed 's/^/[dev]   /'
+  fi
+}
+
+exit_for_process() {
+  local name=$1
+  local pid=$2
+  local logfile=$3
+  local status=0
+
+  wait "$pid" || status=$?
+  [[ $status -eq 0 ]] && status=1
+  echo ""
+  echo "[dev] ERROR: $name stopped unexpectedly (exit $status)."
+  tail_log "$logfile"
+  exit "$status"
+}
+
+ensure_running() {
+  local name=$1
+  local pid=$2
+  local logfile=$3
+  if ! kill -0 "$pid" 2>/dev/null; then
+    exit_for_process "$name" "$pid" "$logfile"
+  fi
+}
+
+monitor_processes() {
+  while true; do
+    ensure_running "Spring Boot backend" "$BACKEND_PID" "$BACKEND_LOG"
+    ensure_running "User frontend" "$FRONTEND_PID" "$FRONTEND_LOG"
+    ensure_running "Admin frontend" "$ADMIN_PID" "$ADMIN_LOG"
+    sleep 2
+  done
+}
+
+init_log_file "$INFRA_LOG" "Infrastructure services" "mysql:3307 redis:6380"
 
 # Recursively kill a process tree (children first, then parent).
 # Next.js/Turbopack spawns dozens of Node workers; killing only the top PID leaves them orphaned.
@@ -92,7 +160,7 @@ free_port() {
   if [[ -n "$containers" ]]; then
     while IFS= read -r name; do
       echo "  Stopping Docker container: $name"
-      docker stop "$name" >/dev/null
+      docker stop "$name" >> "$INFRA_LOG" 2>&1
     done <<< "$containers"
   fi
   # Kill non-Docker-Desktop processes using this port
@@ -109,7 +177,7 @@ free_port() {
         continue
       fi
       echo "  Killing process $pid ($cmd)"
-      kill "$pid" 2>/dev/null || true
+      kill_tree "$pid" TERM
     done <<< "$pids"
 
     # Poll until the port is actually free (JVM needs more than 1s to release after SIGTERM).
@@ -125,7 +193,7 @@ free_port() {
           cmd2=$(ps -p "$pid" -o comm= 2>/dev/null || echo "unknown")
           [[ "$cmd2" == *"com.docker"* ]] && continue
           echo "  Force-killing stubborn process $pid ($cmd2) on port $port"
-          kill -9 "$pid" 2>/dev/null || true
+          kill_tree "$pid" KILL
         done <<< "$remaining"
         sleep 1
         break
@@ -145,9 +213,28 @@ next_free_port() {
   echo "$port"
 }
 
+# Start a background memory watchdog for a process tree.
+# Usage: watchdog_start <ROOT_PID> <LIMIT_MB> <NAME>
+# Mirrors Docker --memory: SIGTERM when over limit, SIGKILL after 5s grace.
+watchdog_start() {
+  local pid=$1 limit=$2 name=$3
+  local wlog="$LOG_DIR/watchdog-${name}.log"
+  WATCHDOG_LOG="$wlog" bash "$SCRIPT_DIR/mem-watchdog.sh" "$pid" "$limit" "$name" \
+    >> "$wlog" 2>&1 &
+  WATCHDOG_PIDS+=("$!")
+  echo "[watchdog] $name (PID $pid) — limit: ${limit} MB — log: $wlog"
+}
+
 cleanup() {
+  [[ "$CLEANUP_DONE" == "true" ]] && return
+  CLEANUP_DONE=true
+  trap - EXIT INT TERM
   echo ""
   echo "[dev] Shutting down..."
+  # Stop watchdogs first so they don't race with our own shutdown logic.
+  for _wpid in "${WATCHDOG_PIDS[@]+"${WATCHDOG_PIDS[@]}"}"; do
+    kill "$_wpid" 2>/dev/null || true
+  done
   # SIGTERM the full process trees so Node/Turbopack workers don't become orphans.
   for _cpid in "$BACKEND_PID" "$FRONTEND_PID" "$ADMIN_PID"; do
     [[ -z "$_cpid" ]] && continue
@@ -175,32 +262,47 @@ cleanup() {
       kill -9 "$_pid" 2>/dev/null || true
     done <<< "$_jvm_pids"
   fi
+
+  echo "[dev] Logs kept in: $LOG_DIR"
 }
-trap cleanup EXIT INT TERM
+
+on_signal() {
+  cleanup
+  exit 130
+}
+
+trap cleanup EXIT
+trap on_signal INT TERM
+
+if ! command -v docker >/dev/null 2>&1; then
+  echo "[dev] ERROR: Docker not found. Install/start Docker Desktop before running dev.sh."
+  exit 1
+fi
 
 # Stop app/frontend Docker containers first — they bind ports 8080/3000 and conflict with local dev
 echo "[dev] Stopping app/frontend Docker containers (if running)..."
-docker compose -f "$ROOT_DIR/docker-compose.yml" stop app frontend >/dev/null 2>&1 || true
+docker compose -f "$ROOT_DIR/docker-compose.yml" stop app frontend >> "$INFRA_LOG" 2>&1 || true
 
 # Ensure infrastructure is up
 # LibreTranslate loads ~1.5 GB of NLP models and causes heavy startup lag.
 # Only start it when enrichment/translation features are needed (pass --translate).
 if [[ "$WITH_TRANSLATE" == "true" ]]; then
   echo "[dev] Starting infrastructure services (mysql, redis, libretranslate)..."
-  docker compose -f "$ROOT_DIR/docker-compose.yml" up -d mysql redis libretranslate >/dev/null 2>&1 || true
+  docker compose -f "$ROOT_DIR/docker-compose.yml" up -d mysql redis libretranslate >> "$INFRA_LOG" 2>&1 || true
 else
   echo "[dev] Starting infrastructure services (mysql, redis) — skipping libretranslate."
   echo "[dev]   To enable translation features: ./scripts/dev.sh --translate"
-  docker compose -f "$ROOT_DIR/docker-compose.yml" up -d mysql redis >/dev/null 2>&1 || true
-  docker compose -f "$ROOT_DIR/docker-compose.yml" stop libretranslate >/dev/null 2>&1 || true
+  docker compose -f "$ROOT_DIR/docker-compose.yml" up -d mysql redis >> "$INFRA_LOG" 2>&1 || true
+  docker compose -f "$ROOT_DIR/docker-compose.yml" stop libretranslate >> "$INFRA_LOG" 2>&1 || true
 fi
 
 # Wait for MySQL to accept connections (port 3307 mapped locally)
 echo "[dev] Waiting for MySQL on :3307..."
 mysql_elapsed=0
-until docker compose -f "$ROOT_DIR/docker-compose.yml" exec -T mysql mysqladmin ping -h localhost --silent >/dev/null 2>&1; do
+until docker compose -f "$ROOT_DIR/docker-compose.yml" exec -T mysql mysqladmin ping -h localhost --silent >> "$INFRA_LOG" 2>&1; do
   if [[ $mysql_elapsed -ge 60 ]]; then
     echo "[dev] ERROR: MySQL did not become ready within 60s."
+    tail_log "$INFRA_LOG" 120
     exit 1
   fi
   sleep 2
@@ -211,9 +313,10 @@ echo "[dev] MySQL ready."
 # Wait for Redis to accept connections (port 6380 mapped locally)
 echo "[dev] Waiting for Redis on :6380..."
 redis_elapsed=0
-until docker compose -f "$ROOT_DIR/docker-compose.yml" exec -T redis redis-cli -a "$REDIS_PASS" ping 2>/dev/null | grep -q PONG; do
+until docker compose -f "$ROOT_DIR/docker-compose.yml" exec -T redis redis-cli -a "$REDIS_PASS" ping 2>> "$INFRA_LOG" | grep -q PONG; do
   if [[ $redis_elapsed -ge 30 ]]; then
     echo "[dev] ERROR: Redis did not become ready within 30s."
+    tail_log "$INFRA_LOG" 120
     exit 1
   fi
   sleep 1
@@ -244,10 +347,27 @@ if [[ "$ADMIN_PORT" != "$PREFERRED_ADMIN_PORT" ]]; then
   echo "[dev] WARN: Port $PREFERRED_ADMIN_PORT occupied. Admin frontend on :$ADMIN_PORT"
 fi
 
+BACKEND_LOG="$LOG_DIR/backend-$BACKEND_PORT.log"
+FRONTEND_LOG="$LOG_DIR/frontend-$FRONTEND_PORT.log"
+ADMIN_LOG="$LOG_DIR/admin-$ADMIN_PORT.log"
+
+init_log_file "$BACKEND_LOG" "Spring Boot backend" "$BACKEND_PORT"
+init_log_file "$FRONTEND_LOG" "User frontend" "$FRONTEND_PORT"
+init_log_file "$ADMIN_LOG" "Admin frontend" "$ADMIN_PORT"
+
+echo "[dev] Logs:"
+echo "[dev]   Infrastructure -> $INFRA_LOG"
+echo "[dev]   Backend        -> $BACKEND_LOG"
+echo "[dev]   User frontend  -> $FRONTEND_LOG"
+echo "[dev]   Admin frontend -> $ADMIN_LOG"
+
 # Start Spring Boot in background FIRST (clean to avoid stale class files)
-echo "[dev] Starting Spring Boot (local profile) — compiling..."
-cd "$ROOT_DIR"
-./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local "${MAVEN_ARGS[@]+"${MAVEN_ARGS[@]}"}" &
+echo "[dev] Starting Spring Boot (local profile) -> http://localhost:$BACKEND_PORT"
+(
+  cd "$ROOT_DIR"
+  echo "Command: ./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local ${MAVEN_ARGS[*]:-}"
+  exec ./mvnw clean spring-boot:run -Dspring-boot.run.profiles=local "${MAVEN_ARGS[@]}"
+) >> "$BACKEND_LOG" 2>&1 &
 BACKEND_PID=$!
 
 # Wait for Spring Boot to be healthy before starting frontends.
@@ -256,13 +376,12 @@ echo "[dev] Waiting for Spring Boot on :$BACKEND_PORT (this may take ~60s on fir
 elapsed=0
 until curl -sf "http://localhost:$BACKEND_PORT/api/words/count" >/dev/null 2>&1; do
   if ! kill -0 "$BACKEND_PID" 2>/dev/null; then
-    echo ""
-    echo "[dev] ERROR: Spring Boot exited unexpectedly. Check logs above."
-    exit 1
+    exit_for_process "Spring Boot backend" "$BACKEND_PID" "$BACKEND_LOG"
   fi
   if [[ $elapsed -ge 300 ]]; then
     echo ""
     echo "[dev] ERROR: Spring Boot did not become ready within 5 minutes."
+    tail_log "$BACKEND_LOG" 120
     exit 1
   fi
   printf "."
@@ -271,6 +390,7 @@ until curl -sf "http://localhost:$BACKEND_PORT/api/words/count" >/dev/null 2>&1;
 done
 echo ""
 echo "[dev] Spring Boot is ready!"
+watchdog_start "$BACKEND_PID" "$LIMIT_BACKEND_MB" "spring-boot"
 
 # Suppress macOS malloc-stack-logging noise from Node.js worker processes
 unset MallocStackLogging
@@ -278,21 +398,44 @@ unset MallocStackLogging
 # Start frontends only after backend is healthy
 echo "[dev] Starting user frontend  → http://localhost:$FRONTEND_PORT"
 if [[ -n "$PNPM_CMD" ]]; then
-  (cd "$ROOT_DIR/frontend" && "$PNPM_CMD" dev -p "$FRONTEND_PORT") &
+  (
+    cd "$ROOT_DIR/frontend"
+    echo "Command: $PNPM_CMD dev -p $FRONTEND_PORT"
+    exec "$PNPM_CMD" dev -p "$FRONTEND_PORT"
+  ) >> "$FRONTEND_LOG" 2>&1 &
 else
-  (cd "$ROOT_DIR/frontend" && npm run dev -- -p "$FRONTEND_PORT") &
+  (
+    cd "$ROOT_DIR/frontend"
+    echo "Command: npm run dev -- -p $FRONTEND_PORT"
+    exec npm run dev -- -p "$FRONTEND_PORT"
+  ) >> "$FRONTEND_LOG" 2>&1 &
 fi
 FRONTEND_PID=$!
+watchdog_start "$FRONTEND_PID" "$LIMIT_FRONTEND_MB" "frontend"
 
 echo "[dev] Starting admin frontend → http://localhost:$ADMIN_PORT"
-(cd "$ROOT_DIR/admin-frontend" && npm run dev -- -p "$ADMIN_PORT") &
+(
+  cd "$ROOT_DIR/admin-frontend"
+  echo "Command: npm run dev -- -p $ADMIN_PORT"
+  exec npm run dev -- -p "$ADMIN_PORT"
+) >> "$ADMIN_LOG" 2>&1 &
 ADMIN_PID=$!
+watchdog_start "$ADMIN_PID" "$LIMIT_ADMIN_MB" "admin"
+
+sleep 2
+ensure_running "User frontend" "$FRONTEND_PID" "$FRONTEND_LOG"
+ensure_running "Admin frontend" "$ADMIN_PID" "$ADMIN_LOG"
 
 echo "[dev] ─────────────────────────────────────────"
 echo "[dev]   User UI  → http://localhost:$FRONTEND_PORT"
 echo "[dev]   Admin UI → http://localhost:$ADMIN_PORT"
 echo "[dev]   API      → http://localhost:$BACKEND_PORT"
+echo "[dev]   Logs     → $LOG_DIR"
 echo "[dev] ─────────────────────────────────────────"
+echo "[dev] Tail each service in a separate terminal if needed:"
+echo "[dev]   tail -f \"$BACKEND_LOG\""
+echo "[dev]   tail -f \"$FRONTEND_LOG\""
+echo "[dev]   tail -f \"$ADMIN_LOG\""
 
-# Keep script alive — exit only when Spring Boot exits
-wait "$BACKEND_PID" || true
+# Keep script alive and stop the whole stack if any service exits.
+monitor_processes

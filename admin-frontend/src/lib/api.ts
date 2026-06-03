@@ -24,12 +24,13 @@ export const auth = {
 
 // Words
 export const words = {
-  list: (params?: { page?: number; size?: number; category?: string; search?: string }) => {
+  list: (params?: { page?: number; size?: number; category?: string; search?: string; difficulty?: string }) => {
     const q = new URLSearchParams();
     if (params?.page != null) q.set('page', String(params.page));
     if (params?.size != null) q.set('size', String(params.size));
     if (params?.category) q.set('category', params.category);
     if (params?.search) q.set('search', params.search);
+    if (params?.difficulty) q.set('difficulty', params.difficulty);
     return request(`/api/words?${q}`);
   },
   get: (id: number) => request(`/api/words/${id}`),

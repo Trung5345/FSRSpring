@@ -65,20 +65,11 @@ function Avatar({ name, avatarUrl }: { name: string; avatarUrl: string }) {
   );
 }
 
-// Seed data for when API returns empty
-const SEED_USERS: User[] = [
-  { id: 1, name: 'Elena Rodriguez', email: 'elena.ro@example.com', avatarUrl: '', role: 'USER', locked: false, createdAt: '2024-01-15T10:00:00', lastLoginAt: '2026-05-30T08:22:00' },
-  { id: 2, name: 'Marcus Chen', email: 'm.chen88@domain.io', avatarUrl: '', role: 'USER', locked: false, createdAt: '2024-03-02T14:30:00', lastLoginAt: '2026-04-10T17:45:00' },
-  { id: 3, name: 'Julian Vane', email: 'julian.v@webmail.com', avatarUrl: '', role: 'MODERATOR', locked: false, createdAt: '2023-11-20T09:00:00', lastLoginAt: '2026-05-29T21:00:00' },
-  { id: 4, name: 'Sasha K.', email: 'sk.design@studio.com', avatarUrl: '', role: 'USER', locked: false, createdAt: '2024-06-01T11:00:00', lastLoginAt: '2026-05-25T14:00:00' },
-  { id: 5, name: 'Nguyen Thang', email: 'thefirestar312@gmail.com', avatarUrl: '', role: 'ADMIN', locked: false, createdAt: '2023-09-01T08:00:00', lastLoginAt: '2026-05-31T00:00:00' },
-  { id: 6, name: 'Priya Sharma', email: 'priya.s@techcorp.com', avatarUrl: '', role: 'USER', locked: false, createdAt: '2024-08-15T13:00:00', lastLoginAt: '2026-05-20T10:30:00' },
-  { id: 7, name: 'Carlos Mendez', email: 'carlos.m@linguist.app', avatarUrl: '', role: 'USER', locked: true, createdAt: '2024-02-28T16:00:00', lastLoginAt: '2026-03-01T09:00:00' },
-];
 
 export default function UsersPage() {
   const [data, setData] = useState<UsersResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('');
   const [role, setRole] = useState('');
@@ -90,18 +81,13 @@ export default function UsersPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError('');
     try {
       const res = await adminUsers.list({ email: email || undefined, status: status || undefined, role: role || undefined, page, size: 20 }) as UsersResponse;
       setData(res);
-    } catch {
-      // Use seed data when API unavailable
-      setData({
-        users: SEED_USERS,
-        totalElements: SEED_USERS.length,
-        totalPages: 1,
-        page: 0,
-        size: 20,
-      });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load users');
+      setData(null);
     } finally {
       setLoading(false);
     }
@@ -244,19 +230,25 @@ export default function UsersPage() {
           {selected.size > 0 && (
             <div className="flex items-center gap-3">
               <span className="text-sm font-bold px-2" style={{ color: '#3e4850' }}>{selected.size} selected</span>
-              <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm"
-                style={{ backgroundColor: '#efeded', color: '#3e4850', border: '2px solid #bdc8d2' }}>
-                <span className="material-symbols-outlined text-base">mail</span>
-                Notify
-              </button>
-              <button className="btn-tactile flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm"
-                style={{ backgroundColor: '#ffdad6', color: '#93000a', border: '2px solid #ba1a1a', borderBottom: '4px solid #93000a' }}>
-                <span className="material-symbols-outlined text-base">block</span>
-                Restrict
-              </button>
+              <span className="text-xs italic px-3 py-2 rounded-xl" style={{ backgroundColor: '#efeded', color: '#6e7881' }}>
+                Bulk actions coming soon
+              </span>
             </div>
           )}
         </div>
+
+        {/* Error banner */}
+        {error && (
+          <div className="rounded-2xl p-4 flex items-center gap-3"
+            style={{ backgroundColor: '#ffdad6', border: '2px solid #ba1a1a' }}>
+            <span className="material-symbols-outlined" style={{ color: '#ba1a1a' }}>error</span>
+            <p className="text-sm font-bold" style={{ color: '#ba1a1a' }}>{error}</p>
+            <button onClick={load} className="ml-auto text-xs font-bold px-3 py-1 rounded-lg"
+              style={{ backgroundColor: '#ba1a1a', color: '#ffffff' }}>
+              Retry
+            </button>
+          </div>
+        )}
 
         {/* Reset password toast */}
         {resetResult && (

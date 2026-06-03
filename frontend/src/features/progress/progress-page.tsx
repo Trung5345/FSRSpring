@@ -1,13 +1,14 @@
 "use client";
 
 import { IconAward, IconBooks, IconBrain, IconCircleCheck, IconCircleX, IconSchool, IconTarget, IconTrophy } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShellLoading } from "@/components/layout/app-shell";
 import { api } from "@/lib/api";
 import { formatDateTime, masteryLabel } from "@/lib/utils";
 import type { QuizSession, UserProgress } from "@/types/api";
 
 const MASTERY_TYPES = ["NEW", "LEARNING", "REVIEWING", "MASTERED"] as const;
+const ROWS_PER_PAGE = 100;
 
 const MASTERY_BADGE: Record<string, string> = {
   NEW: "bg-[#e3e2e2] text-[#6e7881] border border-[#bdc8d2]",
@@ -47,6 +48,7 @@ export function ProgressPage() {
   const [progress, setProgress] = useState<UserProgress[]>([]);
   const [sessions, setSessions] = useState<QuizSession[]>([]);
   const [masteryFilter, setMasteryFilter] = useState("");
+  const [visibleRows, setVisibleRows] = useState(ROWS_PER_PAGE);
   const [loading, setLoading] = useState(true);
   const [progressError, setProgressError] = useState<string | null>(null);
 
@@ -79,19 +81,30 @@ export function ProgressPage() {
     loadAll();
   }, []);
 
-  // Mastery distribution
-  const masteryCounts = { NEW: 0, LEARNING: 0, REVIEWING: 0, MASTERED: 0 };
-  for (const p of progress) {
-    const key = (p.mastery || "NEW") as keyof typeof masteryCounts;
-    if (key in masteryCounts) masteryCounts[key]++;
-  }
-  const neverStudied = Math.max(0, wordCount - progress.length);
-  masteryCounts.NEW += neverStudied;
-  const totalMastery = MASTERY_TYPES.reduce((s, t) => s + masteryCounts[t], 0);
+  const masteryCounts = useMemo(() => {
+    const counts = { NEW: 0, LEARNING: 0, REVIEWING: 0, MASTERED: 0 };
+    for (const p of progress) {
+      const key = (p.mastery || "NEW") as keyof typeof counts;
+      if (key in counts) counts[key]++;
+    }
+    counts.NEW += Math.max(0, wordCount - progress.length);
+    return counts;
+  }, [progress, wordCount]);
 
-  const filteredProgress = masteryFilter
-    ? progress.filter((p) => (p.mastery || "NEW") === masteryFilter)
-    : progress;
+  const totalMastery = useMemo(
+    () => MASTERY_TYPES.reduce((s, t) => s + masteryCounts[t], 0),
+    [masteryCounts]
+  );
+
+  const filteredProgress = useMemo(
+    () => masteryFilter ? progress.filter((p) => (p.mastery || "NEW") === masteryFilter) : progress,
+    [progress, masteryFilter]
+  );
+
+  const visibleProgress = useMemo(
+    () => filteredProgress.slice(0, visibleRows),
+    [filteredProgress, visibleRows]
+  );
 
   const accuracy = stats.accuracy ?? 0;
   const totalCorrect = stats.totalCorrect ?? 0;
@@ -237,13 +250,18 @@ export function ProgressPage() {
           <div className="flex flex-wrap items-center gap-3 border-b border-border px-5 py-4">
             <h3 className="font-display text-[17px] font-bold text-foreground">
               Word Progress ({filteredProgress.length})
+              {filteredProgress.length > visibleRows && (
+                <span className="ml-2 font-display text-[12px] font-normal text-muted-foreground">
+                  (showing {visibleRows})
+                </span>
+              )}
             </h3>
             <div className="ml-auto flex flex-wrap gap-2">
               {(["", ...MASTERY_TYPES] as const).map((type) => (
                 <button
                   key={type}
                   type="button"
-                  onClick={() => setMasteryFilter(type)}
+                  onClick={() => { setMasteryFilter(type); setVisibleRows(ROWS_PER_PAGE); }}
                   className={`rounded-full border-2 px-3 py-1 font-display text-[12px] font-bold uppercase tracking-widest transition ${
                     masteryFilter === type
                       ? "border-primary bg-primary text-primary-foreground"
@@ -287,43 +305,58 @@ export function ProgressPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredProgress.map((p) => {
-                    const correct = p.correctCount ?? 0;
-                    const wrong = p.incorrectCount ?? 0;
-                    const total = correct + wrong;
-                    const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
-                    return (
-                      <tr key={p.id} className="border-b border-border last:border-0 hover:bg-muted/40">
-                        <td className="px-5 py-3">
-                          <div className="flex flex-col">
-                            <span className="font-display text-[15px] font-bold text-foreground">
-                              {p.word.word}
-                            </span>
-                            {p.word.pronunciation ? (
-                              <span className="font-mono text-[12px] text-primary">
-                                {p.word.pronunciation}
+                  <>
+                    {visibleProgress.map((p) => {
+                      const correct = p.correctCount ?? 0;
+                      const wrong = p.incorrectCount ?? 0;
+                      const total = correct + wrong;
+                      const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+                      return (
+                        <tr key={p.id} className="border-b border-border last:border-0 hover:bg-muted/40">
+                          <td className="px-5 py-3">
+                            <div className="flex flex-col">
+                              <span className="font-display text-[15px] font-bold text-foreground">
+                                {p.word.word}
                               </span>
-                            ) : null}
-                          </div>
-                        </td>
-                        <td className="px-5 py-3 font-body text-[15px] text-foreground">
-                          {p.word.translation}
-                        </td>
-                        <td className="px-5 py-3">
-                          <MasteryPill mastery={p.mastery} />
-                        </td>
-                        <td className="px-5 py-3 font-display text-[15px] font-bold text-primary">
-                          {correct}
-                        </td>
-                        <td className="px-5 py-3 font-display text-[15px] font-bold text-destructive">
-                          {wrong}
-                        </td>
-                        <td className={`px-5 py-3 font-display text-[15px] ${accuracyColor(pct)}`}>
-                          {total > 0 ? `${pct}%` : "—"}
+                              {p.word.pronunciation ? (
+                                <span className="font-mono text-[12px] text-primary">
+                                  {p.word.pronunciation}
+                                </span>
+                              ) : null}
+                            </div>
+                          </td>
+                          <td className="px-5 py-3 font-body text-[15px] text-foreground">
+                            {p.word.translation}
+                          </td>
+                          <td className="px-5 py-3">
+                            <MasteryPill mastery={p.mastery} />
+                          </td>
+                          <td className="px-5 py-3 font-display text-[15px] font-bold text-primary">
+                            {correct}
+                          </td>
+                          <td className="px-5 py-3 font-display text-[15px] font-bold text-destructive">
+                            {wrong}
+                          </td>
+                          <td className={`px-5 py-3 font-display text-[15px] ${accuracyColor(pct)}`}>
+                            {total > 0 ? `${pct}%` : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {filteredProgress.length > visibleRows && (
+                      <tr>
+                        <td colSpan={6} className="px-5 py-4 text-center">
+                          <button
+                            type="button"
+                            onClick={() => setVisibleRows((v) => v + ROWS_PER_PAGE)}
+                            className="rounded-xl border-2 border-border px-6 py-2 font-display text-[13px] font-bold uppercase tracking-widest text-muted-foreground transition hover:border-primary hover:text-primary"
+                          >
+                            Load more ({filteredProgress.length - visibleRows} remaining)
+                          </button>
                         </td>
                       </tr>
-                    );
-                  })
+                    )}
+                  </>
                 )}
               </tbody>
             </table>
