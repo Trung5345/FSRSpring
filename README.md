@@ -187,4 +187,194 @@ A fully automated CI/CD pipeline is available at <code>.github/workflows/ci-cd.y
 <div align="center">
   <p>Released under the <a href="LICENSE">MIT License</a>.</p>
 </div>
-## Project maintained by Trung5345
+## Project maintained by Trung5345<div align="center">
+
+# FSRSpring Vocabulary
+
+A vocabulary learning platform built with **Spring Boot** and **Next.js**, using the **FSRS (Free Spaced Repetition Scheduler)** algorithm to generate personalized review schedules and improve long-term vocabulary retention.
+
+![Java](https://img.shields.io/badge/Java-17-blue?style=for-the-badge&logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3-green?style=for-the-badge&logo=springboot)
+![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
+![MySQL](https://img.shields.io/badge/MySQL-8-blue?style=for-the-badge&logo=mysql)
+![Redis](https://img.shields.io/badge/Redis-7-red?style=for-the-badge&logo=redis)
+![Docker](https://img.shields.io/badge/Docker-Enabled-blue?style=for-the-badge&logo=docker)
+
+</div>
+
+---
+
+## Overview
+
+FSRSpring Vocabulary is a web application that helps users learn English vocabulary more effectively using the **FSRS (Free Spaced Repetition Scheduler)** algorithm.
+
+Instead of reviewing words at fixed intervals, the system calculates the next review date based on each user's learning history, helping reduce unnecessary reviews while improving long-term retention.
+
+Besides vocabulary learning, the application also provides user management, learning progress tracking, and an administration dashboard.
+
+---
+
+## Features
+
+### User
+
+- Register and login
+- Learn vocabulary by topic
+- Flashcard practice
+- Quiz and review sessions
+- Personalized review schedule using FSRS
+- Track learning progress
+
+### Administrator
+
+- Manage users
+- Manage vocabulary
+- Manage topics
+- View learning statistics
+- Import vocabulary from external sources
+
+---
+
+## Technology Stack
+
+### Backend
+
+- Java 17
+- Spring Boot 3
+- Spring Security
+- Spring Data JPA
+- JWT Authentication
+- Maven
+
+### Frontend
+
+- Next.js
+- React
+- Tailwind CSS
+
+### Database
+
+- MySQL
+- Redis
+
+### Other Tools
+
+- Docker
+- Git
+- GitHub
+
+---
+
+## Project Structure
+
+```
+FSRSpring
+│
+├── frontend
+├── src
+├── scripts
+├── docs
+├── docker-compose.yml
+└── pom.xml
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Java 17
+- Docker Desktop
+- Node.js
+
+### Clone the repository
+
+```bash
+git clone https://github.com/Trung5345/FSRSpring.git
+```
+
+### Run with Docker
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+### Run Backend
+
+```bash
+./mvnw spring-boot:run
+```
+
+### Run Frontend
+
+```bash
+cd frontend
+
+npm install
+
+npm run dev
+```
+
+---
+
+## Screenshots
+
+> Add screenshots of the application here.
+
+Example:
+
+- Login Page
+- Dashboard
+- Vocabulary List
+- Flashcard
+- Quiz
+
+---
+
+## APIs & Integrations
+
+The application integrates several external services:
+
+- Dictionary API
+- Datamuse API
+- Google OAuth2 Login
+- Redis
+- MySQL
+
+---
+
+## Testing
+
+Run unit tests:
+
+```bash
+./mvnw clean test
+```
+
+---
+
+## Future Improvements
+
+- Mobile application
+- More quiz types
+- Learning reminders
+- Better analytics
+- AI-assisted vocabulary suggestions
+
+---
+
+## Author
+
+**Trung Tran**
+
+GitHub: https://github.com/Trung5345
+
+Project: https://github.com/Trung5345/FSRSpring
+
+---
+
+## License
+
+This project is released under the MIT License.
